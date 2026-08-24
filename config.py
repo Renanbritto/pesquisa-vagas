@@ -13,10 +13,9 @@ CHECK_INTERVAL_MINUTES = int(os.getenv("CHECK_INTERVAL_MINUTES", "15"))
 # Caminho do banco de dados SQLite
 DATABASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vagas.db")
 
-# Palavras-chave exatas definidas pelo usuário
+# Palavras-chave exatas definidas pelo usuário (SQL removido)
 SEARCH_KEYWORDS = [
     "Power BI",
-    "SQL",
     "Python",
     "Analista de Dados"
 ]
@@ -38,7 +37,7 @@ TIME_POSTED_FILTER = "r86400"
 # Palavras-chave obrigatórias no título para garantir relevância
 TITLE_MUST_CONTAIN = [
     "dados", "data", "bi", "power bi", "business intelligence", 
-    "analytics", "sql", "python", "analista", "dashboard", "relatórios",
+    "analytics", "python", "analista", "dashboard", "relatórios",
     "inteligência", "insights", "database", "banco de dados"
 ]
 

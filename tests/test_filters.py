@@ -1,21 +1,38 @@
 import pytest
 from src.utils.filters import is_title_relevant, is_location_relevant, clean_url
 
-def test_is_title_relevant_valid():
+def test_is_title_relevant_valid_jr_pleno():
+    # Vagas válidas Júnior e Pleno
     assert is_title_relevant("Analista de Dados Júnior") is True
+    assert is_title_relevant("Analista de Dados Pleno") is True
     assert is_title_relevant("Desenvolvedor Power BI & DAX") is True
-    assert is_title_relevant("Python Data Analyst") is True
-    assert is_title_relevant("Especialista em Business Intelligence") is True
+    assert is_title_relevant("Python Data Analyst Jr") is True
+    assert is_title_relevant("Analista de Business Intelligence Pleno") is True
+    assert is_title_relevant("Banco de Talentos - Análise de Dados") is True
+    assert is_title_relevant("Assistente de BI / Relatórios") is True
 
-def test_is_title_relevant_excluded():
-    # Senior / Gerente / Fora da área
+def test_is_title_relevant_excluded_senior_and_specialists():
+    # Níveis sênior, especialistas e liderança devem ser REJEITADOS
     assert is_title_relevant("Senior Data Analyst") is False
-    assert is_title_relevant("Gerente de TI") is False
+    assert is_title_relevant("Analista de Dados Sr") is False
+    assert is_title_relevant("Analista de Dados Sr.") is False
+    assert is_title_relevant("Especialista em Business Intelligence") is False
+    assert is_title_relevant("Data Scientist Specialist") is False
+    assert is_title_relevant("Tech Lead Power BI") is False
+    assert is_title_relevant("Gerente de Dados e Analytics") is False
+    assert is_title_relevant("Coordenador de BI") is False
+    assert is_title_relevant("Head of Data") is False
+    assert is_title_relevant("Data Analyst III") is False
+
+def test_is_title_relevant_excluded_other_areas():
+    # Áreas fora de dados/tech devem ser rejeitadas
     assert is_title_relevant("Estágio de Direito") is False
     assert is_title_relevant("Recepcionista Bilíngue") is False
+    assert is_title_relevant("Enfermeiro de UTI") is False
+    assert is_title_relevant("Advogado Trabalhista") is False
 
 def test_is_location_relevant():
-    # Brasil e cidades permitidas
+    # Brasil e cidades alvo
     assert is_location_relevant("São Paulo, SP") is True
     assert is_location_relevant("Juiz de Fora, Minas Gerais") is True
     assert is_location_relevant("Rio de Janeiro, RJ") is True

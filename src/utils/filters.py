@@ -1,3 +1,4 @@
+import re
 import urllib.parse
 from src.config.settings import settings
 
@@ -15,17 +16,24 @@ def clean_url(url: str) -> str:
     return f"{parsed.scheme}://{parsed.netloc}{clean_path}" if parsed.netloc else url
 
 def is_title_relevant(title: str) -> bool:
-    """Verifica se o título da vaga é relevante e não contém palavras excluídas."""
+    """
+    Verifica se o título da vaga é estritamente relevante para nível Júnior / Pleno
+    e não contém níveis sênior, liderança ou áreas fora de dados/tech.
+    """
     if not title:
         return False
     title_lower = title.lower()
 
-    # 1. Verifica termos excluídos (ex: senior, diretores, fora de tech)
+    # 1. Filtro Rígido de Exclusão (Senioridade alta, Especialistas, Gestão e outras áreas)
     for excluded in settings.TITLE_EXCLUDE:
         if excluded in title_lower:
             return False
 
-    # 2. Verifica se contém pelo menos uma palavra-chave permitida
+    # Regex extra para detectar variações de 'sr' como palavra isolada (ex: 'analista sr', 'power bi - sr')
+    if re.search(r"\b(sr|snr|sr\.|iii|iv|v|lead|staff|head)\b", title_lower):
+        return False
+
+    # 2. Verifica se contém pelo menos uma palavra-chave permitida da área
     if settings.TITLE_MUST_CONTAIN:
         matches = any(required in title_lower for required in settings.TITLE_MUST_CONTAIN)
         if not matches:

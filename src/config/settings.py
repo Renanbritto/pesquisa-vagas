@@ -51,11 +51,15 @@ class Settings:
         "inteligência", "insights", "database", "banco de dados"
     ])
 
-    # Termos excluídos do título (senioridade incompatível ou outras áreas)
+    # Termos EXCLUÍDOS (Filtro RÍGIDO: Remove Senior, Especialista, Lead, Gestão e outras áreas)
     TITLE_EXCLUDE: List[str] = field(default_factory=lambda: [
-        "senior", "sênior", "sr.", "sr ", "lead", "staff", "head of",
-        "diretor", "director", "gerente", "manager", "estágio de direito", 
-        "enfermagem", "médico", "recepcionista", "farmacêutico", "advogado",
+        "senior", "sênior", "sr.", "sr ", "sr/", "/sr", "sr-", "-sr",
+        " iii", " iv", " v", " 3", " 4", " 5",
+        "especialista", "specialist", "lead", "tech lead", "líder", "principal", "staff",
+        "head of", "head ", "diretor", "director", "gerente", "manager",
+        "coordenador", "coordenadora", "coordinator", "supervisor", "supervisora",
+        "gestor", "gestora", "vp ", "vice president",
+        "estágio de direito", "enfermagem", "médico", "recepcionista", "farmacêutico", "advogado",
         "professor", "vendedor", "atendente", "motorista"
     ])
 

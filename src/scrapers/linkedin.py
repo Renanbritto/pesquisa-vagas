@@ -26,6 +26,7 @@ class LinkedInScraper(BaseScraper):
         return "LinkedIn"
 
     def _extract_job_id(self, card_element, url: str) -> str:
+        # 1. Tenta extrair do data-entity-urn
         base_card = card_element.find("div", {"class": re.compile(r"base-card|job-search-card")}) or card_element
         entity_urn = base_card.get("data-entity-urn")
         if entity_urn:
@@ -33,12 +34,14 @@ class LinkedInScraper(BaseScraper):
             if match:
                 return f"li_{match.group(1)}"
 
+        # 2. Tenta extrair do data-id
         data_id = base_card.get("data-id")
         if data_id:
             return f"li_{data_id}"
 
+        # 3. Tenta extrair o ID numérico final da URL (mesmo com slug longo /view/cargo-empresa-123456789)
         if url:
-            match = re.search(r"(?:view/|currentJobId=)(\d+)", url)
+            match = re.search(r"(?:view/|currentJobId=)?.*?(\d{8,12})\b", url)
             if match:
                 return f"li_{match.group(1)}"
 

@@ -24,11 +24,11 @@ def print_header(scrapers_names: list):
     print(f"🌐  Plataformas: {', '.join(scrapers_names)}")
     print(f"🔍  Palavras-chave: {', '.join(settings.SEARCH_KEYWORDS)}")
     print(f"📍  Cidades Foco: Juiz de Fora, São Paulo, Rio de Janeiro, Florianópolis")
-    print(f"⚡  Categorias: 6 Categorias (Remoto, Híbrido, Presencial com e sem Easy Apply)")
+    print(f"⚡  Filtro de Nível: Exclusivo Júnior e Pleno")
     print("=" * 75)
 
 def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list) -> int:
-    """Executa a busca nas 6 categorias através de todos os scrapers ativos."""
+    """Executa a busca nas 6 categorias com cache em tempo de execução e deduplicação inteligente."""
     categorias = [
         # 1. Remoto com Easy Apply
         {
@@ -81,6 +81,9 @@ def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list
     ]
 
     total_novas = 0
+    # Cache em memória para esta rodada evitar envio duplo entre categorias (ex: Easy Apply vs Geral)
+    session_seen_ids = set()
+    session_seen_fingerprints = set()
 
     for cat in categorias:
         cat_name = cat["nome"]
@@ -108,10 +111,18 @@ def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list
                     )
 
                     for job in jobs:
-                        if not repo.is_seen(job.id):
+                        # 1. Checa cache da sessão atual
+                        if job.id in session_seen_ids or job.fingerprint in session_seen_fingerprints:
+                            continue
+
+                        # 2. Checa banco de dados SQLite persistente
+                        if not repo.is_seen(job.id, job.fingerprint):
                             salvou = repo.save(job)
                             if salvou:
                                 total_novas += 1
+                                session_seen_ids.add(job.id)
+                                session_seen_fingerprints.add(job.fingerprint)
+
                                 print(f"    ✨ [{job.platform}] {job.title} @ {job.company} ({job.location})")
 
                                 enviado = notifier.send_job_alert(job)
@@ -152,7 +163,6 @@ def main():
         print(f"  • Por Modalidade:    {stats['por_modalidade']}\n")
         return
 
-    # Instancia scrapers selecionados
     if args.platform == "all":
         scrapers = ScraperFactory.get_all_scrapers()
     else:

@@ -34,12 +34,25 @@ class JobRepository:
                 easy_apply INTEGER DEFAULT 0,
                 categoria TEXT,
                 plataforma TEXT DEFAULT 'LinkedIn',
+                fingerprint TEXT,
                 data_coleta TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Migração segura para bancos existentes da v1.0
+
+        # Migrações seguras
         try:
             cursor.execute("ALTER TABLE vagas ADD COLUMN plataforma TEXT DEFAULT 'LinkedIn'")
+        except Exception:
+            pass
+
+        try:
+            cursor.execute("ALTER TABLE vagas ADD COLUMN fingerprint TEXT")
+        except Exception:
+            pass
+
+        # Cria índices para acelerar deduplicação
+        try:
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_vagas_fingerprint ON vagas(fingerprint)")
         except Exception:
             pass
 
@@ -47,11 +60,33 @@ class JobRepository:
         if not self._is_memory:
             conn.close()
 
-    def is_seen(self, job_id: str) -> bool:
-        """Verifica se a vaga já foi processada anteriormente."""
+    def is_seen(self, job_id: str, fingerprint: str = None) -> bool:
+        """
+        Verificação em 3 camadas de deduplicação:
+        1. ID exato (ex: 'li_4459043628')
+        2. ID numérico legado (ex: '4459043628' sem prefixo)
+        3. Fingerprint semântico (Cargo + Empresa)
+        """
         conn = self._get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT 1 FROM vagas WHERE id = ?", (job_id,))
+
+        clean_id = job_id.replace("li_", "").replace("ind_", "")
+
+        if fingerprint:
+            query = """
+                SELECT 1 FROM vagas 
+                WHERE id = ? OR id = ? OR id = ? OR fingerprint = ?
+                LIMIT 1
+            """
+            cursor.execute(query, (job_id, f"li_{clean_id}", clean_id, fingerprint))
+        else:
+            query = """
+                SELECT 1 FROM vagas 
+                WHERE id = ? OR id = ? OR id = ?
+                LIMIT 1
+            """
+            cursor.execute(query, (job_id, f"li_{clean_id}", clean_id))
+
         result = cursor.fetchone() is not None
         if not self._is_memory:
             conn.close()
@@ -59,7 +94,7 @@ class JobRepository:
 
     def save(self, job: Job) -> bool:
         """Salva a vaga no banco de dados se não for duplicada."""
-        if self.is_seen(job.id):
+        if self.is_seen(job.id, job.fingerprint):
             return False
 
         conn = self._get_connection()
@@ -67,9 +102,9 @@ class JobRepository:
         cursor.execute("""
             INSERT INTO vagas (
                 id, titulo, empresa, localizacao, link, data_postagem, 
-                termo_busca, modalidade, easy_apply, categoria, plataforma, data_coleta
+                termo_busca, modalidade, easy_apply, categoria, plataforma, fingerprint, data_coleta
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             job.id,
             job.title,
@@ -82,6 +117,7 @@ class JobRepository:
             1 if job.easy_apply else 0,
             job.category,
             job.platform,
+            job.fingerprint,
             job.created_at
         ))
         conn.commit()

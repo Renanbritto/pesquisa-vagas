@@ -1,10 +1,10 @@
-name: Monitor de Vagas LinkedIn
+name: Monitor de Vagas (LinkedIn + Indeed -> Telegram)
 
 on:
   schedule:
-    # Executa a cada 1 hora automaticamente de graça nos servidores do GitHub
+    # Executa a cada 1 hora automaticamente
     - cron: '0 * * * *'
-  workflow_dispatch: # Permite disparar manualmente pelo botão no GitHub
+  workflow_dispatch:
 
 jobs:
   scrape-and-notify:
@@ -22,20 +22,19 @@ jobs:
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
-          pip install -r pesquisa-vagas/requirements.txt
+          pip install -r requirements.txt
 
       - name: Executar varredura de vagas
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          cd pesquisa-vagas
           python main.py
 
       - name: Persistir banco de dados SQLite (Commit de vagas já vistas)
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add pesquisa-vagas/vagas.db || true
+          git add vagas.db || true
           git diff-index --quiet HEAD || git commit -m "chore: atualiza banco de vagas [skip ci]"
           git push || true

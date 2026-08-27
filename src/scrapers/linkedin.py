@@ -8,7 +8,7 @@ from typing import List
 from src.scrapers.base import BaseScraper
 from src.models.job import Job
 from src.config.settings import settings
-from src.utils.filters import clean_url, is_title_relevant, is_location_relevant
+from src.utils.filters import clean_url, is_title_relevant, is_location_relevant, is_modality_compatible
 from src.utils.logger import logger
 
 USER_AGENTS = [
@@ -26,7 +26,6 @@ class LinkedInScraper(BaseScraper):
         return "LinkedIn"
 
     def _extract_job_id(self, card_element, url: str) -> str:
-        # 1. Tenta extrair do data-entity-urn
         base_card = card_element.find("div", {"class": re.compile(r"base-card|job-search-card")}) or card_element
         entity_urn = base_card.get("data-entity-urn")
         if entity_urn:
@@ -34,12 +33,10 @@ class LinkedInScraper(BaseScraper):
             if match:
                 return f"li_{match.group(1)}"
 
-        # 2. Tenta extrair do data-id
         data_id = base_card.get("data-id")
         if data_id:
             return f"li_{data_id}"
 
-        # 3. Tenta extrair o ID numérico final da URL (mesmo com slug longo /view/cargo-empresa-123456789)
         if url:
             match = re.search(r"(?:view/|currentJobId=)?.*?(\d{8,12})\b", url)
             if match:
@@ -111,6 +108,10 @@ class LinkedInScraper(BaseScraper):
                         job_location = location_elem.get_text(strip=True) if location_elem else location
 
                         if not is_location_relevant(job_location, is_remote_search=is_remote):
+                            continue
+
+                        # Validação estrita de compatibilidade de modalidade
+                        if not is_modality_compatible(title, job_location, work_type):
                             continue
 
                         company_elem = card.find("h4", class_=re.compile(r"base-search-card__subtitle"))

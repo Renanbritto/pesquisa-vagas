@@ -64,3 +64,60 @@ def is_location_relevant(location: str, is_remote_search: bool = False) -> bool:
             return False
 
     return True
+
+def is_modality_compatible(title: str, location: str, target_work_type: str) -> bool:
+    """
+    Validação rigorosa de modalidade para impedir que vagas presenciais ou híbridas
+    sejam classificadas erroneamente como Remoto (Home Office).
+    
+    target_work_type:
+      '2' = Remoto (Home Office estrito)
+      '3' = Híbrido
+      '1' = Presencial
+    """
+    text_to_check = f"{title or ''} {location or ''}".lower()
+
+    # Cues explícitos de Presencial
+    presencial_cues = [
+        "presencial", "on-site", "onsite", "in-office", "in loco",
+        "100% presencial", "no escritório", "no escritorio",
+        "modelo presencial", "vaga presencial", "atuação presencial", "atuacao presencial"
+    ]
+
+    # Cues explícitos de Híbrido
+    hibrido_cues = [
+        "híbrido", "hibrido", "hybrid", "híbrida", "hibrida", "modelo híbrido", "modelo hibrido"
+    ]
+
+    # Cues explícitos de Remoto
+    remoto_cues = [
+        "100% remoto", "totalmente remoto", "exclusivamente remoto",
+        "remoto", "remote", "home office", "home-office", "teletrabalho"
+    ]
+
+    has_presencial = any(cue in text_to_check for cue in presencial_cues)
+    has_hibrido = any(cue in text_to_check for cue in hibrido_cues)
+    has_remoto = any(cue in text_to_check for cue in remoto_cues)
+
+    # 1. Validação para Categoria REMOTO ('2')
+    if target_work_type == "2":
+        # Se contiver qualquer menção a presencial ou híbrido, REJEITA imediatamente da categoria Remoto
+        if has_presencial or has_hibrido:
+            return False
+        return True
+
+    # 2. Validação para Categoria HÍBRIDO ('3')
+    if target_work_type == "3":
+        # Se for explicitamente '100% presencial' sem híbrido, ou '100% remoto', rejeita
+        if "100% presencial" in text_to_check or "100% remoto" in text_to_check:
+            return False
+        return True
+
+    # 3. Validação para Categoria PRESENCIAL ('1')
+    if target_work_type == "1":
+        # Se for explicitamente '100% remoto' ou 'home office', rejeita de presencial
+        if "100% remoto" in text_to_check or "100% home office" in text_to_check:
+            return False
+        return True
+
+    return True

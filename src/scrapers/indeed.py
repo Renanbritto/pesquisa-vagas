@@ -1,14 +1,12 @@
 import re
-import time
 import random
 import requests
 import xml.etree.ElementTree as ET
-from bs4 import BeautifulSoup
 from typing import List
 
 from src.scrapers.base import BaseScraper
 from src.models.job import Job
-from src.utils.filters import clean_url, is_title_relevant, is_location_relevant
+from src.utils.filters import clean_url, is_title_relevant, is_location_relevant, is_modality_compatible
 from src.utils.logger import logger
 
 USER_AGENTS = [
@@ -42,7 +40,6 @@ class IndeedScraper(BaseScraper):
         modality_name: str
     ) -> List[Job]:
         """Consulta o feed RSS oficial do Indeed Brasil."""
-        # Monta a query para o feed RSS
         query = keyword
         if work_type == "2":
             query += " remoto"
@@ -55,7 +52,7 @@ class IndeedScraper(BaseScraper):
             "q": query,
             "l": loc_query,
             "sort": "date",
-            "fromage": "1"  # Vagas das últimas 24h
+            "fromage": "1"
         }
 
         headers = {
@@ -97,7 +94,6 @@ class IndeedScraper(BaseScraper):
                     date_elem = item.find("pubDate")
                     post_date = date_elem.text.strip() if date_elem is not None and date_elem.text else "Recente"
 
-                    # Identifica localização a partir do título ou descrição
                     desc_elem = item.find("description")
                     desc_text = desc_elem.text if desc_elem is not None and desc_elem.text else ""
                     job_location = loc_query
@@ -105,17 +101,15 @@ class IndeedScraper(BaseScraper):
                     if not is_location_relevant(job_location, is_remote_search=is_remote):
                         continue
 
+                    # Validação de modalidade estrita
+                    if not is_modality_compatible(f"{title} {desc_text}", job_location, work_type):
+                        continue
+
                     job_id = self._extract_indeed_id(cleaned_link, guid)
                     
-                    # Detecta se possui candidatura simplificada na descrição
                     has_easy_apply = ("candidatura simplificada" in desc_text.lower() or 
                                       "candidatura rápida" in desc_text.lower() or 
                                       "indeed apply" in desc_text.lower())
-
-                    # Se a busca estiver filtrando por Easy Apply estrito
-                    if easy_apply and not has_easy_apply:
-                        # No Indeed, muitas vagas são abertas; se busca easy_apply, só inclui se sinalizado
-                        pass
 
                     job = Job(
                         id=job_id,
@@ -150,8 +144,7 @@ class IndeedScraper(BaseScraper):
         modality_name: str = "Remoto",
         max_pages: int = 1
     ) -> List[Job]:
-        # Tenta primeiramente via RSS (mais rápido e oficial)
-        jobs = self._search_via_rss(
+        return self._search_via_rss(
             keyword=keyword,
             location=location,
             work_type=work_type,
@@ -159,4 +152,3 @@ class IndeedScraper(BaseScraper):
             category_name=category_name,
             modality_name=modality_name
         )
-        return jobs

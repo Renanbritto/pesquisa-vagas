@@ -2,16 +2,21 @@ name: Monitor de Vagas (LinkedIn + Indeed -> Telegram)
 
 on:
   schedule:
-    # Executa a cada 1 hora automaticamente
-    - cron: '0 * * * *'
+    # Executa a cada 30 minutos em minutos fora do pico (17 e 47) para máxima pontualidade no GitHub
+    - cron: '17,47 * * * *'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   scrape-and-notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do código
+      - name: Checkout do repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -35,6 +40,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add vagas.db || true
+          git add -f vagas.db || true
           git diff-index --quiet HEAD || git commit -m "chore: atualiza banco de vagas [skip ci]"
           git push || true

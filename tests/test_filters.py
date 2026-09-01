@@ -41,6 +41,9 @@ def test_is_location_relevant():
     assert is_location_relevant("New York, Estados Unidos") is False
     assert is_location_relevant("Lisboa, Portugal") is False
     assert is_location_relevant("Buenos Aires, Argentina") is False
+    assert is_location_relevant("Nottingham, Inglaterra, Reino Unido", is_remote_search=True) is False
+    assert is_location_relevant("London, United Kingdom", is_remote_search=True) is False
+    assert is_location_relevant("Berlin, Germany", is_remote_search=True) is False
 
 def test_is_modality_compatible_remote():
     # Vagas verdadeiramente remotas -> TRUE

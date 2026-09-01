@@ -65,19 +65,28 @@ class Settings:
 
     # Localidades brasileiras permitidas
     ALLOWED_LOCATIONS: List[str] = field(default_factory=lambda: [
-        "brasil", "brazil", "remoto", "remote", "home office",
-        "juiz de fora", "jf", "minas gerais", "mg",
-        "são paulo", "sp", "campinas", "santos", "sorocaba", "guarulhos", "abc",
-        "rio de janeiro", "rj", "niterói",
-        "florianópolis", "floripa", "santa catarina", "sc", "joinville", "blumenau"
+        "brasil", "brazil", "remoto", "remote", "home office", "teletrabalho",
+        "juiz de fora", "jf", "minas gerais", "mg", "belo horizonte", "bh",
+        "são paulo", "sao paulo", "sp", "campinas", "santos", "sorocaba", "guarulhos", "abc", "osasco",
+        "rio de janeiro", "rj", "niterói", "niteroi",
+        "florianópolis", "florianopolis", "floripa", "santa catarina", "sc", "joinville", "blumenau",
+        "curitiba", "pr", "paraná", "parana", "porto alegre", "rs", "rio grande do sul",
+        "brasília", "brasilia", "df", "distrito federal", "salvador", "ba", "bahia",
+        "recife", "pe", "pernambuco", "fortaleza", "ce", "ceará", "ceara", "goiânia", "goiania", "go", "goiás"
     ])
 
     # Localidades estrangeiras expressamente bloqueadas
     BLOCKED_LOCATIONS: List[str] = field(default_factory=lambda: [
-        "estados unidos", "united states", "usa", "new york", "california",
-        "texas", "florida", "charlotte", "san diego", "los angeles",
-        "arlington", "virginia", "ohio", "alaska", "india", "europe", "colombia",
-        "argentina", "portugal", "mexico", "chile"
+        "estados unidos", "united states", "usa", "eua", "new york", "california",
+        "texas", "florida", "charlotte", "san diego", "los angeles", "arlington",
+        "virginia", "ohio", "alaska", "india", "europe", "europa", "colombia",
+        "argentina", "portugal", "mexico", "chile", "reino unido", "inglaterra",
+        "united kingdom", "uk", "nottingham", "london", "londres", "canada",
+        "alemanha", "germany", "berlin", "espanha", "spain", "madrid", "barcelona",
+        "italia", "italy", "franca", "frança", "france", "paris", "australia",
+        "holanda", "netherlands", "amsterdam", "irlanda", "ireland", "dublin",
+        "polonia", "poland", "uruguai", "uruguay", "peru", "panama", "costa rica",
+        "singapura", "singapore", "japão", "japan", "china"
     ])
 
 # Instância singleton para uso em todo o projeto

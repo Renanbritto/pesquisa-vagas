@@ -42,19 +42,22 @@ def is_title_relevant(title: str) -> bool:
     return True
 
 def is_location_relevant(location: str, is_remote_search: bool = False) -> bool:
-    """Verifica se a localização da vaga pertence ao Brasil e às regiões permitidas."""
+    """Verifica se a localização da vaga pertence estritamente ao Brasil e às regiões permitidas."""
     if not location:
         return is_remote_search
 
     loc_lower = location.lower()
 
-    # 1. Bloqueia qualquer localidade no exterior
+    # 1. Bloqueia rigorosamente qualquer localidade/país no exterior
     for blocked in settings.BLOCKED_LOCATIONS:
         if blocked in loc_lower:
             return False
 
-    # 2. Se for busca remota nacional e não for de fora, é válida
+    # 2. Se for busca remota, valida se contém indicadores válidos de Brasil / Home Office
     if is_remote_search:
+        has_allowed = any(allowed in loc_lower for allowed in settings.ALLOWED_LOCATIONS)
+        if not has_allowed:
+            return False
         return True
 
     # 3. Para vagas presenciais/híbridas, valida se está nas cidades/estados permitidos

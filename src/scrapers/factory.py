@@ -2,13 +2,15 @@ from typing import List, Dict, Type
 from src.scrapers.base import BaseScraper
 from src.scrapers.linkedin import LinkedInScraper
 from src.scrapers.indeed import IndeedScraper
+from src.scrapers.gupy import GupyScraper
 
 class ScraperFactory:
     """Fábrica para gerenciamento e instanciação de scrapers registrados."""
 
     _SCRAPERS: Dict[str, Type[BaseScraper]] = {
         "linkedin": LinkedInScraper,
-        "indeed": IndeedScraper
+        "indeed": IndeedScraper,
+        "gupy": GupyScraper
     }
 
     @classmethod

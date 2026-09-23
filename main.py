@@ -148,7 +148,7 @@ def main():
     parser = argparse.ArgumentParser(description="Pesquisa Vagas v2.0 - Monitor de Oportunidades")
     parser.add_argument("--loop", action="store_true", help="Executa continuamente em intervalos regulares")
     parser.add_argument("--stats", action="store_true", help="Exibe estatísticas do banco de dados")
-    parser.add_argument("--platform", choices=["all", "linkedin", "indeed"], default="all", help="Plataforma a executar")
+    parser.add_argument("--platform", choices=["all", "linkedin", "indeed", "gupy"], default="all", help="Plataforma a executar")
     args = parser.parse_args()
 
     repo = JobRepository()

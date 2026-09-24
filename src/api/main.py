@@ -1,23 +1,50 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from typing import Optional, List
 import datetime
 import re
+import os
+import logging
 from supabase import create_client, Client
 from src.config.settings import settings
+
+logger = logging.getLogger("api")
 
 app = FastAPI(
     title="Vaga Dados API",
     description="API para listar vagas extraídas do LinkedIn, Indeed e Gupy.",
-    version="1.3.0"
+    version="1.3.1"
 )
 
-# Permitir que o Frontend (Next.js) consuma a API
+# Middleware de Cabecalhos de Seguranca (OWASP Best Practices)
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+# Tratamento Global de Erros: impede vazamento de stacktrace ou credenciais internas
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Erro interno não tratado na rota {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Ocorreu um erro interno no servidor ao processar a requisição."}
+    )
+
+# Configuracao Segura de CORS
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()] or ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -131,16 +158,19 @@ def resumo_estatisticas():
 def listar_vagas(
     limit: int = Query(200, ge=1, le=500),
     offset: int = Query(0, ge=0),
-    tecnologia: Optional[str] = None,
-    modalidade: Optional[str] = None,
-    plataforma: Optional[str] = None,
+    tecnologia: Optional[str] = Query(None, max_length=100),
+    modalidade: Optional[str] = Query(None, max_length=50),
+    plataforma: Optional[str] = Query(None, max_length=50),
     easy_apply: Optional[bool] = None,
     apenas_novas: Optional[bool] = None
 ):
     query = supabase.table("vagas").select("*", count="exact")
     
     if tecnologia:
-        query = query.ilike("termo_busca", f"%{tecnologia}%")
+        # Sanitizacao contra injecao de caracteres de controle
+        clean_tec = re.sub(r"[^\w\s\-\+\#\.]", "", tecnologia.strip())
+        if clean_tec:
+            query = query.ilike("termo_busca", f"%{clean_tec}%")
         
     if modalidade and modalidade != "Todas":
         m = modalidade.lower()

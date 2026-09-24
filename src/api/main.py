@@ -59,9 +59,13 @@ def parse_post_date(data_postagem: Optional[str], data_coleta: Optional[str]) ->
     if m_sem:
         return now - datetime.timedelta(weeks=int(m_sem.group(1)))
 
-    m_mes = re.search(r"(\d+)\s*(?:m[eê]s|month)", s)
+    m_mes = re.search(r"(\d+)\s*(?:m[eêé]s(?:es)?|months?|month)", s)
     if m_mes:
         return now - datetime.timedelta(days=int(m_mes.group(1)) * 30)
+
+    m_ano = re.search(r"(\d+)\s*(?:ano|year)", s)
+    if m_ano:
+        return now - datetime.timedelta(days=int(m_ano.group(1)) * 365)
 
     try:
         return datetime.datetime.strptime(data_postagem[:10], "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
@@ -76,30 +80,50 @@ def read_root():
 
 @app.get("/estatisticas")
 def resumo_estatisticas():
-    resp_total = supabase.table("vagas").select("id", count="exact").execute()
-    resp_remoto = supabase.table("vagas").select("id", count="exact").or_("modalidade.ilike.%remot%,modalidade.ilike.%remote%").execute()
-    resp_hibrido = supabase.table("vagas").select("id", count="exact").or_("modalidade.ilike.%hibrid%,modalidade.ilike.%hybrid%").execute()
-    resp_presencial = supabase.table("vagas").select("id", count="exact").or_("modalidade.ilike.%presenc%,modalidade.ilike.%site%").execute()
-    resp_easy = supabase.table("vagas").select("id", count="exact").eq("easy_apply", 1).execute()
+    resp = supabase.table("vagas").select("id, modalidade, easy_apply, data_postagem, data_coleta").execute()
+    todas_vagas = resp.data or []
 
-    # Identificar a última rodada de coleta no banco
-    resp_latest = supabase.table("vagas").select("data_coleta").order("data_coleta", desc=True).limit(1).execute()
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    cutoff_60_days = now_utc - datetime.timedelta(days=60)
+
+    # Filtrar apenas postadas nos ultimos 60 dias
+    vagas = [v for v in todas_vagas if parse_post_date(v.get("data_postagem"), v.get("data_coleta")) >= cutoff_60_days]
+
+    total = len(vagas)
+    remotas = sum(1 for v in vagas if any(x in str(v.get("modalidade", "")).lower() for x in ["remot", "remote"]))
+    hibridas = sum(1 for v in vagas if any(x in str(v.get("modalidade", "")).lower() for x in ["hibrid", "hybrid"]))
+    presenciais = sum(1 for v in vagas if any(x in str(v.get("modalidade", "")).lower() for x in ["presenc", "site"]))
+    easy_apply = sum(1 for v in vagas if v.get("easy_apply") in [1, True, "1", "true"])
+
+    latest_dt = None
+    for v in vagas:
+        c_str = v.get("data_coleta")
+        if c_str:
+            try:
+                dt = datetime.datetime.fromisoformat(c_str.replace("Z", "+00:00"))
+                if latest_dt is None or dt > latest_dt:
+                    latest_dt = dt
+            except Exception:
+                pass
+
     total_novas = 0
-    if resp_latest.data and resp_latest.data[0].get("data_coleta"):
-        try:
-            latest_dt = datetime.datetime.fromisoformat(resp_latest.data[0]["data_coleta"].replace("Z", "+00:00"))
-            janela_inicio = (latest_dt - datetime.timedelta(minutes=30)).isoformat()
-            resp_novas = supabase.table("vagas").select("id", count="exact").gte("data_coleta", janela_inicio).execute()
-            total_novas = resp_novas.count or 0
-        except Exception:
-            pass
+    if latest_dt:
+        for v in vagas:
+            c_str = v.get("data_coleta")
+            if c_str:
+                try:
+                    c_dt = datetime.datetime.fromisoformat(c_str.replace("Z", "+00:00"))
+                    if (latest_dt - c_dt).total_seconds() <= 1800:
+                        total_novas += 1
+                except Exception:
+                    pass
 
     return {
-        "total": resp_total.count or 0,
-        "remotas": resp_remoto.count or 0,
-        "hibridas": resp_hibrido.count or 0,
-        "presenciais": resp_presencial.count or 0,
-        "easy_apply": resp_easy.count or 0,
+        "total": total,
+        "remotas": remotas,
+        "hibridas": hibridas,
+        "presenciais": presenciais,
+        "easy_apply": easy_apply,
         "novas": total_novas
     }
 
@@ -163,6 +187,11 @@ def listar_vagas(
     # Filtrar por apenas novas se solicitado
     if apenas_novas:
         vagas = [v for v in vagas if v.get("is_nova")]
+
+    # Filtrar apenas postadas no máximo há 60 dias
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    cutoff_60_days = now_utc - datetime.timedelta(days=60)
+    vagas = [v for v in vagas if parse_post_date(v.get("data_postagem"), v.get("data_coleta")) >= cutoff_60_days]
 
     # Ordenar por data de postagem real: da mais recente para a mais antiga
     vagas.sort(key=lambda x: parse_post_date(x.get("data_postagem"), x.get("data_coleta")), reverse=True)

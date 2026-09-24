@@ -29,8 +29,11 @@ export function parseDataPostagemTimestamp(dataPostagem?: string, dataColeta?: s
   const semMatch = s.match(/(\d+)\s*(?:semana|week)/);
   if (semMatch) return baseTime - parseInt(semMatch[1], 10) * 7 * 24 * 3600 * 1000;
 
-  const mesMatch = s.match(/(\d+)\s*(?:m[eêé]s|month)/);
+  const mesMatch = s.match(/(\d+)\s*(?:m[eêé]s(?:es)?|months?)/);
   if (mesMatch) return baseTime - parseInt(mesMatch[1], 10) * 30 * 24 * 3600 * 1000;
+
+  const anoMatch = s.match(/(\d+)\s*(?:ano|year)/);
+  if (anoMatch) return baseTime - parseInt(anoMatch[1], 10) * 365 * 24 * 3600 * 1000;
 
   return baseTime;
 }

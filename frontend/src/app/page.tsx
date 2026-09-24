@@ -14,6 +14,7 @@ import { Vaga, Estatisticas, QuickFilterType, UserViewTab } from "../types/job";
 import { QuickMetrics } from "../components/QuickMetrics";
 import { FilterBar } from "../components/FilterBar";
 import { JobCard } from "../components/JobCard";
+import { Footer } from "../components/Footer";
 import { useUserInteractions } from "../hooks/useUserInteractions";
 import { parseDataPostagemTimestamp } from "../utils/dateUtils";
 
@@ -263,6 +264,11 @@ export default function Home() {
         }
       }
 
+      // 4. Limite de antiguidade: maximo 60 dias (elimina vagas velhas/poluidas)
+      const postTimestamp = parseDataPostagemTimestamp(vaga.data_postagem, vaga.data_coleta);
+      const ageDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
+      if (ageDays > 60) return false;
+
       return true;
     });
   }, [vagas, userTab, area, senioridade, isSaved, isApplied, isHidden]);
@@ -272,51 +278,59 @@ export default function Home() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         
         {/* Cabecalho Principal */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200/70 dark:border-slate-800/80">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20">
-                <Database className="w-3 h-3 text-violet-500" />
-                <span>Multiplataforma</span>
-              </span>
-
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/70 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300/50 dark:border-slate-700/50 transition-colors cursor-pointer"
-                title={theme === 'dark' ? "Ativar Modo Claro" : "Ativar Modo Escuro"}
-              >
-                {theme === 'dark' ? (
-                  <>
-                    <Sun className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Modo Claro</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon className="w-3.5 h-3.5 text-violet-600" />
-                    <span>Modo Escuro</span>
-                  </>
-                )}
-              </button>
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
+          <div className="flex items-center gap-3.5">
+            <div className="relative group cursor-pointer transition-transform hover:scale-[1.03]">
+              <img 
+                src="/logo.png?v=lente_transparente" 
+                alt="Logo Radar" 
+                className="h-12 sm:h-14 w-auto object-contain drop-shadow-md"
+              />
             </div>
-
-            <div className="flex items-baseline gap-3">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                Pesquisa Vagas
-              </h1>
-              <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline font-medium">
-                Monitoramento inteligente ordenado pelas postagens mais recentes (LinkedIn, Indeed e Gupy)
-              </span>
+            
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                  Pesquisa Vagas
+                </h1>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold tracking-wide">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                  </span>
+                  <span>Monitorando</span>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Radar de oportunidades em Dados e Tecnologia
+              </p>
             </div>
           </div>
 
-          {/* Quick Metrics Interativos */}
-          <QuickMetrics
-            stats={stats}
-            totalVagasCarregadas={vagas.length}
-            activeFilter={quickFilter}
-            onSelectFilter={handleSelectQuickFilter}
-          />
+          <div className="flex items-center justify-between md:justify-end gap-2.5 overflow-x-auto pb-1 md:pb-0">
+            {/* Quick Metrics Interativos */}
+            <QuickMetrics
+              stats={stats}
+              totalVagasCarregadas={vagas.length}
+              activeFilter={quickFilter}
+              onSelectFilter={handleSelectQuickFilter}
+            />
+
+            {/* Alternador de Tema Elegante */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0"
+              title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
+              aria-label="Alternar tema"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
+              ) : (
+                <Moon className="w-4 h-4 text-violet-600 hover:-rotate-12 transition-transform" />
+              )}
+            </button>
+          </div>
         </header>
 
         {/* Barra de Filtros Fixa (Sticky) */}
@@ -474,6 +488,9 @@ export default function Home() {
           )}
         </section>
       </main>
+
+      {/* Rodapé Elegante */}
+      <Footer />
     </div>
   );
 }

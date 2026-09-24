@@ -139,8 +139,9 @@ def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list
     print("\n" + "=" * 75)
     print("📊 Resumo da Varredura:")
     print(f"  • Novas vagas enviadas nesta rodada: {total_novas}")
-    print(f"  • Total acumulado no banco de dados: {stats['total_vagas_armazenadas']}")
-    print(f"  • Por Plataforma:                   {stats['por_plataforma']}")
+    print(f"  • Total acumulado no banco de dados: {stats.get('total_vagas_armazenadas', 0)}")
+    if 'por_plataforma' in stats:
+        print(f"  • Por Plataforma:                   {stats['por_plataforma']}")
     print("=" * 75)
     return total_novas
 
@@ -157,10 +158,10 @@ def main():
     if args.stats:
         stats = repo.get_stats()
         print("\n📊 Estatísticas do Banco de Vagas:")
-        print(f"  • Total de vagas:    {stats['total_vagas_armazenadas']}")
-        print(f"  • Easy Apply:        {stats['total_easy_apply']}")
-        print(f"  • Por Plataforma:    {stats['por_plataforma']}")
-        print(f"  • Por Modalidade:    {stats['por_modalidade']}\n")
+        print(f"  • Total de vagas:    {stats.get('total_vagas_armazenadas', 0)}")
+        print(f"  • Easy Apply:        {stats.get('total_easy_apply', 'N/A')}")
+        print(f"  • Por Plataforma:    {stats.get('por_plataforma', 'N/A')}")
+        print(f"  • Por Modalidade:    {stats.get('por_modalidade', 'N/A')}\n")
         return
 
     if args.platform == "all":

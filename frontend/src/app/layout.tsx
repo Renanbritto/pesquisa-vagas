@@ -9,8 +9,8 @@ const comfortaa = Comfortaa({
 });
 
 export const metadata: Metadata = {
-  title: "Vaga Dados",
-  description: "Monitor inteligente de vagas de dados no LinkedIn, Indeed e Gupy.",
+  title: "Pesquisa Vagas | Monitor Inteligente de Oportunidades",
+  description: "Monitor inteligente de oportunidades e vagas em tecnologia, dados, produto e engenharia no LinkedIn, Indeed e Gupy.",
 };
 
 export default function RootLayout({

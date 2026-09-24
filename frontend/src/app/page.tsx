@@ -1,88 +1,21 @@
 'use client';
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { 
-  Search, 
-  MapPin, 
-  Building2, 
-  Calendar, 
-  ExternalLink, 
-  RefreshCw, 
-  Briefcase, 
   Sun, 
-  Moon,
-  X,
+  Moon, 
+  RefreshCw, 
+  Search, 
   Database,
-  Home as HomeIcon,
-  Laptop,
-  Sparkles
+  Layers,
+  Undo2
 } from "lucide-react";
-
-interface Vaga {
-  id: string;
-  titulo: string;
-  empresa: string;
-  localizacao: string;
-  link: string;
-  modalidade: string;
-  easy_apply: boolean | number;
-  plataforma: string;
-  data_coleta?: string;
-  data_postagem?: string;
-  termo_busca?: string;
-  is_nova?: boolean;
-}
-
-interface Estatisticas {
-  total: number;
-  remotas: number;
-  hibridas: number;
-  presenciais: number;
-  easy_apply: number;
-  novas: number;
-}
-
-// Converte datas relativas (ex: "Há 13 minutos") e ISO em timestamp para ordenação precisa
-function parseDataPostagemTimestamp(dataPostagem?: string, dataColeta?: string): number {
-  const baseTime = dataColeta ? new Date(dataColeta).getTime() : Date.now();
-  if (!dataPostagem || dataPostagem.trim() === "" || dataPostagem.toLowerCase() === "recente") {
-    return baseTime;
-  }
-
-  // Formato ISO ou YYYY-MM-DD
-  if (dataPostagem.includes("T") || (dataPostagem.includes("-") && dataPostagem.length >= 10)) {
-    const timestamp = new Date(dataPostagem).getTime();
-    if (!isNaN(timestamp)) return timestamp;
-  }
-
-  const s = dataPostagem.toLowerCase();
-  const minMatch = s.match(/(\d+)\s*(?:minuto|min)/);
-  if (minMatch) return baseTime - parseInt(minMatch[1], 10) * 60 * 1000;
-
-  const horaMatch = s.match(/(\d+)\s*(?:hora|hour|h\b)/);
-  if (horaMatch) return baseTime - parseInt(horaMatch[1], 10) * 3600 * 1000;
-
-  const diaMatch = s.match(/(\d+)\s*(?:dia|day)/);
-  if (diaMatch) return baseTime - parseInt(diaMatch[1], 10) * 24 * 3600 * 1000;
-
-  const semMatch = s.match(/(\d+)\s*(?:semana|week)/);
-  if (semMatch) return baseTime - parseInt(semMatch[1], 10) * 7 * 24 * 3600 * 1000;
-
-  const mesMatch = s.match(/(\d+)\s*(?:m[eê]s|month)/);
-  if (mesMatch) return baseTime - parseInt(mesMatch[1], 10) * 30 * 24 * 3600 * 1000;
-
-  return baseTime;
-}
-
-// Normaliza o rótulo da modalidade para português padronizado
-function normalizarModalidade(mod?: string): string {
-  if (!mod) return "Indefinido";
-  const m = mod.toLowerCase();
-  if (m.includes("remot")) return "Remoto";
-  if (m.includes("hibrid") || m.includes("hybrid")) return "Híbrido";
-  if (m.includes("presenc") || m.includes("site")) return "Presencial";
-  return mod;
-}
+import { Vaga, Estatisticas, QuickFilterType, UserViewTab } from "../types/job";
+import { QuickMetrics } from "../components/QuickMetrics";
+import { FilterBar } from "../components/FilterBar";
+import { JobCard } from "../components/JobCard";
+import { useUserInteractions } from "../hooks/useUserInteractions";
+import { parseDataPostagemTimestamp } from "../utils/dateUtils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -91,7 +24,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Estatísticas Globais do Banco de Dados
+  // Estatisticas Globais
   const [stats, setStats] = useState<Estatisticas>({
     total: 0,
     remotas: 0,
@@ -126,14 +59,36 @@ export default function Home() {
     }
   };
 
+  // Interacoes do usuario (Favoritar, Candidatado, Ocultar)
+  const {
+    savedIds,
+    appliedIds,
+    hiddenIds,
+    toggleSave,
+    toggleApplied,
+    toggleHide,
+    unhideAll,
+    isSaved,
+    isApplied,
+    isHidden
+  } = useUserInteractions();
+
   // Filtros
   const [busca, setBusca] = useState("");
   const [plataforma, setPlataforma] = useState("Todas");
   const [modalidade, setModalidade] = useState("Todas");
+  const [area, setArea] = useState("Todas");
+  const [senioridade, setSenioridade] = useState("Todas");
   const [easyApply, setEasyApply] = useState(false);
   const [apenasNovas, setApenasNovas] = useState(false);
 
-  // Carrega as estatísticas gerais do banco
+  // Quick Filter State
+  const [quickFilter, setQuickFilter] = useState<QuickFilterType>(null);
+
+  // Aba de visualizacao do usuario
+  const [userTab, setUserTab] = useState<UserViewTab>('todas');
+
+  // Carrega estatisticas globais do backend
   const fetchStats = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/estatisticas`);
@@ -146,6 +101,7 @@ export default function Home() {
     }
   }, []);
 
+  // Busca vagas do backend com parametros
   const fetchVagas = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -162,116 +118,173 @@ export default function Home() {
         throw new Error(`Erro na API (${response.status})`);
       }
       const data = await response.json();
-      
-      const listaVagas: Vaga[] = data.vagas || [];
+      const lista: Vaga[] = data.vagas || [];
 
-      // Ordenar rigorosamente da postagem mais recente para a mais antiga
-      listaVagas.sort((a, b) => {
+      // Ordenacao cronologica rigorosa (mais recente primeiro)
+      lista.sort((a, b) => {
         return parseDataPostagemTimestamp(b.data_postagem, b.data_coleta) - 
                parseDataPostagemTimestamp(a.data_postagem, a.data_coleta);
       });
 
-      setVagas(listaVagas);
-    } catch (err: any) {
+      setVagas(lista);
+    } catch (err) {
       console.error("Falha ao buscar vagas:", err);
-      setError("Não foi possível carregar as vagas. Certifique-se de que a API FastAPI está em execução.");
+      setError("Não foi possível conectar à API de vagas. Verifique se o servidor backend está em execução.");
     } finally {
       setLoading(false);
     }
   }, [busca, plataforma, modalidade, easyApply, apenasNovas]);
 
-  // Carrega estatísticas ao iniciar
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
 
-  // Debounce na busca textual e filtros
   useEffect(() => {
     const handler = setTimeout(() => {
       fetchVagas();
-    }, 300);
+    }, 250);
     return () => clearTimeout(handler);
   }, [fetchVagas]);
+
+  // Handler para selecao nos contadores de metricas rapidas (Quick Filters)
+  const handleSelectQuickFilter = (filter: QuickFilterType) => {
+    setQuickFilter(filter);
+    if (!filter || filter === 'total') {
+      setModalidade("Todas");
+      setApenasNovas(false);
+    } else if (filter === 'novas') {
+      setApenasNovas(true);
+      setModalidade("Todas");
+    } else if (filter === 'remoto') {
+      setModalidade("Remoto");
+      setApenasNovas(false);
+    } else if (filter === 'hibrido') {
+      setModalidade("Hibrido");
+      setApenasNovas(false);
+    } else if (filter === 'presencial') {
+      setModalidade("Presencial");
+      setApenasNovas(false);
+    }
+  };
+
+  // Sincroniza o quickFilter se o usuario alterar diretamente pelos selects
+  const handleModalidadeChange = (val: string) => {
+    setModalidade(val);
+    if (val === "Remoto") setQuickFilter('remoto');
+    else if (val === "Hibrido") setQuickFilter('hibrido');
+    else if (val === "Presencial") setQuickFilter('presencial');
+    else if (apenasNovas) setQuickFilter('novas');
+    else setQuickFilter(null);
+  };
+
+  const handleApenasNovasToggle = () => {
+    const nextVal = !apenasNovas;
+    setApenasNovas(nextVal);
+    if (nextVal) {
+      setQuickFilter('novas');
+    } else {
+      setQuickFilter(null);
+    }
+  };
 
   const limparFiltros = () => {
     setBusca("");
     setPlataforma("Todas");
     setModalidade("Todas");
+    setArea("Todas");
+    setSenioridade("Todas");
     setEasyApply(false);
     setApenasNovas(false);
+    setQuickFilter(null);
+    setUserTab('todas');
   };
 
-  const temFiltroAtivo = busca !== "" || plataforma !== "Todas" || modalidade !== "Todas" || easyApply || apenasNovas;
+  const temFiltroAtivo = Boolean(
+    busca !== "" || 
+    plataforma !== "Todas" || 
+    modalidade !== "Todas" || 
+    area !== "Todas" || 
+    senioridade !== "Todas" || 
+    easyApply || 
+    apenasNovas || 
+    quickFilter !== null ||
+    userTab !== 'todas'
+  );
 
-  const formatarData = (dataStr?: string) => {
-    if (!dataStr) return "Recente";
-    
-    const s = dataStr.toLowerCase();
-    if (s.includes("minuto") || s.includes("hora") || s.includes("dia") || s.includes("semana") || s.includes("h ")) {
-      return dataStr;
-    }
-
-    if (dataStr.includes("T") || dataStr.includes("-")) {
-      const d = new Date(dataStr);
-      if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric"
-        });
+  // Filtragem multiárea, senioridade e abas de usuario
+  const vagasFiltradas = useMemo(() => {
+    return vagas.filter((vaga) => {
+      // 1. Aba de usuario
+      if (userTab === 'salvas' && !isSaved(vaga.id)) return false;
+      if (userTab === 'candidatadas' && !isApplied(vaga.id)) return false;
+      if (userTab === 'ocultadas') {
+        if (!isHidden(vaga.id)) return false;
+      } else {
+        // Nas demais abas, esconde as vagas marcadas como ocultadas
+        if (isHidden(vaga.id)) return false;
       }
-    }
-    return dataStr;
-  };
 
-  const getPlatformBadgeStyle = (plat: string) => {
-    const p = (plat || "").toLowerCase();
-    if (p.includes("linkedin")) {
-      return "bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-300 dark:border-sky-500/20";
-    }
-    if (p.includes("indeed")) {
-      return "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-300 dark:border-indigo-500/20";
-    }
-    if (p.includes("gupy")) {
-      return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/20";
-    }
-    return "bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-300 dark:border-slate-500/20";
-  };
+      // 2. Filtro de Area Profissional (Expansao Multiarea)
+      if (area !== "Todas") {
+        const textToMatch = `${vaga.titulo} ${vaga.termo_busca || ''}`.toLowerCase();
+        if (area === "Dados") {
+          const keywords = ['dado', 'data', 'analytics', 'bi', 'inteligência', 'ia', 'machine learning', 'sql', 'python', 'etl', 'power bi', 'cientista'];
+          if (!keywords.some(k => textToMatch.includes(k))) return false;
+        } else if (area === "Software") {
+          const keywords = ['software', 'desenvolvedor', 'developer', 'frontend', 'front-end', 'backend', 'back-end', 'full stack', 'fullstack', 'react', 'node', 'java', 'c#', '.net', 'programador'];
+          if (!keywords.some(k => textToMatch.includes(k))) return false;
+        } else if (area === "Produto") {
+          const keywords = ['produto', 'product', 'design', 'designer', 'ui', 'ux', 'scrum', 'agile', 'po', 'pm'];
+          if (!keywords.some(k => textToMatch.includes(k))) return false;
+        } else if (area === "DevOps") {
+          const keywords = ['devops', 'cloud', 'infra', 'aws', 'azure', 'gcp', 'sre', 'kubernetes', 'docker', 'segurança'];
+          if (!keywords.some(k => textToMatch.includes(k))) return false;
+        }
+      }
 
-  const getModalityBadgeStyle = (mod: string) => {
-    const m = (mod || "").toLowerCase();
-    if (m.includes("remot")) {
-      return "bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-500/20";
-    }
-    if (m.includes("hibrid") || m.includes("hybrid")) {
-      return "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-500/20";
-    }
-    return "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-500/20";
-  };
+      // 3. Filtro de Senioridade
+      if (senioridade !== "Todas") {
+        const titleLower = vaga.titulo.toLowerCase();
+        if (senioridade === "Estágio") {
+          const keys = ['estágio', 'estagio', 'intern', 'trainee'];
+          if (!keys.some(k => titleLower.includes(k))) return false;
+        } else if (senioridade === "Júnior") {
+          const keys = ['júnior', 'junior', 'jr', 'entry'];
+          if (!keys.some(k => titleLower.includes(k))) return false;
+        } else if (senioridade === "Pleno") {
+          const keys = ['pleno', 'mid', 'pl\b'];
+          if (!keys.some(k => new RegExp(k, 'i').test(titleLower))) return false;
+        } else if (senioridade === "Sênior") {
+          const keys = ['sênior', 'senior', 'sr\b'];
+          if (!keys.some(k => new RegExp(k, 'i').test(titleLower))) return false;
+        } else if (senioridade === "Lead") {
+          const keys = ['lead', 'tech lead', 'líder', 'lider', 'especialista', 'specialist', 'coordenador', 'gerente', 'head'];
+          if (!keys.some(k => titleLower.includes(k))) return false;
+        }
+      }
+
+      return true;
+    });
+  }, [vagas, userTab, area, senioridade, isSaved, isApplied, isHidden]);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-violet-500/30">
-      {/* Luz ambiente de fundo */}
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_-10%,rgba(124,58,237,0.08),rgba(0,0,0,0)_60%)] dark:bg-[radial-gradient(circle_at_50%_-10%,rgba(124,58,237,0.16),rgba(0,0,0,0)_60%)]" />
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_85%_20%,rgba(56,189,248,0.05),rgba(0,0,0,0)_40%)] dark:bg-[radial-gradient(circle_at_85%_20%,rgba(56,189,248,0.08),rgba(0,0,0,0)_40%)]" />
-
-      {/* Conteúdo Widescreen */}
-      <main className="relative max-w-[1850px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-4">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-violet-500/20">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         
-        {/* Top Header */}
-        <header className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/80">
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-700 dark:text-violet-400 text-xs font-semibold">
-                <Database className="w-3.5 h-3.5" />
-                <span>Radar de Vagas v2.0</span>
-              </div>
+        {/* Cabecalho Principal */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200/70 dark:border-slate-800/80">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-500/20">
+                <Database className="w-3 h-3 text-violet-500" />
+                <span>Multiplataforma</span>
+              </span>
 
-              {/* Botão de Alternância de Tema */}
               <button
+                type="button"
                 onClick={toggleTheme}
-                title={theme === 'dark' ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-medium transition-all shadow-sm cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/70 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300/50 dark:border-slate-700/50 transition-colors cursor-pointer"
+                title={theme === 'dark' ? "Ativar Modo Claro" : "Ativar Modo Escuro"}
               >
                 {theme === 'dark' ? (
                   <>
@@ -288,307 +301,175 @@ export default function Home() {
             </div>
 
             <div className="flex items-baseline gap-3">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                Vaga Dados
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                Pesquisa Vagas
               </h1>
-              <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">
+              <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline font-medium">
                 Monitoramento inteligente ordenado pelas postagens mais recentes (LinkedIn, Indeed e Gupy)
               </span>
             </div>
           </div>
 
-          {/* Métricas Globais do Banco */}
-          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-            <div className="bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 rounded-xl px-3.5 py-2 shadow-sm dark:shadow-none backdrop-blur-md min-w-[95px]">
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none">Total Geral</p>
-              <p className="text-xl font-bold text-slate-900 dark:text-white mt-1 leading-none">{stats.total || vagas.length}</p>
-            </div>
-            
-            {/* Novas Vagas da Última Rodada */}
-            <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-300 dark:border-emerald-500/30 rounded-xl px-3 py-2 shadow-sm dark:shadow-none backdrop-blur-md min-w-[95px]">
-              <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold leading-none flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-emerald-500" />
-                <span>Novas</span>
-              </p>
-              <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mt-1 leading-none">{stats.novas}</p>
-            </div>
-
-            <div className="bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 rounded-xl px-3.5 py-2 shadow-sm dark:shadow-none backdrop-blur-md min-w-[95px]">
-              <p className="text-[11px] text-teal-600 dark:text-teal-400 font-medium leading-none flex items-center gap-1">
-                <HomeIcon className="w-3 h-3 text-teal-500" />
-                <span>Remotas</span>
-              </p>
-              <p className="text-xl font-bold text-teal-600 dark:text-teal-300 mt-1 leading-none">{stats.remotas}</p>
-            </div>
-            <div className="bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 rounded-xl px-3.5 py-2 shadow-sm dark:shadow-none backdrop-blur-md min-w-[95px]">
-              <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium leading-none flex items-center gap-1">
-                <Laptop className="w-3 h-3 text-amber-500" />
-                <span>Híbridas</span>
-              </p>
-              <p className="text-xl font-bold text-amber-600 dark:text-amber-300 mt-1 leading-none">{stats.hibridas}</p>
-            </div>
-            <div className="bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 rounded-xl px-3.5 py-2 shadow-sm dark:shadow-none backdrop-blur-md min-w-[95px]">
-              <p className="text-[11px] text-purple-600 dark:text-purple-400 font-medium leading-none flex items-center gap-1">
-                <Building2 className="w-3 h-3 text-purple-500" />
-                <span>Presenciais</span>
-              </p>
-              <p className="text-xl font-bold text-purple-600 dark:text-purple-300 mt-1 leading-none">{stats.presenciais}</p>
-            </div>
-          </div>
+          {/* Quick Metrics Interativos */}
+          <QuickMetrics
+            stats={stats}
+            totalVagasCarregadas={vagas.length}
+            activeFilter={quickFilter}
+            onSelectFilter={handleSelectQuickFilter}
+          />
         </header>
 
-        {/* Barra de Filtros Compacta */}
-        <section className="bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-xl p-3.5 sm:p-4 shadow-sm dark:shadow-xl space-y-3">
-          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-            {/* Campo de Busca */}
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                placeholder="Buscar por cargo ou tecnologia (ex: Power BI, Python, SQL, Analista...)"
-                className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 focus:border-violet-600 dark:focus:border-violet-500 focus:ring-1 focus:ring-violet-600 dark:focus:ring-violet-500 rounded-lg text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
-              />
-              {busca && (
+        {/* Barra de Filtros Fixa (Sticky) */}
+        <FilterBar
+          busca={busca}
+          onBuscaChange={setBusca}
+          plataforma={plataforma}
+          onPlataformaChange={setPlataforma}
+          modalidade={modalidade}
+          onModalidadeChange={handleModalidadeChange}
+          area={area}
+          onAreaChange={setArea}
+          senioridade={senioridade}
+          onSenioridadeChange={setSenioridade}
+          easyApply={easyApply}
+          onEasyApplyToggle={() => setEasyApply(!easyApply)}
+          apenasNovas={apenasNovas}
+          onApenasNovasToggle={handleApenasNovasToggle}
+          userTab={userTab}
+          onUserTabChange={setUserTab}
+          savedCount={savedIds.size}
+          appliedCount={appliedIds.size}
+          hiddenCount={hiddenIds.size}
+          onLimparFiltros={limparFiltros}
+          temFiltroAtivo={temFiltroAtivo}
+        />
+
+        {/* Secao de Conteudo / Listagem */}
+        <section className="space-y-4 pt-1">
+          {/* Header da Listagem: Contador e Botao de Atualizar */}
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-medium">
+              Exibindo <strong className="text-slate-900 dark:text-slate-200">{vagasFiltradas.length}</strong> {vagasFiltradas.length === 1 ? 'oportunidade' : 'oportunidades'}
+              {userTab === 'salvas' && ' favoritadas'}
+              {userTab === 'candidatadas' && ' onde você se candidatou'}
+              {userTab === 'ocultadas' && ' ocultadas por você'}
+            </span>
+
+            <div className="flex items-center gap-2">
+              {userTab === 'ocultadas' && hiddenIds.size > 0 && (
                 <button
-                  onClick={() => setBusca("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
+                  type="button"
+                  onClick={unhideAll}
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <Undo2 className="w-3.5 h-3.5" />
+                  <span>Desocultar todas</span>
                 </button>
               )}
-            </div>
 
-            {/* Plataforma */}
-            <div className="w-full md:w-44">
-              <select
-                value={plataforma}
-                onChange={(e) => setPlataforma(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 focus:border-violet-600 dark:focus:border-violet-500 rounded-lg text-sm text-slate-900 dark:text-slate-200 outline-none transition-all cursor-pointer font-medium"
-              >
-                <option value="Todas">Plataforma: Todas</option>
-                <option value="LinkedIn">LinkedIn</option>
-                <option value="Indeed">Indeed</option>
-                <option value="Gupy">Gupy</option>
-              </select>
-            </div>
-
-            {/* Modalidade Sem Parênteses */}
-            <div className="w-full md:w-48">
-              <select
-                value={modalidade}
-                onChange={(e) => setModalidade(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 focus:border-violet-600 dark:focus:border-violet-500 rounded-lg text-sm text-slate-900 dark:text-slate-200 outline-none transition-all cursor-pointer font-medium"
-              >
-                <option value="Todas">Modalidade: Todas</option>
-                <option value="Remoto">Remoto</option>
-                <option value="Hibrido">Híbrido</option>
-                <option value="Presencial">Presencial</option>
-              </select>
-            </div>
-
-            {/* Botão Novas */}
-            <button
-              onClick={() => setApenasNovas(!apenasNovas)}
-              title="Filtrar apenas as vagas que entraram no site na última coleta"
-              className={`flex items-center justify-center gap-1.5 px-3 py-2 border rounded-lg text-xs font-semibold transition-all cursor-pointer select-none whitespace-nowrap ${
-                apenasNovas
-                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-700 dark:text-emerald-300 shadow-sm"
-                  : "bg-slate-50 dark:bg-slate-950/70 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              <span>Novas</span>
-            </button>
-
-            {/* Candidatura Simplificada */}
-            <button
-              onClick={() => setEasyApply(!easyApply)}
-              className={`flex items-center justify-center gap-1.5 px-3 py-2 border rounded-lg text-xs font-semibold transition-all cursor-pointer select-none whitespace-nowrap ${
-                easyApply
-                  ? "bg-amber-500/10 border-amber-500/40 text-amber-700 dark:text-amber-300 shadow-sm"
-                  : "bg-slate-50 dark:bg-slate-950/70 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              <span>Easy Apply</span>
-            </button>
-
-            {/* Limpar Filtros se Ativos */}
-            {temFiltroAtivo && (
               <button
-                onClick={limparFiltros}
-                className="px-2.5 py-2 text-xs text-violet-600 dark:text-violet-400 hover:underline transition-colors cursor-pointer font-semibold whitespace-nowrap"
+                type="button"
+                onClick={() => {
+                  fetchStats();
+                  fetchVagas();
+                }}
+                disabled={loading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
               >
-                Limpar
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                <span>Atualizar</span>
               </button>
-            )}
-          </div>
-        </section>
-
-        {/* Mensagem de Erro se houver */}
-        {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs flex items-center justify-between">
-            <span>{error}</span>
-            <button
-              onClick={fetchVagas}
-              className="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 rounded-lg font-semibold transition-colors cursor-pointer"
-            >
-              Tentar novamente
-            </button>
-          </div>
-        )}
-
-        {/* Lista de Vagas */}
-        <section className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-              <h2 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200">
-                Oportunidades
-              </h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 font-semibold">
-                {vagas.length} {temFiltroAtivo ? `filtradas (de ${stats.total || 102} no total)` : `encontradas`}
-              </span>
             </div>
-
-            <button
-              onClick={() => { fetchVagas(); fetchStats(); }}
-              disabled={loading}
-              className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer disabled:opacity-50 font-medium"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-              <span>Atualizar</span>
-            </button>
           </div>
 
-          {/* Loading Skeletons */}
+          {/* Feedback de Erro */}
+          {error && (
+            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs">
+              <p className="font-semibold">{error}</p>
+            </div>
+          )}
+
+          {/* Skeletons de Carregamento Adaptaveis */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
-              {[...Array(10)].map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 space-y-3 animate-pulse shadow-sm"
+                  className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 space-y-3 animate-pulse shadow-xs"
                 >
-                  <div className="flex gap-2">
-                    <div className="h-4 w-14 bg-slate-200 dark:bg-slate-800 rounded-full" />
-                    <div className="h-4 w-16 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800" />
+                      <div className="space-y-1">
+                        <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                        <div className="h-2.5 w-14 bg-slate-200/70 dark:bg-slate-800/70 rounded" />
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <div className="w-6 h-6 rounded bg-slate-200 dark:bg-slate-800" />
+                      <div className="w-6 h-6 rounded bg-slate-200 dark:bg-slate-800" />
+                    </div>
                   </div>
-                  <div className="h-5 w-4/5 bg-slate-200 dark:bg-slate-800 rounded-lg" />
-                  <div className="h-3.5 w-3/5 bg-slate-200/80 dark:bg-slate-800/70 rounded-lg" />
-                  <div className="h-3.5 w-1/2 bg-slate-200/60 dark:bg-slate-800/50 rounded-lg" />
-                  <div className="pt-2">
-                    <div className="h-8 w-full bg-slate-200/70 dark:bg-slate-800/60 rounded-lg" />
+                  <div className="flex gap-1.5 pt-1">
+                    <div className="h-4 w-12 bg-slate-200 dark:bg-slate-800 rounded" />
+                    <div className="h-4 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                  </div>
+                  <div className="h-4 w-5/6 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60 flex justify-between items-center">
+                    <div className="h-3 w-16 bg-slate-200/70 dark:bg-slate-800/70 rounded" />
+                    <div className="h-7 w-20 bg-slate-200 dark:bg-slate-800 rounded-lg" />
                   </div>
                 </div>
               ))}
             </div>
-          ) : vagas.length === 0 ? (
-            /* Empty State */
-            <div className="text-center py-16 px-4 bg-white/60 dark:bg-slate-900/30 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl space-y-3 shadow-sm">
-              <div className="w-11 h-11 mx-auto rounded-full bg-slate-100 dark:bg-slate-800/70 flex items-center justify-center text-slate-500 dark:text-slate-400">
+          ) : vagasFiltradas.length === 0 ? (
+            /* Estado Vazio Amigavel */
+            <div className="text-center py-16 px-4 bg-white/60 dark:bg-slate-900/30 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl space-y-3 shadow-xs">
+              <div className="w-12 h-12 mx-auto rounded-full bg-slate-100 dark:bg-slate-800/70 flex items-center justify-center text-slate-500 dark:text-slate-400">
                 <Search className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-300">Nenhuma vaga encontrada</h3>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                {userTab === 'salvas' ? 'Nenhuma vaga favoritada ainda' :
+                 userTab === 'candidatadas' ? 'Nenhuma candidatura registrada' :
+                 userTab === 'ocultadas' ? 'Nenhuma vaga oculta' :
+                 'Nenhuma vaga encontrada com estes filtros'}
+              </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Tente ajustar os filtros ou a palavra-chave de busca para ver mais oportunidades.
+                {userTab === 'salvas' ? 'Clique no ícone de marcador nos cartões para guardar suas vagas favoritas.' :
+                 userTab === 'candidatadas' ? 'Marque as vagas onde você se candidatou usando o botão de check.' :
+                 userTab === 'ocultadas' ? 'Vagas que você ocultar aparecerão aqui para eventual restauração.' :
+                 'Tente ajustar os filtros ou a palavra-chave de busca para ver mais oportunidades.'}
               </p>
               {temFiltroAtivo && (
                 <button
+                  type="button"
                   onClick={limparFiltros}
-                  className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-600/10 dark:bg-violet-600/20 text-violet-700 dark:text-violet-300 border border-violet-500/30 text-xs font-semibold hover:bg-violet-600/20 dark:hover:bg-violet-600/30 transition-all cursor-pointer"
+                  className="mt-2 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-violet-600/10 dark:bg-violet-600/20 text-violet-700 dark:text-violet-300 border border-violet-500/30 text-xs font-semibold hover:bg-violet-600/20 dark:hover:bg-violet-600/30 transition-all cursor-pointer"
                 >
                   Limpar todos os filtros
                 </button>
               )}
             </div>
           ) : (
-            /* Grid de Cards */
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
-              {vagas.map((vaga) => {
-                const isEasy = Boolean(vaga.easy_apply);
-                const modalidadeExibicao = normalizarModalidade(vaga.modalidade);
-
-                return (
-                  <article
-                    key={vaga.id}
-                    className={`group relative bg-white/90 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900/80 rounded-xl p-4 flex flex-col justify-between transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-violet-500/5 hover:-translate-y-0.5 backdrop-blur-md ${
-                      vaga.is_nova 
-                        ? "border-2 border-emerald-500/40 dark:border-emerald-500/30 shadow-emerald-500/5" 
-                        : "border border-slate-200/90 dark:border-slate-800/80 hover:border-violet-400 dark:hover:border-violet-500/40"
-                    }`}
-                  >
-                    <div className="space-y-2.5">
-                      {/* Badges Tipográficos Limpos */}
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {vaga.is_nova && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-400/30 dark:border-emerald-500/30 shadow-sm">
-                            Novo
-                          </span>
-                        )}
-
-                        <span
-                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${getPlatformBadgeStyle(
-                            vaga.plataforma
-                          )}`}
-                        >
-                          {vaga.plataforma || "Vaga"}
-                        </span>
-
-                        <span
-                          className={`text-[10px] font-medium px-2 py-0.5 rounded-md border ${getModalityBadgeStyle(
-                            vaga.modalidade
-                          )}`}
-                        >
-                          {modalidadeExibicao}
-                        </span>
-
-                        {isEasy && (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md border bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-500/20">
-                            Easy Apply
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Titulo */}
-                      <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-snug line-clamp-2 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors">
-                        {vaga.titulo}
-                      </h3>
-
-                      {/* Empresa e Local */}
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
-                          <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
-                          <span className="truncate">{vaga.empresa || "Confidencial"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px]">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
-                          <span className="truncate">{vaga.localizacao || "Brasil"}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Rodapé do Card */}
-                    <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
-                        <Calendar className="w-3 h-3 text-slate-400" />
-                        <span className="font-medium text-slate-600 dark:text-slate-300">
-                          {formatarData(vaga.data_postagem || vaga.data_coleta)}
-                        </span>
-                      </div>
-
-                      <a
-                        href={vaga.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-500 text-white text-xs font-semibold transition-all duration-200 shadow-sm shadow-violet-600/20 hover:scale-[1.02]"
-                      >
-                        <span>Ver Vaga</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </article>
-                );
-              })}
+            /* Grelha Responsiva Adaptavel:
+               - Mobile (< 640px): 1 coluna
+               - Tablet (640px - 1024px): 2 colunas
+               - Laptops (1024px - 1440px): 3 colunas
+               - Ultrawide / Desktop Grande (> 1440px): 4 colunas
+            */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {vagasFiltradas.map((vaga) => (
+                <JobCard
+                  key={vaga.id}
+                  vaga={vaga}
+                  isSaved={isSaved(vaga.id)}
+                  isApplied={isApplied(vaga.id)}
+                  isHidden={isHidden(vaga.id)}
+                  onToggleSave={toggleSave}
+                  onToggleApplied={toggleApplied}
+                  onToggleHide={toggleHide}
+                />
+              ))}
             </div>
           )}
         </section>

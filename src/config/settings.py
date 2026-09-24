@@ -16,7 +16,11 @@ class Settings:
         default_factory=lambda: int(os.getenv("CHECK_INTERVAL_MINUTES", "15"))
     )
 
-    # Caminho do banco SQLite
+    # Credenciais do Supabase
+    SUPABASE_URL: str = field(default_factory=lambda: os.getenv("SUPABASE_URL", "").strip())
+    SUPABASE_KEY: str = field(default_factory=lambda: os.getenv("SUPABASE_KEY", "").strip())
+
+    # Caminho do banco SQLite (Legado)
     DATABASE_PATH: str = field(
         default_factory=lambda: os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "vagas.db")
@@ -71,8 +75,7 @@ class Settings:
         "rio de janeiro", "rj", "niterói", "niteroi",
         "florianópolis", "florianopolis", "floripa", "santa catarina", "sc", "joinville", "blumenau",
         "curitiba", "pr", "paraná", "parana", "porto alegre", "rs", "rio grande do sul",
-        "brasília", "brasilia", "df", "distrito federal", "salvador", "ba", "bahia",
-        "recife", "pe", "pernambuco", "fortaleza", "ce", "ceará", "ceara", "goiânia", "goiania", "go", "goiás"
+        "brasília", "brasilia", "df", "distrito federal"
     ])
 
     # Localidades estrangeiras expressamente bloqueadas

@@ -58,6 +58,47 @@ def test_is_modality_compatible_remote():
     assert is_modality_compatible("Analista Pleno de Dados – Híbrido", "São Paulo, SP", target_work_type="2") is False
     assert is_modality_compatible("Consultor Power BI - Atuação Presencial", "Rio de Janeiro, RJ", target_work_type="2") is False
 
+    # Caso específico de vaga presencial em cidade física (Frimesa Chapecó)
+    assert is_modality_compatible("ANALISTA LOGISTICO - Chapecó/SC", "Chapecó, SC", target_work_type="2") is False
+
+def test_classify_job_modality():
+    from src.utils.filters import classify_job_modality
+    # Remoto
+    assert classify_job_modality("Analista de Dados (Remoto)", "Brasil") == "Remoto"
+    assert classify_job_modality("Power BI Developer - 100% Home Office", "São Paulo, SP") == "Remoto"
+    assert classify_job_modality("Analista de BI", "Brasil", search_modality="Remoto") == "Remoto"
+
+    # Híbrido
+    assert classify_job_modality("Analistas e Consultores de Dados - Híbrido", "São Paulo, SP") == "Híbrido"
+    assert classify_job_modality("Analista de BI", "Rio de Janeiro, RJ (Modelo Híbrido)") == "Híbrido"
+
+    # Presencial
+    assert classify_job_modality("ANALISTA LOGISTICO - Chapecó/SC", "Chapecó, SC") == "Presencial"
+    assert classify_job_modality("Analista de BI (Presencial)", "São Paulo, SP") == "Presencial"
+    assert classify_job_modality("Analista de Dados", "Chapecó, SC") == "Presencial"
+
+def test_build_category_name():
+    from src.utils.filters import build_category_name
+    assert build_category_name("Remoto", True) == "🏠 REMOTO | ⚡ EASY APPLY (SIMPLIFICADA)"
+    assert build_category_name("Remoto", False) == "🏠 REMOTO | 🌐 SITE DA EMPRESA"
+    assert build_category_name("Híbrido", True) == "🏢🔄 HÍBRIDO | ⚡ EASY APPLY (SIMPLIFICADA)"
+    assert build_category_name("Híbrido", False) == "🏢🔄 HÍBRIDO | 🌐 SITE DA EMPRESA"
+    assert build_category_name("Presencial", True) == "🏢 PRESENCIAL | ⚡ EASY APPLY (SIMPLIFICADA)"
+    assert build_category_name("Presencial", False) == "🏢 PRESENCIAL | 🌐 SITE DA EMPRESA"
+
+def test_is_target_city():
+    from src.utils.filters import is_target_city
+    # Cidades-alvo
+    assert is_target_city("São Paulo, SP") is True
+    assert is_target_city("Juiz de Fora, Minas Gerais") is True
+    assert is_target_city("Rio de Janeiro, RJ") is True
+    assert is_target_city("Florianópolis, SC") is True
+
+    # Cidades fora do foco (ex: Chapecó)
+    assert is_target_city("Chapecó, SC") is False
+    assert is_target_city("Manaus, AM") is False
+    assert is_target_city("Goiânia, GO") is False
+
 def test_clean_url():
     dirty_url = "https://www.linkedin.com/jobs/view/123456789/?trackingId=abc123xyz&refId=999"
     cleaned = clean_url(dirty_url)

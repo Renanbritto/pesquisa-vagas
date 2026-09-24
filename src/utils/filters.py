@@ -68,7 +68,96 @@ def is_location_relevant(location: str, is_remote_search: bool = False) -> bool:
 
     return True
 
-def is_modality_compatible(title: str, location: str, target_work_type: str) -> bool:
+def is_target_city(location: str) -> bool:
+    """Verifica se a localização pertence especificamente às cidades-alvo do usuário."""
+    if not location:
+        return False
+    loc_lower = location.lower()
+    target_names = [
+        "juiz de fora", "jf",
+        "são paulo", "sao paulo", "sp",
+        "rio de janeiro", "rj",
+        "florianópolis", "florianopolis", "floripa"
+    ]
+    for city in settings.TARGET_CITIES:
+        base = city.split(",")[0].strip().lower()
+        if base in loc_lower:
+            return True
+    return any(t in loc_lower for t in target_names)
+
+def classify_job_modality(title: str, location: str, search_modality: str = "") -> str:
+    """
+    Classifica a modalidade real da vaga ('Remoto', 'Híbrido' ou 'Presencial')
+    com base em análise semântica rigorosa do título e localização.
+    """
+    t_lower = (title or "").lower()
+    l_lower = (location or "").lower()
+    full_text = f"{t_lower} {l_lower}"
+
+    # 1. Cues explícitos de Híbrido
+    hibrido_cues = ["híbrido", "hibrido", "hybrid", "híbrida", "hibrida", "modelo híbrido", "modelo hibrido"]
+    if any(cue in full_text for cue in hibrido_cues):
+        return "Híbrido"
+
+    # 2. Cues explícitos de Remoto
+    remoto_cues = [
+        "100% remoto", "totalmente remoto", "exclusivamente remoto",
+        "remoto", "remote", "home office", "home-office", "teletrabalho", "anywhere"
+    ]
+    has_remoto_cue = any(cue in full_text for cue in remoto_cues)
+
+    # 3. Cues explícitos de Presencial
+    presencial_cues = [
+        "presencial", "on-site", "onsite", "in-office", "in loco",
+        "100% presencial", "no escritório", "no escritorio",
+        "modelo presencial", "vaga presencial", "atuação presencial", "atuacao presencial"
+    ]
+    has_presencial_cue = any(cue in full_text for cue in presencial_cues)
+
+    # 4. Detecção de cidade física/UF no título (ex: "- Chapecó/SC", "- Juiz de Fora", "/SC", "/MG")
+    has_city_in_title = bool(re.search(
+        r"[-–—/]\s*[^/]+/(?:AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)\b",
+        title or "",
+        re.IGNORECASE
+    ))
+
+    # Se tiver ambos menção a remoto e presencial -> Híbrido
+    if has_remoto_cue and has_presencial_cue:
+        return "Híbrido"
+
+    # Se tiver presencial ou cidade física no título, e não tiver menção a remoto -> Presencial
+    if (has_presencial_cue or has_city_in_title) and not has_remoto_cue:
+        return "Presencial"
+
+    # Se tiver menção explícita a remoto -> Remoto
+    if has_remoto_cue:
+        return "Remoto"
+
+    # 5. Avaliação pela localização quando não há termos explícitos no título
+    generic_remote_locations = [
+        "brasil", "brazil", "remoto", "remote", "home office", "teletrabalho",
+        "todo o brasil", "brazil (remote)", "brasil (remoto)"
+    ]
+    clean_loc = l_lower.strip()
+    if clean_loc in generic_remote_locations or clean_loc.startswith("remoto"):
+        if search_modality in ["Remoto", "Híbrido", "Presencial"]:
+            return search_modality
+        return "Remoto"
+
+    # Se a localização especificar uma cidade física específica sem menção de remoto -> É presencial
+    return "Presencial"
+
+def build_category_name(modality: str, easy_apply: bool) -> str:
+    """Gera o nome formatado da categoria para exibição no Telegram e persistência no banco."""
+    apply_suffix = "⚡ EASY APPLY (SIMPLIFICADA)" if easy_apply else "🌐 SITE DA EMPRESA"
+    if modality == "Remoto":
+        return f"🏠 REMOTO | {apply_suffix}"
+    elif modality == "Híbrido":
+        return f"🏢🔄 HÍBRIDO | {apply_suffix}"
+    else:
+        return f"🏢 PRESENCIAL | {apply_suffix}"
+
+def is_modality_compatible(title: str, location: str, target_work_type: str, detected_modality: str = None) -> bool:
     """
     Validação rigorosa de modalidade para impedir que vagas presenciais ou híbridas
     sejam classificadas erroneamente como Remoto (Home Office).
@@ -78,49 +167,26 @@ def is_modality_compatible(title: str, location: str, target_work_type: str) -> 
       '3' = Híbrido
       '1' = Presencial
     """
-    text_to_check = f"{title or ''} {location or ''}".lower()
-
-    # Cues explícitos de Presencial
-    presencial_cues = [
-        "presencial", "on-site", "onsite", "in-office", "in loco",
-        "100% presencial", "no escritório", "no escritorio",
-        "modelo presencial", "vaga presencial", "atuação presencial", "atuacao presencial"
-    ]
-
-    # Cues explícitos de Híbrido
-    hibrido_cues = [
-        "híbrido", "hibrido", "hybrid", "híbrida", "hibrida", "modelo híbrido", "modelo hibrido"
-    ]
-
-    # Cues explícitos de Remoto
-    remoto_cues = [
-        "100% remoto", "totalmente remoto", "exclusivamente remoto",
-        "remoto", "remote", "home office", "home-office", "teletrabalho"
-    ]
-
-    has_presencial = any(cue in text_to_check for cue in presencial_cues)
-    has_hibrido = any(cue in text_to_check for cue in hibrido_cues)
-    has_remoto = any(cue in text_to_check for cue in remoto_cues)
+    if detected_modality is None:
+        search_mod = "Remoto" if target_work_type == "2" else ("Híbrido" if target_work_type == "3" else "Presencial")
+        detected_modality = classify_job_modality(title, location, search_modality=search_mod)
 
     # 1. Validação para Categoria REMOTO ('2')
     if target_work_type == "2":
-        # Se contiver qualquer menção a presencial ou híbrido, REJEITA imediatamente da categoria Remoto
-        if has_presencial or has_hibrido:
-            return False
-        return True
+        return detected_modality == "Remoto"
 
     # 2. Validação para Categoria HÍBRIDO ('3')
     if target_work_type == "3":
-        # Se for explicitamente '100% presencial' sem híbrido, ou '100% remoto', rejeita
+        text_to_check = f"{title or ''} {location or ''}".lower()
         if "100% presencial" in text_to_check or "100% remoto" in text_to_check:
             return False
-        return True
+        return detected_modality in ["Híbrido", "Remoto"]
 
     # 3. Validação para Categoria PRESENCIAL ('1')
     if target_work_type == "1":
-        # Se for explicitamente '100% remoto' ou 'home office', rejeita de presencial
+        text_to_check = f"{title or ''} {location or ''}".lower()
         if "100% remoto" in text_to_check or "100% home office" in text_to_check:
             return False
-        return True
+        return detected_modality in ["Presencial", "Híbrido"]
 
     return True

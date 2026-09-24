@@ -6,7 +6,10 @@ from typing import List
 
 from src.scrapers.base import BaseScraper
 from src.models.job import Job
-from src.utils.filters import clean_url, is_title_relevant, is_location_relevant, is_modality_compatible
+from src.utils.filters import (
+    clean_url, is_title_relevant, is_location_relevant, is_modality_compatible,
+    classify_job_modality, build_category_name, is_target_city
+)
 from src.utils.logger import logger
 
 USER_AGENTS = [
@@ -98,11 +101,18 @@ class IndeedScraper(BaseScraper):
                     desc_text = desc_elem.text if desc_elem is not None and desc_elem.text else ""
                     job_location = loc_query
 
-                    if not is_location_relevant(job_location, is_remote_search=is_remote):
-                        continue
+                    # Classificação dinâmica da modalidade real
+                    detected_modality = classify_job_modality(f"{title} {desc_text}", job_location, search_modality=modality_name)
 
                     # Validação de modalidade estrita
-                    if not is_modality_compatible(f"{title} {desc_text}", job_location, work_type):
+                    if not is_modality_compatible(f"{title} {desc_text}", job_location, work_type, detected_modality=detected_modality):
+                        continue
+
+                    # Se for classificada como Presencial, garante que pertença às cidades-alvo
+                    if detected_modality == "Presencial" and not is_target_city(job_location):
+                        continue
+
+                    if not is_location_relevant(job_location, is_remote_search=(detected_modality == "Remoto")):
                         continue
 
                     job_id = self._extract_indeed_id(cleaned_link, guid)
@@ -110,6 +120,8 @@ class IndeedScraper(BaseScraper):
                     has_easy_apply = ("candidatura simplificada" in desc_text.lower() or 
                                       "candidatura rápida" in desc_text.lower() or 
                                       "indeed apply" in desc_text.lower())
+                    final_easy_apply = has_easy_apply or easy_apply
+                    dynamic_category = build_category_name(detected_modality, final_easy_apply)
 
                     job = Job(
                         id=job_id,
@@ -119,9 +131,9 @@ class IndeedScraper(BaseScraper):
                         link=cleaned_link,
                         date_posted=post_date,
                         search_term=keyword,
-                        modality=modality_name,
-                        easy_apply=has_easy_apply or easy_apply,
-                        category=category_name,
+                        modality=detected_modality,
+                        easy_apply=final_easy_apply,
+                        category=dynamic_category,
                         platform=self.platform_name
                     )
                     jobs.append(job)

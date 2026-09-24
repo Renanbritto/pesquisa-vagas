@@ -2,6 +2,7 @@ import requests
 from typing import List
 from src.scrapers.base import BaseScraper
 from src.models.job import Job
+from src.utils.filters import is_title_relevant
 
 class GupyScraper(BaseScraper):
     @property
@@ -56,6 +57,10 @@ class GupyScraper(BaseScraper):
                     break
                 
                 for item in data:
+                    job_title = item.get("name", "Sem título")
+                    if not is_title_relevant(job_title):
+                        continue
+                        
                     job_modality = item.get("workplaceType", "Indefinido")
                     
                     if workplace_types and job_modality not in workplace_types:
@@ -82,7 +87,7 @@ class GupyScraper(BaseScraper):
                     
                     job = Job(
                         id=str(item.get("id", "")),
-                        title=item.get("name", "Sem título"),
+                        title=job_title,
                         company=item.get("careerPageName", "Empresa Confidencial"),
                         location=job_location,
                         link=item.get("jobUrl", ""),

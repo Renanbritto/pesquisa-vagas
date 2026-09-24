@@ -8,7 +8,10 @@ from typing import List
 from src.scrapers.base import BaseScraper
 from src.models.job import Job
 from src.config.settings import settings
-from src.utils.filters import clean_url, is_title_relevant, is_location_relevant, is_modality_compatible
+from src.utils.filters import (
+    clean_url, is_title_relevant, is_location_relevant, is_modality_compatible,
+    classify_job_modality, build_category_name, is_target_city
+)
 from src.utils.logger import logger
 
 USER_AGENTS = [
@@ -107,11 +110,18 @@ class LinkedInScraper(BaseScraper):
                         location_elem = card.find("span", class_=re.compile(r"job-search-card__location"))
                         job_location = location_elem.get_text(strip=True) if location_elem else location
 
-                        if not is_location_relevant(job_location, is_remote_search=is_remote):
-                            continue
+                        # Classificação dinâmica da modalidade real
+                        detected_modality = classify_job_modality(title, job_location, search_modality=modality_name)
 
                         # Validação estrita de compatibilidade de modalidade
-                        if not is_modality_compatible(title, job_location, work_type):
+                        if not is_modality_compatible(title, job_location, work_type, detected_modality=detected_modality):
+                            continue
+
+                        # Se for classificada como Presencial, garante que pertença às cidades-alvo
+                        if detected_modality == "Presencial" and not is_target_city(job_location):
+                            continue
+
+                        if not is_location_relevant(job_location, is_remote_search=(detected_modality == "Remoto")):
                             continue
 
                         company_elem = card.find("h4", class_=re.compile(r"base-search-card__subtitle"))
@@ -126,6 +136,9 @@ class LinkedInScraper(BaseScraper):
 
                         job_id = self._extract_job_id(card, cleaned_link)
 
+                        # Nome dinâmico da categoria com base na modalidade real
+                        dynamic_category = build_category_name(detected_modality, easy_apply)
+
                         if job_id and cleaned_link:
                             job = Job(
                                 id=job_id,
@@ -135,9 +148,9 @@ class LinkedInScraper(BaseScraper):
                                 link=cleaned_link,
                                 date_posted=post_date,
                                 search_term=keyword,
-                                modality=modality_name,
+                                modality=detected_modality,
                                 easy_apply=easy_apply,
-                                category=category_name,
+                                category=dynamic_category,
                                 platform=self.platform_name
                             )
                             jobs.append(job)

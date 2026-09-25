@@ -69,7 +69,7 @@ export function QuickMetrics({
 
   return (
     <div 
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 py-1"
+      className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5 overflow-x-auto sm:overflow-visible pb-2 pt-1 scrollbar-none snap-x -mx-4 px-4 sm:mx-0 sm:px-0"
       role="region" 
       aria-label="Métricas rápidas e filtros"
     >
@@ -82,22 +82,22 @@ export function QuickMetrics({
             type="button"
             onClick={() => handleClick(card.id)}
             aria-pressed={isActive}
-            className={`group relative bg-white/95 dark:bg-slate-900/70 border rounded-2xl p-4 sm:p-5 text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:-translate-y-0.5 backdrop-blur-md flex flex-col justify-between ${
+            className={`group relative bg-white/95 dark:bg-slate-900/70 border rounded-xl sm:rounded-2xl p-3 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:-translate-y-0.5 backdrop-blur-md flex flex-col justify-between shrink-0 min-w-[120px] sm:min-w-0 flex-1 snap-start ${
               isActive
                 ? card.activeRing
                 : `border-slate-200/90 dark:border-slate-800/80 ${card.hoverBorder}`
             }`}
           >
             {/* Topo: Titulo */}
-            <div className="mb-1">
-              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wide uppercase">
+            <div className="mb-0.5 sm:mb-1">
+              <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase truncate block">
                 {card.label}
               </span>
             </div>
 
             {/* Centro: Numero Grande */}
-            <div className="mt-1">
-              <span className={`text-2xl sm:text-3xl font-black tracking-tight ${card.colorText}`}>
+            <div className="mt-0.5 sm:mt-1">
+              <span className={`text-xl sm:text-3xl font-black tracking-tight ${card.colorText}`}>
                 {card.count}
               </span>
             </div>

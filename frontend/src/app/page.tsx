@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { 
   Sun, 
@@ -88,6 +89,14 @@ export default function Home() {
 
   // Aba de visualizacao do usuario
   const [userTab, setUserTab] = useState<UserViewTab>('todas');
+
+  // Paginacao Progressiva para Alta Performance Mobile (Reduz DOM de >1800 para ~300 nós)
+  const [visibleCount, setVisibleCount] = useState(24);
+
+  // Redefine paginação ao alterar qualquer filtro
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [busca, plataforma, modalidade, area, senioridade, easyApply, apenasNovas, quickFilter, userTab]);
 
   // Carrega estatisticas globais do backend
   const fetchStats = useCallback(async () => {
@@ -273,35 +282,43 @@ export default function Home() {
     });
   }, [vagas, userTab, area, senioridade, isSaved, isApplied, isHidden]);
 
+  // Vagas visíveis limitadas para alta performance e baixíssimo TBT / DOM Size
+  const displayedVagas = useMemo(() => {
+    return vagasFiltradas.slice(0, visibleCount);
+  }, [vagasFiltradas, visibleCount]);
+
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-violet-500/20">
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
         
-        {/* Cabecalho Principal */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
-          <div className="flex items-center gap-3.5">
-            <div className="relative group cursor-pointer transition-transform hover:scale-[1.03]">
-              <img 
-                src="/logo.png?v=lente_transparente" 
+        {/* Cabecalho Principal: 1 linha perfeita no Mobile e Desktop */}
+        <header className="flex items-center justify-between gap-3 pb-3 sm:pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+            <div className="relative group cursor-pointer transition-transform hover:scale-[1.03] shrink-0">
+              <Image 
+                src="/logo.webp" 
                 alt="Logo Radar" 
-                className="h-12 sm:h-14 w-auto object-contain drop-shadow-md"
+                width={48}
+                height={48}
+                priority
+                className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-md"
               />
             </div>
             
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent truncate">
                   Pesquisa Vagas
                 </h1>
-                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold tracking-wide">
+                <div className="hidden xs:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold tracking-wide shrink-0">
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                   </span>
-                  <span>Monitorando</span>
+                  <span>Ao vivo</span>
                 </div>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
                 Radar de oportunidades em Dados e Tecnologia
               </p>
             </div>
@@ -311,7 +328,7 @@ export default function Home() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0 self-end sm:self-auto"
+            className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0"
             title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
             aria-label="Alternar tema"
           >
@@ -471,20 +488,38 @@ export default function Home() {
                - Laptops (1024px - 1440px): 3 colunas
                - Ultrawide / Desktop Grande (> 1440px): 4 colunas
             */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {vagasFiltradas.map((vaga) => (
-                <JobCard
-                  key={vaga.id}
-                  vaga={vaga}
-                  isSaved={isSaved(vaga.id)}
-                  isApplied={isApplied(vaga.id)}
-                  isHidden={isHidden(vaga.id)}
-                  onToggleSave={toggleSave}
-                  onToggleApplied={toggleApplied}
-                  onToggleHide={toggleHide}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                {displayedVagas.map((vaga) => (
+                  <JobCard
+                    key={vaga.id}
+                    vaga={vaga}
+                    isSaved={isSaved(vaga.id)}
+                    isApplied={isApplied(vaga.id)}
+                    isHidden={isHidden(vaga.id)}
+                    onToggleSave={toggleSave}
+                    onToggleApplied={toggleApplied}
+                    onToggleHide={toggleHide}
+                  />
+                ))}
+              </div>
+
+              {/* Botão Progressivo "Carregar Mais Vagas" para não sobrecarregar o DOM e mobile */}
+              {displayedVagas.length < vagasFiltradas.length && (
+                <div className="flex flex-col items-center justify-center pt-5 pb-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => Math.min(prev + 24, vagasFiltradas.length))}
+                    className="w-full sm:w-auto px-7 py-3 rounded-xl border border-violet-500/30 bg-violet-600/10 hover:bg-violet-600 text-violet-700 dark:text-violet-300 hover:text-white dark:hover:text-white font-semibold text-sm transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
+                  >
+                    <span>Carregar mais vagas ({vagasFiltradas.length - displayedVagas.length} restantes)</span>
+                  </button>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    Exibindo {displayedVagas.length} de {vagasFiltradas.length} vagas
+                  </span>
+                </div>
+              )}
+            </>
           )}
         </section>
       </main>

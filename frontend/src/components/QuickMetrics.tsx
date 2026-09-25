@@ -24,104 +24,108 @@ export function QuickMetrics({
     }
   };
 
-  const getCardStyle = (isActive: boolean, activeColorClass: string) => {
-    if (isActive) {
-      return `ring-2 ${activeColorClass} shadow-md -translate-y-0.5 scale-[1.02]`;
-    }
-    return 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5';
-  };
+  const cards = [
+    {
+      id: 'total' as const,
+      label: 'Total Geral',
+      count: totalDisplay,
+      desc: 'Oportunidades ativas',
+      colorText: 'text-slate-900 dark:text-white',
+      activeRing: 'ring-2 ring-violet-500 border-violet-500/60 bg-violet-50/70 dark:bg-violet-950/30',
+      hoverBorder: 'hover:border-violet-300 dark:hover:border-violet-700',
+    },
+    {
+      id: 'novas' as const,
+      label: 'Novas Vagas',
+      count: stats.novas,
+      desc: 'Coletadas recentemente',
+      colorText: 'text-emerald-600 dark:text-emerald-400',
+      activeRing: 'ring-2 ring-emerald-500 border-emerald-500/60 bg-emerald-50/70 dark:bg-emerald-950/30',
+      hoverBorder: 'hover:border-emerald-300 dark:hover:border-emerald-700',
+    },
+    {
+      id: 'remoto' as const,
+      label: 'Remotas',
+      count: stats.remotas,
+      desc: '100% à distância',
+      colorText: 'text-teal-600 dark:text-teal-400',
+      activeRing: 'ring-2 ring-teal-500 border-teal-500/60 bg-teal-50/70 dark:bg-teal-950/30',
+      hoverBorder: 'hover:border-teal-300 dark:hover:border-teal-700',
+    },
+    {
+      id: 'hibrido' as const,
+      label: 'Híbridas',
+      count: stats.hibridas,
+      desc: 'Flexível e presencial',
+      colorText: 'text-amber-600 dark:text-amber-400',
+      activeRing: 'ring-2 ring-amber-500 border-amber-500/60 bg-amber-50/70 dark:bg-amber-950/30',
+      hoverBorder: 'hover:border-amber-300 dark:hover:border-amber-700',
+    },
+    {
+      id: 'presencial' as const,
+      label: 'Presenciais',
+      count: stats.presenciais,
+      desc: 'No local da empresa',
+      colorText: 'text-purple-600 dark:text-purple-400',
+      activeRing: 'ring-2 ring-purple-500 border-purple-500/60 bg-purple-50/70 dark:bg-purple-950/30',
+      hoverBorder: 'hover:border-purple-300 dark:hover:border-purple-700',
+    },
+  ];
 
   return (
-    <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap" role="region" aria-label="Métricas rápidas e filtros">
-      {/* 1. Total Geral */}
-      <button
-        type="button"
-        onClick={() => handleClick('total')}
-        aria-pressed={activeFilter === 'total'}
-        className={`group bg-white/90 dark:bg-slate-900/90 border rounded-xl px-3.5 py-2 shadow-xs backdrop-blur-md min-w-[100px] text-left transition-all cursor-pointer ${getCardStyle(
-          activeFilter === 'total',
-          'ring-violet-500 border-violet-500/50 bg-violet-50/70 dark:bg-violet-950/30'
-        )}`}
-      >
-        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none">
-          Total Geral
-        </p>
-        <p className="text-xl font-bold text-slate-900 dark:text-white mt-1 leading-none">
-          {totalDisplay}
-        </p>
-      </button>
+    <div 
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 py-1"
+      role="region" 
+      aria-label="Métricas rápidas e filtros"
+    >
+      {cards.map((card) => {
+        const isActive = activeFilter === card.id;
 
-      {/* 2. Novas */}
-      <button
-        type="button"
-        onClick={() => handleClick('novas')}
-        aria-pressed={activeFilter === 'novas'}
-        className={`group bg-white/90 dark:bg-slate-900/90 border rounded-xl px-3.5 py-2 shadow-xs backdrop-blur-md min-w-[100px] text-left transition-all cursor-pointer ${getCardStyle(
-          activeFilter === 'novas',
-          'ring-emerald-500 border-emerald-500/60 bg-emerald-50/80 dark:bg-emerald-950/40'
-        )}`}
-      >
-        <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold leading-none">
-          Novas
-        </p>
-        <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mt-1 leading-none">
-          {stats.novas}
-        </p>
-      </button>
+        return (
+          <button
+            key={card.id}
+            type="button"
+            onClick={() => handleClick(card.id)}
+            aria-pressed={isActive}
+            className={`group relative bg-white/95 dark:bg-slate-900/70 border rounded-2xl p-4 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:-translate-y-0.5 backdrop-blur-md flex flex-col justify-between ${
+              isActive
+                ? card.activeRing
+                : `border-slate-200/90 dark:border-slate-800/80 ${card.hoverBorder}`
+            }`}
+          >
+            {/* Topo: Titulo */}
+            <div className="mb-2">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wide uppercase">
+                {card.label}
+              </span>
+            </div>
 
-      {/* 3. Remotas */}
-      <button
-        type="button"
-        onClick={() => handleClick('remoto')}
-        aria-pressed={activeFilter === 'remoto'}
-        className={`group bg-white/90 dark:bg-slate-900/90 border rounded-xl px-3.5 py-2 shadow-xs backdrop-blur-md min-w-[100px] text-left transition-all cursor-pointer ${getCardStyle(
-          activeFilter === 'remoto',
-          'ring-teal-500 border-teal-500/60 bg-teal-50/80 dark:bg-teal-950/40'
-        )}`}
-      >
-        <p className="text-[11px] text-teal-700 dark:text-teal-400 font-medium leading-none">
-          Remotas
-        </p>
-        <p className="text-xl font-bold text-teal-700 dark:text-teal-300 mt-1 leading-none">
-          {stats.remotas}
-        </p>
-      </button>
+            {/* Centro: Numero Grande */}
+            <div className="my-1">
+              <span className={`text-2xl sm:text-3xl font-black tracking-tight ${card.colorText}`}>
+                {card.count}
+              </span>
+            </div>
 
-      {/* 4. Hibridas */}
-      <button
-        type="button"
-        onClick={() => handleClick('hibrido')}
-        aria-pressed={activeFilter === 'hibrido'}
-        className={`group bg-white/90 dark:bg-slate-900/90 border rounded-xl px-3.5 py-2 shadow-xs backdrop-blur-md min-w-[100px] text-left transition-all cursor-pointer ${getCardStyle(
-          activeFilter === 'hibrido',
-          'ring-amber-500 border-amber-500/60 bg-amber-50/80 dark:bg-amber-950/40'
-        )}`}
-      >
-        <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium leading-none">
-          Híbridas
-        </p>
-        <p className="text-xl font-bold text-amber-700 dark:text-amber-300 mt-1 leading-none">
-          {stats.hibridas}
-        </p>
-      </button>
+            {/* Rodapé do Card: Descrição e Status */}
+            <div className="flex items-center justify-between gap-1 pt-2 mt-1 border-t border-slate-100 dark:border-slate-800/60 text-[11px]">
+              <span className="text-slate-500 dark:text-slate-400 truncate">
+                {card.desc}
+              </span>
 
-      {/* 5. Presenciais */}
-      <button
-        type="button"
-        onClick={() => handleClick('presencial')}
-        aria-pressed={activeFilter === 'presencial'}
-        className={`group bg-white/90 dark:bg-slate-900/90 border rounded-xl px-3.5 py-2 shadow-xs backdrop-blur-md min-w-[100px] text-left transition-all cursor-pointer ${getCardStyle(
-          activeFilter === 'presencial',
-          'ring-purple-500 border-purple-500/60 bg-purple-50/80 dark:bg-purple-950/40'
-        )}`}
-      >
-        <p className="text-[11px] text-purple-700 dark:text-purple-400 font-medium leading-none">
-          Presenciais
-        </p>
-        <p className="text-xl font-bold text-purple-700 dark:text-purple-300 mt-1 leading-none">
-          {stats.presenciais}
-        </p>
-      </button>
+              {isActive ? (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-violet-600 text-white shrink-0">
+                  Ativo
+                </span>
+              ) : (
+                <span className="text-[10px] font-medium text-slate-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors shrink-0">
+                  Filtrar
+                </span>
+              )}
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -38,7 +38,7 @@ export function JobCard({
 
   return (
     <article
-      className={`group relative bg-white/95 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900/90 rounded-xl p-4 flex flex-col justify-between transition-all duration-200 shadow-xs hover:shadow-md hover:shadow-violet-500/5 hover:-translate-y-0.5 backdrop-blur-md ${
+      className={`group relative bg-white/95 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900/90 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all duration-200 shadow-xs hover:shadow-md hover:shadow-violet-500/5 hover:-translate-y-0.5 backdrop-blur-md ${
         isApplied
           ? 'border border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-950/20'
           : vaga.is_nova
@@ -62,7 +62,7 @@ export function JobCard({
             </div>
           </div>
 
-          {/* Quick Actions (Favoritar, Candidatado, Ocultar) */}
+          {/* Quick Actions (Favoritar, Candidatado, Ocultar) com touch targets acessíveis */}
           <div className="flex items-center gap-1 shrink-0 -mr-1">
             <button
               type="button"
@@ -72,9 +72,9 @@ export function JobCard({
               }}
               title={isSaved ? "Remover dos favoritos" : "Salvar vaga"}
               aria-label={isSaved ? "Remover dos favoritos" : "Salvar vaga"}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer active:scale-95 ${
                 isSaved
-                  ? 'text-amber-500 hover:text-amber-600 bg-amber-500/10'
+                  ? 'text-amber-500 hover:text-amber-600 bg-amber-500/15'
                   : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
@@ -89,9 +89,9 @@ export function JobCard({
               }}
               title={isApplied ? "Candidatura marcada (clique para desfazer)" : "Marcar como candidatado"}
               aria-label={isApplied ? "Candidatura marcada" : "Marcar como candidatado"}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer active:scale-95 ${
                 isApplied
-                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/15'
                   : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
@@ -106,9 +106,9 @@ export function JobCard({
               }}
               title={isHidden ? "Restaurar vaga" : "Ocultar vaga da listagem"}
               aria-label={isHidden ? "Restaurar vaga" : "Ocultar vaga"}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer active:scale-95 ${
                 isHidden
-                  ? 'text-rose-500 hover:text-rose-600 bg-rose-500/10'
+                  ? 'text-rose-500 hover:text-rose-600 bg-rose-500/15'
                   : 'text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
@@ -164,12 +164,12 @@ export function JobCard({
           </span>
         </div>
 
-        {/* Botao CTA Primario em estilo Secondary / Outline Elegante */}
+        {/* Botao CTA Primario em estilo Secondary / Outline Elegante com touch-friendly padding */}
         <a
           href={vaga.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-violet-600/30 dark:border-violet-500/30 text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-950/20 hover:bg-violet-600 hover:text-white dark:hover:bg-violet-600 dark:hover:text-white text-xs font-semibold transition-all duration-200 shadow-xs hover:shadow-sm hover:scale-[1.02]"
+          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-3 sm:py-1.5 rounded-lg border border-violet-600/30 dark:border-violet-500/30 text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-950/20 hover:bg-violet-600 hover:text-white dark:hover:bg-violet-600 dark:hover:text-white text-xs font-semibold transition-all duration-200 shadow-xs hover:shadow-sm active:scale-[0.98]"
         >
           <span>Ver Vaga</span>
           <ExternalLink className="w-3 h-3" />

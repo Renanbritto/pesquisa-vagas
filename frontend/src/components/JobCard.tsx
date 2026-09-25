@@ -1,6 +1,5 @@
 import React from 'react';
 import { Vaga } from '../types/job';
-import { CompanyAvatar } from './CompanyAvatar';
 import { PlatformIcon } from './PlatformIcon';
 import { formatRelativeTime, formatFullDateTooltip, normalizarModalidade } from '../utils/dateUtils';
 import { 
@@ -47,18 +46,15 @@ export function JobCard({
       }`}
     >
       <div className="space-y-3">
-        {/* Topo: Avatar da Empresa + Nome/Localizacao + Acoes Rapidas */}
+        {/* Topo: Nome da Empresa / Localização + Ações Rápidas */}
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <CompanyAvatar name={vaga.empresa} size={32} />
-            <div className="min-w-0 flex-1">
-              <h4 className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug">
-                {vaga.empresa || 'Empresa Confidencial'}
-              </h4>
-              <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
-                <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                <span className="truncate">{vaga.localizacao || 'Brasil'}</span>
-              </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug">
+              {vaga.empresa || 'Empresa Confidencial'}
+            </h4>
+            <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+              <span className="truncate">{vaga.localizacao || 'Brasil'}</span>
             </div>
           </div>
 

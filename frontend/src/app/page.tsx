@@ -9,7 +9,9 @@ import {
   Search, 
   Database,
   Layers,
-  Undo2
+  Undo2,
+  Linkedin,
+  Github
 } from "lucide-react";
 import { Vaga, Estatisticas, QuickFilterType, UserViewTab } from "../types/job";
 import { QuickMetrics } from "../components/QuickMetrics";
@@ -338,20 +340,44 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Alternador de Tema Elegante (Modo Claro / Escuro) */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0"
-            title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
-            aria-label="Alternar tema"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
-            ) : (
-              <Moon className="w-4 h-4 text-violet-600 hover:-rotate-12 transition-transform" />
-            )}
-          </button>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <a
+              href="https://www.linkedin.com/in/renan-britto-7b3728212/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-[#0a66c2] dark:text-[#60a5fa] transition-all shadow-xs cursor-pointer hover:scale-105"
+              title="LinkedIn"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="w-4 h-4" />
+            </a>
+            
+            <a
+              href="https://github.com/Renanbritto"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all shadow-xs cursor-pointer hover:scale-105"
+              title="GitHub"
+              aria-label="GitHub"
+            >
+              <Github className="w-4 h-4" />
+            </a>
+
+            {/* Alternador de Tema Elegante (Modo Claro / Escuro) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0"
+              title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
+              aria-label="Alternar tema"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
+              ) : (
+                <Moon className="w-4 h-4 text-violet-600 hover:-rotate-12 transition-transform" />
+              )}
+            </button>
+          </div>
         </header>
 
         {/* 5 Cards de Métricas (KPIs Principais) */}

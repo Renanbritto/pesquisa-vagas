@@ -25,7 +25,7 @@ export function Footer() {
           <div className="flex items-center gap-3">
             {/* LinkedIn */}
             <a
-              href="https://www.linkedin.com/in/renanbritto/"
+              href="https://www.linkedin.com/in/renan-britto-7b3728212/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Perfil do LinkedIn de Renan Nocelli"
@@ -61,7 +61,7 @@ export function Footer() {
 
             {/* Instagram */}
             <a
-              href="https://www.instagram.com/renan_nocelli/"
+              href="https://www.instagram.com/renannocelli/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Perfil do Instagram de Renan Nocelli"

@@ -278,7 +278,7 @@ export default function Home() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         
         {/* Cabecalho Principal */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
           <div className="flex items-center gap-3.5">
             <div className="relative group cursor-pointer transition-transform hover:scale-[1.03]">
               <img 
@@ -307,31 +307,31 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between md:justify-end gap-2.5 overflow-x-auto pb-1 md:pb-0">
-            {/* Quick Metrics Interativos */}
-            <QuickMetrics
-              stats={stats}
-              totalVagasCarregadas={vagas.length}
-              activeFilter={quickFilter}
-              onSelectFilter={handleSelectQuickFilter}
-            />
-
-            {/* Alternador de Tema Elegante */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0"
-              title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
-              aria-label="Alternar tema"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
-              ) : (
-                <Moon className="w-4 h-4 text-violet-600 hover:-rotate-12 transition-transform" />
-              )}
-            </button>
-          </div>
+          {/* Alternador de Tema Elegante (Modo Claro / Escuro) */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0 self-end sm:self-auto"
+            title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
+            aria-label="Alternar tema"
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
+            ) : (
+              <Moon className="w-4 h-4 text-violet-600 hover:-rotate-12 transition-transform" />
+            )}
+          </button>
         </header>
+
+        {/* 5 Cards de Métricas (KPIs Principais) */}
+        <section aria-label="Indicadores principais">
+          <QuickMetrics
+            stats={stats}
+            totalVagasCarregadas={vagas.length}
+            activeFilter={quickFilter}
+            onSelectFilter={handleSelectQuickFilter}
+          />
+        </section>
 
         {/* Barra de Filtros Fixa (Sticky) */}
         <FilterBar

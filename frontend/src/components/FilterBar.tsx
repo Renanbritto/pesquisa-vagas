@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, X, Bookmark, CheckCircle2, EyeOff, RotateCcw, ChevronDown } from 'lucide-react';
+import { Search, X, Bookmark, CheckCircle2, EyeOff, RotateCcw, ChevronDown, Zap } from 'lucide-react';
 import { UserViewTab } from '../types/job';
 
 interface FilterBarProps {
@@ -92,12 +92,13 @@ export function FilterBar({
           <button
             type="button"
             onClick={onEasyApplyToggle}
-            className={`flex-1 sm:flex-initial flex items-center justify-center px-3.5 py-2.5 border rounded-xl text-xs font-semibold transition-all cursor-pointer select-none whitespace-nowrap ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 border rounded-xl text-xs font-semibold transition-all cursor-pointer select-none whitespace-nowrap ${
               easyApply
                 ? 'bg-amber-500/15 border-amber-500/60 text-amber-700 dark:text-amber-300 shadow-xs'
                 : 'bg-slate-100/70 dark:bg-slate-900/80 border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
+            <Zap className="w-3.5 h-3.5 text-amber-500" />
             <span>Aplicação Simplificada</span>
           </button>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { 
   Sun, 
@@ -9,6 +10,7 @@ import {
   Search, 
   Database,
   Layers,
+  BarChart3,
   Undo2
 } from "lucide-react";
 import { Vaga, Estatisticas, QuickFilterType, UserViewTab } from "../types/job";
@@ -338,12 +340,30 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Nav Pill: Vagas vs Dashboard */}
+            <nav className="flex items-center bg-slate-200/60 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-800 text-xs font-semibold">
+              <Link
+                href="/"
+                className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-violet-700 dark:text-violet-300 shadow-xs transition-all flex items-center gap-1.5"
+              >
+                <Layers className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+                <span className="hidden xs:inline">Explorar</span> Vagas
+              </Link>
+              <Link
+                href="/dashboard"
+                className="px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-1.5"
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                Dashboard
+              </Link>
+            </nav>
+
             <a
               href="https://www.linkedin.com/in/renan-britto-7b3728212/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-[#0a66c2] dark:text-[#60a5fa] transition-all shadow-xs cursor-pointer hover:scale-105 flex items-center justify-center"
+              className="hidden sm:flex group p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-[#0a66c2] dark:text-[#60a5fa] transition-all shadow-xs cursor-pointer hover:scale-105 items-center justify-center"
               title="LinkedIn"
               aria-label="LinkedIn"
             >
@@ -359,7 +379,7 @@ export default function Home() {
               href="https://github.com/Renanbritto"
               target="_blank"
               rel="noopener noreferrer"
-              className="group p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all shadow-xs cursor-pointer hover:scale-105 flex items-center justify-center"
+              className="hidden sm:flex group p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all shadow-xs cursor-pointer hover:scale-105 items-center justify-center"
               title="GitHub"
               aria-label="GitHub"
             >

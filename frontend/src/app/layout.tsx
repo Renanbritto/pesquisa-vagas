@@ -53,6 +53,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://pesquisa-vagas-api.onrender.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://pesquisa-vagas-api.onrender.com" />
+      </head>
       <body className={`${comfortaa.variable} antialiased min-h-screen flex flex-col`}>
         {children}
       </body>

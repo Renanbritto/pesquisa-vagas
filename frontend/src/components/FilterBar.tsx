@@ -70,6 +70,7 @@ export function FilterBar({
             value={busca}
             onChange={(e) => onBuscaChange(e.target.value)}
             placeholder="Buscar por cargo, tecnologia ou empresa..."
+            aria-label="Buscar vagas por cargo, tecnologia ou empresa"
             className="w-full pl-10 pr-9 py-2 sm:py-2.5 bg-slate-100/70 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
           />
           {busca && (
@@ -214,6 +215,7 @@ export function FilterBar({
             <select
               value={plataforma}
               onChange={(e) => onPlataformaChange(e.target.value)}
+              aria-label="Filtrar por plataforma de vagas"
               className="w-full appearance-none pl-2.5 pr-7 py-2 lg:py-1.5 bg-slate-100/70 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 focus:border-violet-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 outline-none cursor-pointer transition-all"
             >
               <option value="Todas">Plataforma: Todas</option>
@@ -229,6 +231,7 @@ export function FilterBar({
             <select
               value={modalidade}
               onChange={(e) => onModalidadeChange(e.target.value)}
+              aria-label="Filtrar por modalidade de trabalho"
               className="w-full appearance-none pl-2.5 pr-7 py-2 lg:py-1.5 bg-slate-100/70 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 focus:border-violet-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 outline-none cursor-pointer transition-all"
             >
               <option value="Todas">Modalidade: Todas</option>
@@ -244,6 +247,7 @@ export function FilterBar({
             <select
               value={area}
               onChange={(e) => onAreaChange(e.target.value)}
+              aria-label="Filtrar por área de atuação"
               className="w-full appearance-none pl-2.5 pr-7 py-2 lg:py-1.5 bg-slate-100/70 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 focus:border-violet-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 outline-none cursor-pointer transition-all"
             >
               <option value="Todas">Área: Todas</option>
@@ -260,6 +264,7 @@ export function FilterBar({
             <select
               value={senioridade}
               onChange={(e) => onSenioridadeChange(e.target.value)}
+              aria-label="Filtrar por nível de senioridade"
               className="w-full appearance-none pl-2.5 pr-7 py-2 lg:py-1.5 bg-slate-100/70 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 focus:border-violet-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 outline-none cursor-pointer transition-all"
             >
               <option value="Todas">Senioridade: Todas</option>

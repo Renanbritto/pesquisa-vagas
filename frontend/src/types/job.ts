@@ -11,6 +11,7 @@ export interface Vaga {
   data_postagem?: string;
   termo_busca?: string;
   is_nova?: boolean;
+  _timestamp?: number;
 }
 
 export interface Estatisticas {

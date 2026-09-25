@@ -28,6 +28,7 @@ export function Footer() {
               href="https://www.linkedin.com/in/renanbritto/"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Perfil do LinkedIn de Renan Nocelli"
               className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/5 dark:hover:bg-[#0A66C2]/15 text-slate-600 dark:text-slate-400 hover:text-[#0A66C2] dark:hover:text-[#0A66C2] text-xs font-semibold transition-all shadow-xs"
               title="LinkedIn de Renan Nocelli"
             >
@@ -45,6 +46,7 @@ export function Footer() {
               href="https://github.com/Renanbritto"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Perfil do GitHub de Renan Nocelli"
               className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-violet-500/40 hover:bg-violet-500/5 dark:hover:bg-violet-500/15 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-xs"
               title="GitHub de Renan Nocelli"
             >
@@ -62,6 +64,7 @@ export function Footer() {
               href="https://www.instagram.com/renan_nocelli/"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Perfil do Instagram de Renan Nocelli"
               className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-pink-500/40 hover:bg-pink-500/5 dark:hover:bg-pink-500/15 text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-400 text-xs font-semibold transition-all shadow-xs"
               title="Instagram de Renan Nocelli"
             >

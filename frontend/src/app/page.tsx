@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { 
   Sun, 
   Moon, 
@@ -18,6 +18,10 @@ import { JobCard } from "../components/JobCard";
 import { Footer } from "../components/Footer";
 import { useUserInteractions } from "../hooks/useUserInteractions";
 import { parseDataPostagemTimestamp } from "../utils/dateUtils";
+
+// Regex estaticos pré-compilados para máxima performance na filtragem
+const REGEX_PLENO = /\bpl\b|pleno|mid/i;
+const REGEX_SENIOR = /\bsr\b|sênior|senior/i;
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://pesquisa-vagas-api.onrender.com";
 
@@ -128,13 +132,16 @@ export default function Home() {
         throw new Error(`Erro na API (${response.status})`);
       }
       const data = await response.json();
-      const lista: Vaga[] = data.vagas || [];
+      const rawList: Vaga[] = data.vagas || [];
 
-      // Ordenacao cronologica rigorosa (mais recente primeiro)
-      lista.sort((a, b) => {
-        return parseDataPostagemTimestamp(b.data_postagem, b.data_coleta) - 
-               parseDataPostagemTimestamp(a.data_postagem, a.data_coleta);
-      });
+      // Pré-computa o timestamp uma única vez por vaga para eliminar milhares de chamadas regex na main thread
+      const lista: Vaga[] = rawList.map((v) => ({
+        ...v,
+        _timestamp: parseDataPostagemTimestamp(v.data_postagem, v.data_coleta)
+      }));
+
+      // Ordenação numérica cronológica direta O(N log N) ultrarrápida (0 chamadas a regex)
+      lista.sort((a, b) => (b._timestamp || 0) - (a._timestamp || 0));
 
       setVagas(lista);
     } catch (err) {
@@ -149,10 +156,17 @@ export default function Home() {
     fetchStats();
   }, [fetchStats]);
 
+  const isInitialMount = useRef(true);
+
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      fetchVagas();
+      return;
+    }
     const handler = setTimeout(() => {
       fetchVagas();
-    }, 250);
+    }, 200);
     return () => clearTimeout(handler);
   }, [fetchVagas]);
 
@@ -221,8 +235,11 @@ export default function Home() {
     userTab !== 'todas'
   );
 
-  // Filtragem multiárea, senioridade e abas de usuario
+  // Filtragem multiárea, senioridade e abas de usuario com alta performance
   const vagasFiltradas = useMemo(() => {
+    const now = Date.now();
+    const MS_60_DAYS = 60 * 24 * 3600 * 1000;
+
     return vagas.filter((vaga) => {
       // 1. Aba de usuario
       if (userTab === 'salvas' && !isSaved(vaga.id)) return false;
@@ -252,7 +269,7 @@ export default function Home() {
         }
       }
 
-      // 3. Filtro de Senioridade
+      // 3. Filtro de Senioridade (Usa REGEX estáticos pré-compilados)
       if (senioridade !== "Todas") {
         const titleLower = vaga.titulo.toLowerCase();
         if (senioridade === "Estágio") {
@@ -262,21 +279,18 @@ export default function Home() {
           const keys = ['júnior', 'junior', 'jr', 'entry'];
           if (!keys.some(k => titleLower.includes(k))) return false;
         } else if (senioridade === "Pleno") {
-          const keys = ['pleno', 'mid', 'pl\b'];
-          if (!keys.some(k => new RegExp(k, 'i').test(titleLower))) return false;
+          if (!REGEX_PLENO.test(titleLower)) return false;
         } else if (senioridade === "Sênior") {
-          const keys = ['sênior', 'senior', 'sr\b'];
-          if (!keys.some(k => new RegExp(k, 'i').test(titleLower))) return false;
+          if (!REGEX_SENIOR.test(titleLower)) return false;
         } else if (senioridade === "Lead") {
           const keys = ['lead', 'tech lead', 'líder', 'lider', 'especialista', 'specialist', 'coordenador', 'gerente', 'head'];
           if (!keys.some(k => titleLower.includes(k))) return false;
         }
       }
 
-      // 4. Limite de antiguidade: maximo 60 dias (elimina vagas velhas/poluidas)
-      const postTimestamp = parseDataPostagemTimestamp(vaga.data_postagem, vaga.data_coleta);
-      const ageDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
-      if (ageDays > 60) return false;
+      // 4. Limite de antiguidade: maximo 60 dias (puramente matematico O(1))
+      const postTimestamp = vaga._timestamp ?? parseDataPostagemTimestamp(vaga.data_postagem, vaga.data_coleta);
+      if (now - postTimestamp > MS_60_DAYS) return false;
 
       return true;
     });

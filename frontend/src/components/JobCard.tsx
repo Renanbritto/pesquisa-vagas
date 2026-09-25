@@ -33,8 +33,8 @@ export function JobCard({
 }: JobCardProps) {
   const isEasy = Boolean(vaga.easy_apply);
   const modalidadeExibicao = normalizarModalidade(vaga.modalidade);
-  const relativeDate = formatRelativeTime(vaga.data_postagem, vaga.data_coleta);
-  const fullDateTooltip = formatFullDateTooltip(vaga.data_postagem, vaga.data_coleta);
+  const relativeDate = formatRelativeTime(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
+  const fullDateTooltip = formatFullDateTooltip(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
 
   return (
     <article
@@ -169,6 +169,7 @@ export function JobCard({
           href={vaga.link}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`Ver vaga de ${vaga.titulo} na empresa ${vaga.empresa || 'confidencial'}`}
           className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-3 sm:py-1.5 rounded-lg border border-violet-600/30 dark:border-violet-500/30 text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-950/20 hover:bg-violet-600 hover:text-white dark:hover:bg-violet-600 dark:hover:text-white text-xs font-semibold transition-all duration-200 shadow-xs hover:shadow-sm active:scale-[0.98]"
         >
           <span>Ver Vaga</span>

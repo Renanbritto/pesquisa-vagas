@@ -41,10 +41,10 @@ export function parseDataPostagemTimestamp(dataPostagem?: string, dataColeta?: s
 /**
  * Formata para tempo relativo amigavel (ex.: "Ha 12 min", "Ha 3 horas", "Ontem", "Ha 2 dias").
  */
-export function formatRelativeTime(dataPostagem?: string, dataColeta?: string): string {
-  if (!dataPostagem && !dataColeta) return "Recente";
+export function formatRelativeTime(dataPostagem?: string, dataColeta?: string, precalculatedTimestamp?: number): string {
+  if (!dataPostagem && !dataColeta && !precalculatedTimestamp) return "Recente";
 
-  const timestamp = parseDataPostagemTimestamp(dataPostagem, dataColeta);
+  const timestamp = precalculatedTimestamp ?? parseDataPostagemTimestamp(dataPostagem, dataColeta);
   const now = Date.now();
   const diffMs = Math.max(0, now - timestamp);
   const diffSec = Math.floor(diffMs / 1000);
@@ -82,8 +82,8 @@ export function formatRelativeTime(dataPostagem?: string, dataColeta?: string): 
  * Formata para data e hora completa legivel para tooltips nativos (title).
  * Ex: "Publicado em 23/09/2026 as 15:30"
  */
-export function formatFullDateTooltip(dataPostagem?: string, dataColeta?: string): string {
-  const timestamp = parseDataPostagemTimestamp(dataPostagem, dataColeta);
+export function formatFullDateTooltip(dataPostagem?: string, dataColeta?: string, precalculatedTimestamp?: number): string {
+  const timestamp = precalculatedTimestamp ?? parseDataPostagemTimestamp(dataPostagem, dataColeta);
   const d = new Date(timestamp);
   
   if (isNaN(d.getTime())) {

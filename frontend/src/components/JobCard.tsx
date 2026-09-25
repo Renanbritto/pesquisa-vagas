@@ -137,10 +137,10 @@ export function JobCard({
             {modalidadeExibicao}
           </span>
 
-          {/* Easy Apply: Minimalista e Discreto */}
+          {/* Aplicação Simplificada: Minimalista e Discreto */}
           {isEasy && (
             <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md border border-amber-400/40 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 bg-amber-500/5">
-              Easy Apply
+              Aplicação Simplificada
             </span>
           )}
         </div>

@@ -1,15 +1,9 @@
 'use client';
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 import { 
-  Sun, 
-  Moon, 
   RefreshCw, 
-  Layers, 
-  BarChart3, 
-  Sparkles, 
   TrendingUp, 
   Laptop, 
   Building2, 
@@ -25,6 +19,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { Vaga, Estatisticas } from "../../types/job";
+import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { normalizarModalidade, parseDataPostagemTimestamp } from "../../utils/dateUtils";
 
@@ -49,31 +44,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Estatisticas | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [selectedTech, setSelectedTech] = useState<string | null>(null);
-
-  // Sincronização do tema com o localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as 'dark' | 'light' | null;
-    const initialTheme = savedTheme || 'dark';
-    setTheme(initialTheme);
-    if (initialTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   // Carrega dados completos para alimentar o storytelling
   const loadData = async () => {
@@ -230,74 +201,9 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-slate-50/50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-violet-500/20">
       <main className="flex-1 max-w-7xl w-full mx-auto p-3.5 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
         
-        {/* Cabecalho Principal com Navegação Integrada */}
-        <header className="flex items-center justify-between gap-3 pb-3 sm:pb-5 border-b border-slate-200/80 dark:border-slate-800/80">
-          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-            <Link href="/" className="relative group cursor-pointer transition-transform hover:scale-[1.03] shrink-0">
-              <Image 
-                src="/logo.webp" 
-                alt="Logo Radar" 
-                width={48}
-                height={48}
-                priority
-                className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-md"
-              />
-            </Link>
-            
-            <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-2">
-                <Link href="/">
-                  <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent truncate">
-                    Pesquisa Vagas
-                  </h1>
-                </Link>
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-500/10 dark:bg-violet-500/15 border border-violet-500/25 text-violet-700 dark:text-violet-400 text-[10px] font-semibold tracking-wide shrink-0">
-                  <Sparkles className="w-3 h-3 text-violet-500" />
-                  <span>Radar Analytics</span>
-                </div>
-              </div>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
-                Raio-X analítico e tendências do mercado de tecnologia
-              </p>
-            </div>
-          </div>
+        {/* Cabecalho Principal Unificado e Responsivo (Sem cortes nem sobreposições) */}
+        <Header activePage="dashboard" />
 
-          {/* Ações: Navegação Vagas vs Dashboard + Alternador de Tema */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Nav Pill */}
-            <nav className="flex items-center bg-slate-200/60 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-800 text-xs font-semibold">
-              <Link
-                href="/"
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-1.5"
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Explorar</span> Vagas
-              </Link>
-              <Link
-                href="/dashboard"
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-violet-700 dark:text-violet-300 shadow-xs transition-all flex items-center gap-1.5"
-              >
-                <BarChart3 className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
-                <span>Dashboard</span>
-              </Link>
-            </nav>
-
-            {/* Alternador de Tema */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-xs shrink-0"
-              title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
-              aria-label="Alternar tema"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
-              ) : (
-                <Moon className="w-4 h-4 text-violet-600 hover:-rotate-12 transition-transform" />
-              )}
-            </button>
-          </div>
-        </header>
 
         {/* HERO STORYTELLING BANNER */}
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-700 to-slate-900 p-6 sm:p-8 text-white shadow-xl shadow-violet-500/10">

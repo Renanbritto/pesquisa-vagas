@@ -339,10 +339,10 @@ export default function DashboardPage() {
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                   Capítulo 2
                 </span>
-                <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                   <Laptop className="w-5 h-5 text-indigo-500" />
                   <span>Para Onde Foi o Home Office?</span>
-                </h4>
+                </h3>
               </div>
               <span className="text-xs px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-500/20">
                 Tendência 2026
@@ -403,10 +403,10 @@ export default function DashboardPage() {
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                   Capítulo 3
                 </span>
-                <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-amber-500" />
                   <span>Onde as Oportunidades Estão?</span>
-                </h4>
+                </h3>
               </div>
               <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/20">
                 Gupy vs LinkedIn
@@ -460,10 +460,10 @@ export default function DashboardPage() {
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 Capítulo 4 • Análise de Competências
               </span>
-              <h4 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                 <Code2 className="w-5 h-5 text-violet-600" />
                 <span>O Arsenal Tecnológico Mais Quente</span>
-              </h4>
+              </h3>
             </div>
             <p className="text-xs text-slate-500 max-w-sm sm:text-right">
               Clique em qualquer ferramenta para ver as vagas abertas relacionadas no radar.
@@ -573,10 +573,10 @@ export default function DashboardPage() {
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 Capítulo 5
               </span>
-              <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                 <Compass className="w-5 h-5 text-teal-500" />
                 <span>O Funil da Senioridade</span>
-              </h4>
+              </h3>
             </div>
 
             {/* Pirâmide Visual */}
@@ -639,10 +639,10 @@ export default function DashboardPage() {
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 Capítulo 6
               </span>
-              <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-rose-500" />
                 <span>Os Polos & Empresas Contratantes</span>
-              </h4>
+              </h3>
             </div>
 
             {/* Lista das Maiores Contratantes */}

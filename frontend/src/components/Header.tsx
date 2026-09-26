@@ -52,6 +52,7 @@ export function Header({ activePage }: HeaderProps) {
               width={48}
               height={48}
               priority
+              sizes="48px"
               className="h-9 w-9 sm:h-11 sm:w-11 object-contain drop-shadow-md"
             />
           </Link>

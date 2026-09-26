@@ -319,12 +319,12 @@ export default function Home() {
         <section className="space-y-4 pt-1">
           {/* Header da Listagem: Contador e Botao de Atualizar */}
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span className="font-medium">
+            <h2 className="font-medium text-xs text-slate-500 dark:text-slate-400 m-0">
               Exibindo <strong className="text-slate-900 dark:text-slate-200">{vagasFiltradas.length}</strong> {vagasFiltradas.length === 1 ? 'oportunidade' : 'oportunidades'}
               {userTab === 'salvas' && ' favoritadas'}
               {userTab === 'candidatadas' && ' onde você se candidatou'}
               {userTab === 'ocultadas' && ' ocultadas por você'}
-            </span>
+            </h2>
 
             <div className="flex items-center gap-2">
               {userTab === 'ocultadas' && hiddenIds.size > 0 && (

@@ -49,9 +49,9 @@ export function JobCard({
         {/* Topo: Nome da Empresa / Localização + Ações Rápidas */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h4 className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug">
+            <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug block">
               {vaga.empresa || 'Empresa Confidencial'}
-            </h4>
+            </span>
             <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
               <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
               <span className="truncate">{vaga.localizacao || 'Brasil'}</span>

@@ -280,17 +280,7 @@ export default function Home() {
         {/* Cabecalho Principal Unificado e Responsivo (Sem cortes nem sobreposições) */}
         <Header activePage="vagas" />
 
-        {/* 5 Cards de Métricas (KPIs Principais) */}
-        <section aria-label="Indicadores principais">
-          <QuickMetrics
-            stats={stats}
-            totalVagasCarregadas={vagas.length}
-            activeFilter={quickFilter}
-            onSelectFilter={handleSelectQuickFilter}
-          />
-        </section>
-
-        {/* Barra de Filtros Fixa (Sticky) */}
+        {/* Barra de Filtros e Busca (Ação Principal) */}
         <FilterBar
           busca={busca}
           onBuscaChange={setBusca}
@@ -314,6 +304,16 @@ export default function Home() {
           onLimparFiltros={limparFiltros}
           temFiltroAtivo={temFiltroAtivo}
         />
+
+        {/* 5 Cards de Métricas (KPIs / Filtros Rápidos de Modalidade) */}
+        <section aria-label="Indicadores principais">
+          <QuickMetrics
+            stats={stats}
+            totalVagasCarregadas={vagas.length}
+            activeFilter={quickFilter}
+            onSelectFilter={handleSelectQuickFilter}
+          />
+        </section>
 
         {/* Secao de Conteudo / Listagem */}
         <section className="space-y-4 pt-1">

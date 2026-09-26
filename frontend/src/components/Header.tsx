@@ -81,10 +81,10 @@ export function Header({ activePage }: HeaderProps) {
               )}
             </div>
 
-            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px] xs:max-w-xs sm:max-w-none">
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
               {activePage === 'vagas' 
-                ? 'Radar de oportunidades em Dados e Tecnologia' 
-                : 'Raio-X analítico e tendências do mercado'}
+                ? 'Radar de oportunidades' 
+                : 'Raio-x do mercado'}
             </p>
           </div>
         </div>

@@ -65,14 +65,14 @@ export function Header({ activePage }: HeaderProps) {
                 </h1>
               </Link>
 
-              {/* Badges contextuais: exibidos apenas a partir de sm: para evitar aperto no mobile */}
+              {/* Badges contextuais: 'On' no radar de vagas e 'Radar Analytics' no dashboard */}
               {activePage === 'vagas' ? (
-                <div className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold tracking-wide shrink-0">
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold tracking-wide shrink-0">
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                   </span>
-                  <span>Ao vivo</span>
+                  <span>On</span>
                 </div>
               ) : (
                 <div className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-500/10 dark:bg-violet-500/15 border border-violet-500/25 text-violet-700 dark:text-violet-400 text-[10px] font-semibold tracking-wide shrink-0">

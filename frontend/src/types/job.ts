@@ -25,4 +25,4 @@ export interface Estatisticas {
 
 export type QuickFilterType = 'total' | 'novas' | 'remoto' | 'hibrido' | 'presencial' | null;
 
-export type UserViewTab = 'todas' | 'salvas' | 'candidatadas' | 'ocultadas';
+export type UserViewTab = 'todas' | 'radar' | 'salvas' | 'candidatadas' | 'ocultadas';

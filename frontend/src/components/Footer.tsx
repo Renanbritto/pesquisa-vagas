@@ -5,18 +5,18 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
+    <footer className="mt-16 border-t border-white/10 bg-[#0b0f1a]/95 backdrop-blur-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           
           {/* Mensagem Principal */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-1">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center justify-center sm:justify-start flex-wrap gap-1">
+            <p className="text-sm font-heading font-medium text-slate-300 flex items-center justify-center sm:justify-start flex-wrap gap-1">
               <span>Feito com carinho</span>
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500 inline-block animate-pulse shrink-0" />
-              <span>por <strong className="text-slate-900 dark:text-white font-semibold">Renan Nocelli</strong>, boa sorte!</span>
+              <Heart className="w-4 h-4 text-[#f43f5e] fill-[#f43f5e] inline-block animate-pulse shrink-0" />
+              <span>por <strong className="text-white font-bold">Renan Nocelli</strong>, boa sorte!</span>
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-400 font-sans">
               Radar inteligente de vagas em Dados e Tecnologia • Atualizações contínuas
             </p>
           </div>
@@ -29,7 +29,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Perfil do LinkedIn de Renan Nocelli"
-              className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/5 dark:hover:bg-[#0A66C2]/15 text-slate-600 dark:text-slate-400 hover:text-[#0A66C2] dark:hover:text-[#0A66C2] text-xs font-semibold transition-all shadow-xs"
+              className="group flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:border-[#06b6d4]/40 hover:bg-[#06b6d4]/10 text-slate-300 hover:text-[#06b6d4] text-xs font-heading font-semibold transition-all shadow-sm"
               title="LinkedIn de Renan Nocelli"
             >
               <svg
@@ -47,7 +47,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Perfil do GitHub de Renan Nocelli"
-              className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-violet-500/40 hover:bg-violet-500/5 dark:hover:bg-violet-500/15 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-xs"
+              className="group flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:border-white/25 hover:bg-white/[0.08] text-slate-300 hover:text-white text-xs font-heading font-semibold transition-all shadow-sm"
               title="GitHub de Renan Nocelli"
             >
               <svg
@@ -65,7 +65,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Perfil do Instagram de Renan Nocelli"
-              className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 hover:border-pink-500/40 hover:bg-pink-500/5 dark:hover:bg-pink-500/15 text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-400 text-xs font-semibold transition-all shadow-xs"
+              className="group flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:border-[#f43f5e]/40 hover:bg-[#f43f5e]/10 text-slate-300 hover:text-[#f43f5e] text-xs font-heading font-semibold transition-all shadow-sm"
               title="Instagram de Renan Nocelli"
             >
               <svg

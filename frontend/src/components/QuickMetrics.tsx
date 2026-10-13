@@ -29,41 +29,51 @@ export function QuickMetrics({
       id: 'total' as const,
       label: 'Total Geral',
       count: totalDisplay,
-      colorText: 'text-slate-900 dark:text-white',
-      activeRing: 'ring-2 ring-violet-500 border-violet-500/60 bg-violet-50/70 dark:bg-violet-950/30',
-      hoverBorder: 'hover:border-violet-300 dark:hover:border-violet-700',
+      colorText: 'text-[#06b6d4]',
+      glowColor: 'shadow-[#06b6d4]/20',
+      dotColor: 'bg-[#06b6d4] shadow-[0_0_8px_#06b6d4]',
+      activeRing: 'ring-2 ring-[#06b6d4] border-[#06b6d4]/60 bg-[#06b6d4]/10 shadow-lg shadow-[#06b6d4]/25',
+      hoverBorder: 'hover:border-[#06b6d4]/50 hover:shadow-lg hover:shadow-[#06b6d4]/15',
     },
     {
       id: 'novas' as const,
       label: 'Novas Vagas',
       count: stats.novas,
-      colorText: 'text-emerald-600 dark:text-emerald-400',
-      activeRing: 'ring-2 ring-emerald-500 border-emerald-500/60 bg-emerald-50/70 dark:bg-emerald-950/30',
-      hoverBorder: 'hover:border-emerald-300 dark:hover:border-emerald-700',
+      colorText: 'text-[#10b981]',
+      glowColor: 'shadow-[#10b981]/20',
+      dotColor: 'bg-[#10b981] shadow-[0_0_8px_#10b981]',
+      activeRing: 'ring-2 ring-[#10b981] border-[#10b981]/60 bg-[#10b981]/10 shadow-lg shadow-[#10b981]/25',
+      hoverBorder: 'hover:border-[#10b981]/50 hover:shadow-lg hover:shadow-[#10b981]/15',
     },
     {
       id: 'remoto' as const,
       label: 'Remotas',
       count: stats.remotas,
-      colorText: 'text-teal-600 dark:text-teal-400',
-      activeRing: 'ring-2 ring-teal-500 border-teal-500/60 bg-teal-50/70 dark:bg-teal-950/30',
-      hoverBorder: 'hover:border-teal-300 dark:hover:border-teal-700',
+      colorText: 'text-[#06b6d4]',
+      glowColor: 'shadow-[#06b6d4]/20',
+      dotColor: 'bg-[#06b6d4] shadow-[0_0_8px_#06b6d4]',
+      activeRing: 'ring-2 ring-[#06b6d4] border-[#06b6d4]/60 bg-[#06b6d4]/10 shadow-lg shadow-[#06b6d4]/25',
+      hoverBorder: 'hover:border-[#06b6d4]/50 hover:shadow-lg hover:shadow-[#06b6d4]/15',
     },
     {
       id: 'hibrido' as const,
       label: 'Híbridas',
       count: stats.hibridas,
-      colorText: 'text-amber-600 dark:text-amber-400',
-      activeRing: 'ring-2 ring-amber-500 border-amber-500/60 bg-amber-50/70 dark:bg-amber-950/30',
-      hoverBorder: 'hover:border-amber-300 dark:hover:border-amber-700',
+      colorText: 'text-[#f59e0b]',
+      glowColor: 'shadow-[#f59e0b]/20',
+      dotColor: 'bg-[#f59e0b] shadow-[0_0_8px_#f59e0b]',
+      activeRing: 'ring-2 ring-[#f59e0b] border-[#f59e0b]/60 bg-[#f59e0b]/10 shadow-lg shadow-[#f59e0b]/25',
+      hoverBorder: 'hover:border-[#f59e0b]/50 hover:shadow-lg hover:shadow-[#f59e0b]/15',
     },
     {
       id: 'presencial' as const,
       label: 'Presenciais',
       count: stats.presenciais,
-      colorText: 'text-purple-600 dark:text-purple-400',
-      activeRing: 'ring-2 ring-purple-500 border-purple-500/60 bg-purple-50/70 dark:bg-purple-950/30',
-      hoverBorder: 'hover:border-purple-300 dark:hover:border-purple-700',
+      colorText: 'text-[#f43f5e]',
+      glowColor: 'shadow-[#f43f5e]/20',
+      dotColor: 'bg-[#f43f5e] shadow-[0_0_8px_#f43f5e]',
+      activeRing: 'ring-2 ring-[#f43f5e] border-[#f43f5e]/60 bg-[#f43f5e]/10 shadow-lg shadow-[#f43f5e]/25',
+      hoverBorder: 'hover:border-[#f43f5e]/50 hover:shadow-lg hover:shadow-[#f43f5e]/15',
     },
   ];
 
@@ -82,22 +92,23 @@ export function QuickMetrics({
             type="button"
             onClick={() => handleClick(card.id)}
             aria-pressed={isActive}
-            className={`group relative bg-white/95 dark:bg-slate-900/70 border rounded-xl sm:rounded-2xl p-3 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:-translate-y-0.5 backdrop-blur-md flex flex-col justify-between shrink-0 min-w-[120px] sm:min-w-0 flex-1 snap-start ${
+            className={`group relative bg-[#0b0f1a]/95 backdrop-blur-2xl border rounded-2xl sm:rounded-3xl p-3 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xl hover:-translate-y-0.5 flex flex-col justify-between shrink-0 min-w-[124px] sm:min-w-0 flex-1 snap-start ${
               isActive
                 ? card.activeRing
-                : `border-slate-200/90 dark:border-slate-800/80 ${card.hoverBorder}`
+                : `border-white/10 ${card.hoverBorder}`
             }`}
           >
-            {/* Topo: Titulo */}
-            <div className="mb-0.5 sm:mb-1">
-              <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase truncate block">
+            {/* Topo: Rótulo / Título em Comfortaa com Indicador Neon */}
+            <div className="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
+              <span className="font-heading text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wider uppercase truncate block">
                 {card.label}
               </span>
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${card.dotColor}`} />
             </div>
 
-            {/* Centro: Numero Grande */}
+            {/* Centro/Base: Valor Métrico em JetBrains Mono extrabold */}
             <div className="mt-0.5 sm:mt-1">
-              <span className={`text-xl sm:text-3xl font-black tracking-tight ${card.colorText}`}>
+              <span className={`font-mono font-extrabold text-2xl sm:text-3xl tracking-tight block ${card.colorText}`}>
                 {card.count}
               </span>
             </div>

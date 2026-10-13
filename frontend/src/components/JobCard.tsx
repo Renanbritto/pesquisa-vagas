@@ -19,6 +19,7 @@ interface JobCardProps {
   onToggleSave?: (id: string) => void;
   onToggleApplied?: (id: string) => void;
   onToggleHide?: (id: string) => void;
+  onOpenLink?: (id: string) => void;
 }
 
 export function JobCard({
@@ -29,6 +30,7 @@ export function JobCard({
   onToggleSave,
   onToggleApplied,
   onToggleHide,
+  onOpenLink,
 }: JobCardProps) {
   const isEasy = Boolean(vaga.easy_apply);
   const modalidadeExibicao = normalizarModalidade(vaga.modalidade);
@@ -37,23 +39,23 @@ export function JobCard({
 
   return (
     <article
-      className={`group relative bg-white/95 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900/90 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all duration-200 shadow-xs hover:shadow-md hover:shadow-violet-500/5 hover:-translate-y-0.5 backdrop-blur-md ${
+      className={`group relative bg-[#0b0f1a]/95 backdrop-blur-2xl rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-xl hover:-translate-y-0.5 border ${
         isApplied
-          ? 'border border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-950/20'
+          ? 'border-[#10b981]/40 bg-[#10b981]/5 shadow-[#10b981]/5'
           : vaga.is_nova
-          ? 'border-2 border-emerald-500/40 dark:border-emerald-500/30'
-          : 'border border-slate-200/90 dark:border-slate-800/80 hover:border-violet-300 dark:hover:border-violet-500/40'
+          ? 'border-[#10b981]/35 shadow-[#10b981]/5'
+          : 'border-white/10 hover:border-white/25 hover:shadow-cyan-500/5'
       }`}
     >
       <div className="space-y-3">
         {/* Topo: Nome da Empresa / Localização + Ações Rápidas */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug block">
+            <span className="font-heading font-semibold text-xs text-slate-200 truncate leading-snug block">
               {vaga.empresa || 'Empresa Confidencial'}
             </span>
-            <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1 text-[11px] text-slate-400 mt-0.5 font-sans">
+              <MapPin className="w-3 h-3 text-[#06b6d4] shrink-0" />
               <span className="truncate">{vaga.localizacao || 'Brasil'}</span>
             </div>
           </div>
@@ -68,10 +70,10 @@ export function JobCard({
               }}
               title={isSaved ? "Remover dos favoritos" : "Salvar vaga"}
               aria-label={isSaved ? "Remover dos favoritos" : "Salvar vaga"}
-              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer active:scale-95 ${
+              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-xl transition-colors cursor-pointer active:scale-95 ${
                 isSaved
-                  ? 'text-amber-500 hover:text-amber-600 bg-amber-500/15'
-                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'text-[#f59e0b] bg-[#f59e0b]/15'
+                  : 'text-slate-400 hover:text-white hover:bg-white/10'
               }`}
             >
               <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
@@ -85,13 +87,13 @@ export function JobCard({
               }}
               title={isApplied ? "Candidatura marcada (clique para desfazer)" : "Marcar como candidatado"}
               aria-label={isApplied ? "Candidatura marcada" : "Marcar como candidatado"}
-              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer active:scale-95 ${
+              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-xl transition-colors cursor-pointer active:scale-95 ${
                 isApplied
-                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/15'
-                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'text-[#10b981] bg-[#10b981]/15'
+                  : 'text-slate-400 hover:text-white hover:bg-white/10'
               }`}
             >
-              <CheckCircle2 className={`w-3.5 h-3.5 ${isApplied ? 'fill-emerald-500/20' : ''}`} />
+              <CheckCircle2 className={`w-3.5 h-3.5 ${isApplied ? 'fill-[#10b981]/20' : ''}`} />
             </button>
 
             <button
@@ -102,10 +104,10 @@ export function JobCard({
               }}
               title={isHidden ? "Restaurar vaga" : "Ocultar vaga da listagem"}
               aria-label={isHidden ? "Restaurar vaga" : "Ocultar vaga"}
-              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer active:scale-95 ${
+              className={`w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center rounded-xl transition-colors cursor-pointer active:scale-95 ${
                 isHidden
-                  ? 'text-rose-500 hover:text-rose-600 bg-rose-500/15'
-                  : 'text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'text-[#f43f5e] bg-[#f43f5e]/15'
+                  : 'text-slate-400 hover:text-[#f43f5e] hover:bg-white/10'
               }`}
             >
               <EyeOff className="w-3.5 h-3.5" />
@@ -117,45 +119,51 @@ export function JobCard({
         <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
           {/* Status Novo */}
           {vaga.is_nova && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-400/30 dark:border-emerald-500/30 shadow-xs flex items-center gap-1">
+            <span className="text-[10px] font-heading font-bold px-2 py-0.5 rounded-lg border bg-[#10b981]/15 text-[#10b981] border-[#10b981]/30 shadow-xs flex items-center gap-1">
               Novo
             </span>
           )}
 
           {/* Plataforma: Neutro + Mini Logo SVG */}
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-100/90 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <span className="text-[10px] font-heading font-medium px-2 py-0.5 rounded-lg border border-white/10 bg-white/[0.04] text-slate-300 flex items-center gap-1.5">
             <PlatformIcon platform={vaga.plataforma} size={11} />
             <span>{vaga.plataforma || 'Vaga'}</span>
           </span>
 
-          {/* Modalidade: Estilo Outline Sutil */}
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-md border border-slate-300/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-transparent">
+          {/* Modalidade: Estilo Neon Semântico Sutil */}
+          <span className={`text-[10px] font-heading font-medium px-2 py-0.5 rounded-lg border ${
+            modalidadeExibicao.toLowerCase().includes('remot')
+              ? 'border-[#06b6d4]/30 bg-[#06b6d4]/10 text-[#06b6d4]'
+              : modalidadeExibicao.toLowerCase().includes('híbrid') || modalidadeExibicao.toLowerCase().includes('hibrid')
+              ? 'border-[#f59e0b]/30 bg-[#f59e0b]/10 text-[#f59e0b]'
+              : 'border-[#f43f5e]/30 bg-[#f43f5e]/10 text-[#f43f5e]'
+          }`}>
             {modalidadeExibicao}
           </span>
 
           {/* Aplicação Simplificada: Minimalista e Discreto */}
           {isEasy && (
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md border border-amber-400/40 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 bg-amber-500/5">
+            <span className="text-[10px] font-heading font-medium px-2 py-0.5 rounded-lg border border-[#f59e0b]/30 text-[#f59e0b] bg-[#f59e0b]/10">
               Aplicação Simplificada
             </span>
           )}
         </div>
 
         {/* Titulo da Vaga */}
-        <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-snug line-clamp-2 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors">
+        <h3 className="font-heading font-bold text-slate-100 text-sm leading-snug line-clamp-2 group-hover:text-[#06b6d4] transition-colors">
           {vaga.titulo}
         </h3>
       </div>
 
       {/* Rodapé do Cartão */}
-      <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800/70 flex items-center justify-between gap-2">
+      <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between gap-2">
         {/* Data com Tempo Relativo + Tooltip Nativo */}
         <div 
-          className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 cursor-help"
+          className="flex items-center gap-1.5 text-[11px] text-slate-400 cursor-help font-mono"
           title={fullDateTooltip}
         >
-          <Calendar className="w-3 h-3 text-slate-400" />
-          <span className="font-medium text-slate-600 dark:text-slate-300">
+          <Calendar className="w-3 h-3 text-[#06b6d4]" />
+          <span className="font-medium text-slate-300">
             {relativeDate}
           </span>
         </div>
@@ -165,8 +173,9 @@ export function JobCard({
           href={vaga.link}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => onOpenLink?.(vaga.id)}
           aria-label={`Ver vaga de ${vaga.titulo} na empresa ${vaga.empresa || 'confidencial'}`}
-          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-3 sm:py-1.5 rounded-lg border border-violet-600/30 dark:border-violet-500/30 text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-950/20 hover:bg-violet-600 hover:text-white dark:hover:bg-violet-600 dark:hover:text-white text-xs font-semibold transition-all duration-200 shadow-xs hover:shadow-sm active:scale-[0.98]"
+          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-[#06b6d4] hover:text-slate-950 hover:border-[#06b6d4] text-slate-200 text-xs font-heading font-semibold transition-all duration-200 shadow-sm active:scale-[0.98]"
         >
           <span>Ver Vaga</span>
           <ExternalLink className="w-3 h-3" />

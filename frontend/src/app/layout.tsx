@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Comfortaa } from "next/font/google";
+import { Comfortaa, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const comfortaa = Comfortaa({
   variable: "--font-comfortaa",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -57,7 +64,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://pesquisa-vagas-api.onrender.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://pesquisa-vagas-api.onrender.com" />
       </head>
-      <body className={`${comfortaa.variable} antialiased min-h-screen flex flex-col`}>
+      <body className={`${comfortaa.variable} ${jetbrainsMono.variable} antialiased min-h-screen flex flex-col bg-[#090d16] text-slate-100 font-sans selection:bg-cyan-500/20`}>
         {children}
       </body>
     </html>

@@ -8,13 +8,13 @@ export function getSupabaseServer(): SupabaseClient {
   const supabaseUrl =
     process.env.SUPABASE_URL ||
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    'https://placeholder-url.supabase.co';
+    'https://dwddoprlifqbczzqiwiu.supabase.co';
 
   const supabaseKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    'placeholder-anon-key';
+    'sb_publishable_z7V3BOIY9yfN58hgys9OMQ_W0RQiq_g';
 
   cachedClient = createClient(supabaseUrl, supabaseKey, {
     auth: {

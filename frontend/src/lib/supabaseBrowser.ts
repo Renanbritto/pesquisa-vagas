@@ -5,8 +5,8 @@ let browserClient: SupabaseClient | null = null;
 export function getSupabaseBrowser(): SupabaseClient {
   if (browserClient) return browserClient;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dwddoprlifqbczzqiwiu.supabase.co';
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_z7V3BOIY9yfN58hgys9OMQ_W0RQiq_g';
 
   browserClient = createClient(url, anonKey, {
     auth: {

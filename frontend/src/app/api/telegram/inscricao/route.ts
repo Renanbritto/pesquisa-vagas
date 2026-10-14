@@ -65,7 +65,9 @@ export async function POST(req: NextRequest) {
       : [];
 
     const cidadesSlug = Array.isArray(body.cidades_slug)
-      ? body.cidades_slug.map((c) => c.trim().toLowerCase()).filter(Boolean)
+      ? body.cidades_slug
+          .map((c) => c.trim().toLowerCase())
+          .filter((c) => Boolean(c) && c !== 'qualquer' && c !== 'todas')
       : [];
 
     const modalidadesValidas = ['remoto', 'hibrido', 'presencial'];

@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
 
       const palavras = pref?.palavras_incluidas?.join(', ') || 'Nenhuma';
       const excluidas = pref?.palavras_excluidas?.join(', ') || 'Nenhuma';
-      const cidades = pref?.cidades_slug?.join(', ') || 'Todas';
+      const cidades = pref?.cidades_slug && pref.cidades_slug.length > 0 ? pref.cidades_slug.join(', ') : 'Qualquer Cidade (Sem restrição)';
       const modalidades = pref?.modalidades?.join(', ') || 'Todas';
       const niveis = pref?.senioridades?.join(', ') || 'Todos';
 

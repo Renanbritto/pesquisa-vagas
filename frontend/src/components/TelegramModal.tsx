@@ -24,6 +24,7 @@ interface TelegramModalProps {
 
 const PALAVRAS_SUGERIDAS = ['Power BI', 'Python', 'SQL', 'Analista de Dados', 'Excel', 'Engenheiro de Dados'];
 const CIDADES_SUGERIDAS = [
+  { nome: 'Qualquer Cidade', slug: 'qualquer' },
   { nome: 'São Paulo', slug: 'sao-paulo' },
   { nome: 'Rio de Janeiro', slug: 'rio-de-janeiro' },
   { nome: 'Juiz de Fora', slug: 'juiz-de-fora' },
@@ -41,7 +42,9 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
   const [inputPalavra, setInputPalavra] = useState('');
   const [senioridades, setSenioridades] = useState<string[]>(['junior', 'pleno']);
   const [modalidades, setModalidades] = useState<string[]>(['remoto', 'hibrido', 'presencial']);
-  const [cidades, setCidades] = useState<string[]>(['sao-paulo', 'juiz-de-fora']);
+  const [cidades, setCidades] = useState<string[]>(['qualquer']);
+  const [inputCidade, setInputCidade] = useState('');
+  const [cidadesCustom, setCidadesCustom] = useState<{ nome: string; slug: string }[]>([]);
   const [apenasEasyApply, setApenasEasyApply] = useState(false);
 
   // Estados de Fluxo
@@ -76,7 +79,19 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
         if (!error && data) {
           if (data.palavras_incluidas?.length) setPalavras(data.palavras_incluidas);
           if (data.palavras_excluidas?.length) setPalavrasExcluidas(data.palavras_excluidas);
-          if (data.cidades_slug?.length) setCidades(data.cidades_slug);
+          if (data.cidades_slug && data.cidades_slug.length > 0) {
+            setCidades(data.cidades_slug);
+            const slugsPadrao = new Set(CIDADES_SUGERIDAS.map((c) => c.slug));
+            const custom = data.cidades_slug
+              .filter((s: string) => !slugsPadrao.has(s) && s !== 'qualquer')
+              .map((s: string) => ({
+                nome: s.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                slug: s,
+              }));
+            if (custom.length) setCidadesCustom(custom);
+          } else {
+            setCidades(['qualquer']);
+          }
           if (data.modalidades?.length) setModalidades(data.modalidades);
           if (data.senioridades?.length) setSenioridades(data.senioridades);
           setApenasEasyApply(Boolean(data.apenas_easy_apply));
@@ -125,11 +140,46 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
   };
 
   const toggleCidade = (c: string) => {
-    if (cidades.includes(c)) {
-      setCidades(cidades.filter((item) => item !== c));
-    } else {
-      if (cidades.length < 10) setCidades([...cidades, c]);
+    if (c === 'qualquer') {
+      setCidades(['qualquer']);
+      return;
     }
+
+    const semQualquer = cidades.filter((item) => item !== 'qualquer');
+    if (semQualquer.includes(c)) {
+      const rest = semQualquer.filter((item) => item !== c);
+      setCidades(rest.length === 0 ? ['qualquer'] : rest);
+    } else {
+      if (semQualquer.length < 10) {
+        setCidades([...semQualquer, c]);
+      }
+    }
+  };
+
+  const adicionarCidadeCustom = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nomeLimpo = inputCidade.trim();
+    if (!nomeLimpo) return;
+
+    const slug = nomeLimpo
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    if (!slug) return;
+
+    if (!CIDADES_SUGERIDAS.some((c) => c.slug === slug) && !cidadesCustom.some((c) => c.slug === slug)) {
+      setCidadesCustom((prev) => [...prev, { nome: nomeLimpo, slug }]);
+    }
+
+    const semQualquer = cidades.filter((item) => item !== 'qualquer');
+    if (!semQualquer.includes(slug) && semQualquer.length < 10) {
+      setCidades([...semQualquer, slug]);
+    }
+    setInputCidade('');
   };
 
   // Salva preferências e pede slot do bot (executado quando o usuário está logado)
@@ -138,11 +188,14 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
     setErro(null);
 
     try {
+      // Se 'qualquer' estiver selecionado, envia array vazio para dar match em todas as cidades no SQL
+      const cidadesParaSalvar = cidades.includes('qualquer') || cidades.length === 0 ? [] : cidades;
+
       // 1. Salva preferências e gera backfill
       const { data: resPref, error: errPref } = await supabaseBrowser.rpc('fn_salvar_preferencias', {
         p_palavras_incluidas: palavras,
         p_palavras_excluidas: palavrasExcluidas,
-        p_cidades_slug: cidades,
+        p_cidades_slug: cidadesParaSalvar,
         p_modalidades: modalidades,
         p_senioridades: senioridades,
         p_apenas_easy_apply: apenasEasyApply,
@@ -308,12 +361,21 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
 
             {/* 3. Cidades */}
             <div>
-              <label className="block text-xs font-heading font-bold text-slate-300 mb-1.5">
-                3. Cidades Foco (Híbrido e Presencial)
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {CIDADES_SUGERIDAS.map((c) => {
-                  const sel = cidades.includes(c.slug);
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-heading font-bold text-slate-300">
+                  3. Cidades Foco (Híbrido e Presencial)
+                </label>
+                {(cidades.includes('qualquer') || cidades.length === 0) && (
+                  <span className="text-[10px] text-[#06b6d4] font-medium font-sans">
+                    Sem restrição geográfica
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {[...CIDADES_SUGERIDAS, ...cidadesCustom].map((c) => {
+                  const sel = c.slug === 'qualquer'
+                    ? (cidades.includes('qualquer') || cidades.length === 0)
+                    : cidades.includes(c.slug);
                   return (
                     <button
                       key={c.slug}
@@ -325,11 +387,29 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
                           : 'bg-white/[0.04] text-slate-300 border-white/10 hover:border-white/20 hover:text-white'
                       }`}
                     >
+                      {c.slug === 'qualquer' && <span className="mr-1">🌐</span>}
                       {c.nome}
                     </button>
                   );
                 })}
               </div>
+
+              {/* Inserir cidade customizada */}
+              <form onSubmit={adicionarCidadeCustom} className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputCidade}
+                  onChange={(e) => setInputCidade(e.target.value)}
+                  placeholder="Adicionar outra cidade (ex: Campinas, Brasília)..."
+                  className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-white/10 bg-white/[0.04] focus:outline-none focus:border-[#06b6d4]/50 text-slate-100 placeholder-slate-500 font-sans"
+                />
+                <button
+                  type="submit"
+                  className="px-3 py-1.5 rounded-xl text-xs font-heading font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10 cursor-pointer"
+                >
+                  Adicionar
+                </button>
+              </form>
             </div>
 
             {/* 4. Palavras-chave */}

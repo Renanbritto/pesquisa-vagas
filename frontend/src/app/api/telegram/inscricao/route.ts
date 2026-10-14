@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Monta o link oficial de ativação no Telegram
-    const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'pesquisa_vagas_dados_bot';
+    const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'horus22bot';
     const telegramLink = `https://t.me/${botUsername}?start=${token}`;
 
     return NextResponse.json({

@@ -219,7 +219,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
       }
 
       if (resBot.status_bot === 'pendente') {
-        const botUser = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'pesquisa_vagas_dados_bot';
+        const botUser = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'horus22bot';
         setLinkTelegram(`https://t.me/${botUser}?start=${resBot.token}`);
         setPasso('link');
       } else if (resBot.status_bot === 'espera') {

@@ -3,7 +3,7 @@ import { supabaseServer } from '@/lib/supabaseServer';
 
 export const dynamic = 'force-dynamic';
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8716891734:AAHicHQ0ycdCetc7SitK-ZNSioNphG2pRp8';
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || '';
 
 // Envia mensagem direta ao usuário via Telegram Bot API

@@ -20,6 +20,7 @@ interface TelegramModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPreferenciasSalvas?: () => void;
+  initialStep?: 'filtros' | 'auth';
 }
 
 const PALAVRAS_SUGERIDAS = ['Power BI', 'Python', 'SQL', 'Analista de Dados', 'Excel', 'Engenheiro de Dados'];
@@ -33,7 +34,7 @@ const CIDADES_SUGERIDAS = [
   { nome: 'Curitiba', slug: 'curitiba' }
 ];
 
-export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: TelegramModalProps) {
+export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialStep = 'filtros' }: TelegramModalProps) {
   const { user, loginWithEmail, loginWithGoogle } = useAuth();
 
   // Filtros Selecionados
@@ -48,7 +49,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
   const [apenasEasyApply, setApenasEasyApply] = useState(false);
 
   // Estados de Fluxo
-  const [passo, setPasso] = useState<'filtros' | 'auth' | 'link' | 'espera'>('filtros');
+  const [passo, setPasso] = useState<'filtros' | 'auth' | 'link' | 'espera'>(initialStep);
   const [emailInput, setEmailInput] = useState('');
   const [emailEnviado, setEmailEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -65,7 +66,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
     setErro(null);
     setLinkTelegram(null);
     setEmailEnviado(false);
-    setPasso('filtros');
+    setPasso(initialStep);
 
     async function carregarPreferenciasUsuario() {
       if (!user) return;
@@ -103,8 +104,6 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
 
     carregarPreferenciasUsuario();
   }, [isOpen, user]);
-
-  if (!isOpen) return null;
 
   // Handlers de Filtros
   const togglePalavra = (p: string) => {
@@ -267,6 +266,20 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
     }
   };
 
+  // Se o usuário autenticar enquanto o modal estiver aberto no passo de autenticação
+  useEffect(() => {
+    if (!isOpen || !user || passo !== 'auth') return;
+
+    if (initialStep === 'auth') {
+      if (onPreferenciasSalvas) onPreferenciasSalvas();
+      onClose();
+    } else {
+      executarSalvarESolicitarBot();
+    }
+  }, [user, isOpen, passo, initialStep]);
+
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#090d16]/85 backdrop-blur-xl animate-in fade-in duration-200">
       <div className="relative w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 shadow-2xl p-5 sm:p-7 text-slate-100">
@@ -282,14 +295,22 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
         {/* Cabeçalho */}
         <div className="flex items-center gap-3 mb-5">
           <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-[#06b6d4]/15 text-[#06b6d4] border border-[#06b6d4]/25 shrink-0">
-            <Send className="w-5 h-5 -rotate-12" />
+            {passo === 'auth' && initialStep === 'auth' ? (
+              <UserIcon className="w-5 h-5 text-[#06b6d4]" />
+            ) : (
+              <Send className="w-5 h-5 -rotate-12" />
+            )}
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-heading font-bold tracking-tight text-white">
-              {passo === 'auth' ? 'Acesse para Salvar seu Radar' : 'Configurar Alertas & Meu Radar'}
+              {passo === 'auth' 
+                ? (initialStep === 'auth' ? 'Acesse sua Conta' : 'Acesse para Salvar seu Radar') 
+                : 'Configurar Alertas & Meu Radar'}
             </h2>
             <p className="text-xs text-slate-400 font-sans">
-              Receba no Telegram e veja no feed do site exatamente as vagas que você quer.
+              {passo === 'auth' && initialStep === 'auth'
+                ? 'Entre para carregar seu Meu Radar personalizado e gerenciar suas notificações.'
+                : 'Receba no Telegram e veja no feed do site exatamente as vagas que você quer.'}
             </p>
           </div>
         </div>
@@ -528,7 +549,11 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
             ) : (
               <>
                 <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                  Crie sua conta gratuita em 1 clique para salvar suas preferências e acessar seu feed <b className="text-white">Meu Radar</b> sincronizado:
+                  {initialStep === 'auth' ? (
+                    <>Faça login com sua conta Google ou e-mail para acessar seu feed <b className="text-white">Meu Radar</b> sincronizado e gerenciar seus alertas:</>
+                  ) : (
+                    <>Crie sua conta ou faça login em 1 clique para salvar suas preferências e acessar seu feed <b className="text-white">Meu Radar</b> sincronizado:</>
+                  )}
                 </p>
 
                 {/* Google OAuth */}
@@ -584,13 +609,23 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas }: Telegra
                   </button>
                 </form>
 
-                <button
-                  type="button"
-                  onClick={() => setPasso('filtros')}
-                  className="w-full text-center text-xs text-slate-400 hover:text-white transition-colors pt-1 cursor-pointer font-sans"
-                >
-                  ← Voltar para editar filtros
-                </button>
+                {initialStep === 'auth' ? (
+                  <button
+                    type="button"
+                    onClick={() => setPasso('filtros')}
+                    className="w-full text-center text-xs text-[#06b6d4] hover:underline transition-colors pt-1 cursor-pointer font-sans"
+                  >
+                    Novo por aqui? Criar conta e configurar filtros do Radar →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setPasso('filtros')}
+                    className="w-full text-center text-xs text-slate-400 hover:text-white transition-colors pt-1 cursor-pointer font-sans"
+                  >
+                    ← Voltar para editar filtros
+                  </button>
+                )}
               </>
             )}
           </div>

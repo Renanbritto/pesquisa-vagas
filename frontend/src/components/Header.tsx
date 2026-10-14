@@ -22,9 +22,22 @@ export function Header({
 }: HeaderProps) {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const [modalInitialStep, setModalInitialStep] = useState<'filtros' | 'auth'>('filtros');
   const isTelegramOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   const setIsTelegramOpen = externalSetIsOpen !== undefined ? externalSetIsOpen : setInternalIsOpen;
   const { user, telegramLink, logout } = useAuth();
+
+  const handleOpenModal = (step: 'filtros' | 'auth') => {
+    setModalInitialStep(step);
+    setIsTelegramOpen(true);
+  };
+
+  const nomeUsuario = 
+    user?.user_metadata?.full_name?.split(' ')[0] || 
+    user?.user_metadata?.name?.split(' ')[0] || 
+    user?.email?.split('@')[0] || 
+    'Conta';
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
   // Sincronização do tema com o localStorage e o documento HTML
   useEffect(() => {
@@ -132,18 +145,41 @@ export function Header({
             </Link>
           </nav>
 
-          {/* Ações do Bot do Telegram / Perfil */}
+          {/* Ações do Usuário: Login / Meu Radar / Logout */}
           {user ? (
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Chip do Usuário Logado */}
+              <div 
+                className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-2xl bg-white/[0.04] border border-white/10 text-xs shadow-xs"
+                title={`Logado como ${user.email || nomeUsuario}`}
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={nomeUsuario}
+                    className="w-5 h-5 rounded-full object-cover border border-cyan-500/30 shrink-0"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-5 h-5 rounded-full bg-[#06b6d4]/20 text-[#06b6d4] border border-[#06b6d4]/30 flex items-center justify-center font-bold text-[10px] shrink-0">
+                    {nomeUsuario.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="text-slate-200 font-heading font-medium max-w-[110px] truncate">
+                  {nomeUsuario}
+                </span>
+              </div>
+
+              {/* Botão de Status / Edição do Bot e Radar */}
               <button
                 type="button"
-                onClick={() => setIsTelegramOpen(true)}
+                onClick={() => handleOpenModal('filtros')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-2xl border text-xs font-semibold transition-all cursor-pointer shadow-xs ${
                   telegramLink?.status === 'ativo'
-                    ? 'bg-[#10b981]/15 border-[#10b981]/30 text-[#10b981]'
+                    ? 'bg-[#10b981]/15 border-[#10b981]/30 text-[#10b981] hover:bg-[#10b981]/25'
                     : telegramLink?.status === 'espera'
-                    ? 'bg-[#f59e0b]/15 border-[#f59e0b]/30 text-[#f59e0b]'
-                    : 'bg-[#06b6d4]/15 border-[#06b6d4]/30 text-[#06b6d4]'
+                    ? 'bg-[#f59e0b]/15 border-[#f59e0b]/30 text-[#f59e0b] hover:bg-[#f59e0b]/25'
+                    : 'bg-[#06b6d4]/15 border-[#06b6d4]/30 text-[#06b6d4] hover:bg-[#06b6d4]/25'
                 }`}
                 title="Configurar preferências do Meu Radar e do Bot"
               >
@@ -158,7 +194,7 @@ export function Header({
                     ? 'Bot Ativo'
                     : telegramLink?.status === 'espera'
                     ? 'Fila VIP'
-                    : 'Conectar Bot'}
+                    : 'Meu Radar'}
                 </span>
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
@@ -171,6 +207,7 @@ export function Header({
                 />
               </button>
 
+              {/* Botão Sair */}
               <button
                 type="button"
                 onClick={logout}
@@ -181,20 +218,35 @@ export function Header({
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={() => setIsTelegramOpen(true)}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-slate-100 transition-all cursor-pointer font-semibold text-xs shadow-md group shrink-0"
-              title="Ativar Bot de Vagas no Telegram (Beta VIP)"
-            >
-              <svg
-                className="w-3.5 h-3.5 fill-[#06b6d4] transition-transform group-hover:scale-110 shrink-0"
-                viewBox="0 0 24 24"
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Botão Entrar / Login */}
+              <button
+                type="button"
+                onClick={() => handleOpenModal('auth')}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-slate-200 transition-all cursor-pointer font-heading font-semibold text-xs shrink-0 shadow-xs active:scale-95"
+                title="Entrar na sua conta existente"
               >
-                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z" />
-              </svg>
-              <span className="font-heading font-bold tracking-tight text-slate-100">Ativar Bot</span>
-            </button>
+                <UserIcon className="w-3.5 h-3.5 text-[#06b6d4]" />
+                <span>Entrar</span>
+              </button>
+
+              {/* Botão Ativar Bot */}
+              <button
+                type="button"
+                onClick={() => handleOpenModal('filtros')}
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl bg-gradient-to-r from-cyan-500/15 to-blue-600/15 hover:from-cyan-500/25 hover:to-blue-600/25 border border-[#06b6d4]/30 hover:border-[#06b6d4]/50 text-cyan-300 transition-all cursor-pointer font-semibold text-xs shadow-md group shrink-0 active:scale-95"
+                title="Ativar Bot de Vagas no Telegram (Beta VIP)"
+              >
+                <svg
+                  className="w-3.5 h-3.5 fill-[#06b6d4] transition-transform group-hover:scale-110 shrink-0"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z" />
+                </svg>
+                <span className="font-heading font-bold tracking-tight text-white hidden xs:inline">Ativar Bot</span>
+                <span className="font-heading font-bold tracking-tight text-white xs:hidden">Bot</span>
+              </button>
+            </div>
           )}
 
           {/* Alternador de Tema (Modo Claro / Escuro) */}
@@ -247,7 +299,10 @@ export function Header({
         isOpen={isTelegramOpen} 
         onClose={() => setIsTelegramOpen(false)} 
         onPreferenciasSalvas={onPreferenciasSalvas}
+        initialStep={modalInitialStep}
       />
     </header>
   );
 }
+
+

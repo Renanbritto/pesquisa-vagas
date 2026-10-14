@@ -6,13 +6,15 @@ interface QuickMetricsProps {
   totalVagasCarregadas: number;
   activeFilter: QuickFilterType;
   onSelectFilter: (filter: QuickFilterType) => void;
+  isLoading?: boolean;
 }
 
 export function QuickMetrics({
   stats,
   totalVagasCarregadas,
   activeFilter,
-  onSelectFilter
+  onSelectFilter,
+  isLoading
 }: QuickMetricsProps) {
   const totalDisplay = stats.total || totalVagasCarregadas;
 
@@ -107,10 +109,14 @@ export function QuickMetrics({
             </div>
 
             {/* Centro/Base: Valor Métrico em JetBrains Mono extrabold */}
-            <div className="mt-0.5 sm:mt-1">
-              <span className={`font-mono font-extrabold text-2xl sm:text-3xl tracking-tight block ${card.colorText}`}>
-                {card.count}
-              </span>
+            <div className="mt-0.5 sm:mt-1 h-8 sm:h-9 flex items-center">
+              {isLoading && totalDisplay === 0 ? (
+                <div className="h-6 sm:h-7 w-12 rounded-lg bg-white/10 animate-pulse" />
+              ) : (
+                <span className={`font-mono font-extrabold text-2xl sm:text-3xl tracking-tight block ${card.colorText}`}>
+                  {card.count}
+                </span>
+              )}
             </div>
           </button>
         );

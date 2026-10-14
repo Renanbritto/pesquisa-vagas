@@ -1,8 +1,13 @@
 import requests
+import unicodedata
 from typing import List
 from src.scrapers.base import BaseScraper
 from src.models.job import Job
 from src.utils.filters import is_title_relevant
+from src.utils.logger import logger
+
+def _strip_accents(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
 class GupyScraper(BaseScraper):
     @property
@@ -30,15 +35,15 @@ class GupyScraper(BaseScraper):
         elif work_type == "1":
             workplace_types.append("on-site")
         
-        url = "https://employability-portal.gupy.io/api/v1/jobs"
+        url = "https://portal.gupy.io/api/job-search/jobs"
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Accept": "application/json"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "pt-BR,pt;q=0.9",
+            "Referer": "https://portal.gupy.io/job-search"
         }
         
-        # Como a Gupy não aceita mais os filtros na API (ex: workplaceTypes), 
-        # precisamos buscar mais páginas para aplicar o filtro localmente sem perder vagas.
-        max_pages_to_fetch = 20 # Limite de 1000 vagas por termo
+        max_pages_to_fetch = 10
         
         for page in range(max_pages_to_fetch):
             params = {
@@ -46,13 +51,17 @@ class GupyScraper(BaseScraper):
                 "limit": limit_per_page,
                 "offset": page * limit_per_page
             }
+            if workplace_types:
+                params["workplaceType"] = workplace_types[0]
             
             try:
                 response = requests.get(url, params=params, headers=headers, timeout=15)
                 if response.status_code != 200:
+                    logger.warning(f"[{self.platform_name}] Erro na requisição: HTTP {response.status_code}")
                     break
                 
-                data = response.json().get("data", [])
+                resp_json = response.json()
+                data = resp_json.get("data", [])
                 if not data:
                     break
                 
@@ -61,9 +70,8 @@ class GupyScraper(BaseScraper):
                     if not is_title_relevant(job_title):
                         continue
                         
-                    job_modality = item.get("workplaceType", "Indefinido")
-                    
-                    if workplace_types and job_modality not in workplace_types:
+                    raw_modality = item.get("workplaceType", "Indefinido")
+                    if workplace_types and raw_modality not in workplace_types:
                         continue
                         
                     job_city = item.get("city", "")
@@ -74,34 +82,42 @@ class GupyScraper(BaseScraper):
                         job_location = "Brasil"
                         
                     if location.lower() not in ["brasil", "brazil", "qualquer"]:
-                        # Tenta extrair a cidade principal do local buscado e remove acentos
-                        import unicodedata
-                        def strip_accents(s):
-                            return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
-                        
-                        loc_main = strip_accents(location.split(",")[0].strip().lower())
-                        job_loc_clean = strip_accents(job_location.lower())
+                        loc_main = _strip_accents(location.split(",")[0].strip().lower())
+                        job_loc_clean = _strip_accents(job_location.lower())
                         
                         if loc_main not in job_loc_clean:
                             continue
                     
+                    modality_display = {
+                        "remote": "Remoto",
+                        "hybrid": "Híbrido",
+                        "on-site": "Presencial"
+                    }.get(raw_modality.lower(), raw_modality.capitalize())
+                    
+                    job_id = str(item.get("id", ""))
+                    job_link = item.get("jobUrl") or f"https://portal.gupy.io/job-search/id={job_id}"
+                    
                     job = Job(
-                        id=str(item.get("id", "")),
+                        id=job_id,
                         title=job_title,
                         company=item.get("careerPageName", "Empresa Confidencial"),
                         location=job_location,
-                        link=item.get("jobUrl", ""),
+                        link=job_link,
                         date_posted=item.get("publishedDate", "Recente"),
                         search_term=keyword,
-                        modality=job_modality.capitalize(),
+                        modality=modality_display,
                         easy_apply=False,
                         category=category_name,
                         platform=self.platform_name
                     )
                     jobs.append(job)
+                
+                total_in_api = resp_json.get("pagination", {}).get("total", 0)
+                if (page + 1) * limit_per_page >= total_in_api:
+                    break
                     
             except Exception as e:
-                print(f"[{self.platform_name}] Erro: {e}")
+                logger.error(f"[{self.platform_name}] Erro: {e}")
                 break
                 
         return jobs

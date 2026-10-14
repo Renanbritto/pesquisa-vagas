@@ -66,7 +66,20 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Estatisticas | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSlowLoading, setIsSlowLoading] = useState(false);
   const [selectedTech, setSelectedTech] = useState<string | null>(null);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loading) {
+      timer = setTimeout(() => {
+        setIsSlowLoading(true);
+      }, 3500);
+    } else {
+      setIsSlowLoading(false);
+    }
+    return () => clearTimeout(timer);
+  }, [loading]);
   const [activeChapter, setActiveChapter] = useState<number>(0);
   const [camDepth, setCamDepth] = useState<number>(0);
 
@@ -547,6 +560,44 @@ export default function DashboardPage() {
                 <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
                   Consolidamos <strong className="text-white font-bold">{vagas.length || 'centenas de'} oportunidades ativas</strong> nos principais portais para mapear requisitos, modalidades de trabalho e demandas estratégicas de contratação.
                 </p>
+
+                {isSlowLoading && loading && !error && (
+                  <div className="relative overflow-hidden rounded-2xl border border-indigo-500/40 bg-[#0b0f1a]/95 backdrop-blur-2xl p-4 shadow-xl text-left animate-in fade-in max-w-xl mx-auto">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 shrink-0">
+                        <Activity className="w-4 h-4 animate-pulse" />
+                        <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-white m-0">
+                          Sincronizando radar de oportunidades...
+                        </h4>
+                        <p className="text-[11px] text-slate-300 m-0 mt-0.5">
+                          Conectando à base de dados em tempo real, aguarde alguns instantes.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="relative overflow-hidden rounded-2xl border border-rose-500/40 bg-rose-500/10 backdrop-blur-2xl p-4 shadow-xl text-left max-w-xl mx-auto flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold text-rose-300 m-0">{error}</p>
+                      <p className="text-[11px] text-rose-300/70 m-0 mt-0.5">A conexão com a nuvem pode ter expirado durante o despertar do servidor.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={loadData}
+                      className="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-xs font-semibold cursor-pointer transition-colors shrink-0"
+                    >
+                      Tentar novamente
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* 4 Blocos de Métricas Abertos no Espaço 3D com Profundidades Escalonadas */}

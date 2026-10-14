@@ -36,6 +36,21 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Feedback para conexões que demoram mais de 3.5 segundos (ex: Cold Start no Render)
+  const [isSlowLoading, setIsSlowLoading] = useState(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loading) {
+      timer = setTimeout(() => {
+        setIsSlowLoading(true);
+      }, 3500);
+    } else {
+      setIsSlowLoading(false);
+    }
+    return () => clearTimeout(timer);
+  }, [loading]);
+
   // Autenticação e Radar Sincronizado
   const { user, telegramLink } = useAuth();
   const {
@@ -372,6 +387,7 @@ export default function Home() {
             totalVagasCarregadas={vagas.length}
             activeFilter={quickFilter}
             onSelectFilter={handleSelectQuickFilter}
+            isLoading={isContentLoading}
           />
         </section>
 
@@ -422,11 +438,20 @@ export default function Home() {
           {/* Header da Listagem: Contador e Botao de Atualizar */}
           <div className="flex items-center justify-between text-xs text-slate-400">
             <h2 className="font-heading font-medium text-xs text-slate-400 m-0">
-              Exibindo <strong className="font-mono font-extrabold text-sm text-[#06b6d4]">{vagasFiltradas.length}</strong> {vagasFiltradas.length === 1 ? 'oportunidade' : 'oportunidades'}
-              {userTab === 'radar' && ' no seu Radar personalizado'}
-              {userTab === 'salvas' && ' favoritadas'}
-              {userTab === 'candidatadas' && ' onde você se candidatou'}
-              {userTab === 'ocultadas' && ' ocultadas por você'}
+              {isContentLoading && vagasFiltradas.length === 0 ? (
+                <span className="inline-flex items-center gap-1.5 text-slate-400">
+                  <span className="w-2 h-2 rounded-full bg-[#06b6d4] animate-ping" />
+                  Sincronizando oportunidades...
+                </span>
+              ) : (
+                <>
+                  Exibindo <strong className="font-mono font-extrabold text-sm text-[#06b6d4]">{vagasFiltradas.length}</strong> {vagasFiltradas.length === 1 ? 'oportunidade' : 'oportunidades'}
+                  {userTab === 'radar' && ' no seu Radar personalizado'}
+                  {userTab === 'salvas' && ' favoritadas'}
+                  {userTab === 'candidatadas' && ' onde você se candidatou'}
+                  {userTab === 'ocultadas' && ' ocultadas por você'}
+                </>
+              )}
             </h2>
 
             <div className="flex items-center gap-2">
@@ -457,10 +482,61 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Feedback de Sincronização Sob Demanda / Conexão em Andamento */}
+          {isSlowLoading && isContentLoading && !error && (
+            <div className="relative overflow-hidden rounded-2xl border border-[#06b6d4]/30 bg-[#0b0f1a]/95 backdrop-blur-2xl p-4 sm:p-5 shadow-2xl shadow-[#06b6d4]/10 transition-all duration-300 animate-in fade-in">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#06b6d4] to-transparent animate-pulse" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-[#06b6d4]/10 border border-[#06b6d4]/30 text-[#06b6d4] shrink-0">
+                    <Radio className="w-5 h-5 animate-pulse" />
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#06b6d4] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#06b6d4]"></span>
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm sm:text-base font-bold font-heading text-white flex items-center gap-2 m-0">
+                      Sincronizando radar de oportunidades...
+                    </h4>
+                    <p className="text-xs text-slate-300 font-sans mt-0.5 m-0">
+                      Conectando à base de dados em tempo real, aguarde alguns instantes.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    fetchStats();
+                    fetchVagas();
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-[#06b6d4] text-xs font-heading font-semibold transition-colors cursor-pointer shrink-0"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-[#06b6d4]" />
+                  <span>Reconectar</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Feedback de Erro */}
           {error && (
-            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs">
-              <p className="font-semibold">{error}</p>
+            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold text-rose-400 m-0">{error}</p>
+                <p className="text-rose-300/80 text-[11px] mt-1 m-0">A conexão com a nuvem pode ter expirado durante o despertar do servidor.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  fetchStats();
+                  fetchVagas();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 font-semibold cursor-pointer transition-colors w-fit shrink-0"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-rose-300" />
+                <span>Tentar novamente</span>
+              </button>
             </div>
           )}
 

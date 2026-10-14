@@ -1,11 +1,56 @@
+from unittest.mock import MagicMock, patch
 import pytest
 from src.database.repository import JobRepository
 from src.models.job import Job
 
 @pytest.fixture
 def temp_repo():
-    repo = JobRepository(db_path=":memory:")
-    yield repo
+    fake_db = []
+    
+    mock_supabase = MagicMock()
+    
+    def fake_table(name):
+        table_mock = MagicMock()
+        
+        def fake_select(*args, **kwargs):
+            query_mock = MagicMock()
+            
+            def fake_eq(col, val):
+                res = MagicMock()
+                matched = [row for row in fake_db if row.get(col) == val]
+                res.limit.return_value.execute.return_value.data = matched
+                res.execute.return_value.data = matched
+                return res
+            
+            def fake_in(col, vals):
+                res = MagicMock()
+                matched = [row for row in fake_db if row.get(col) in vals]
+                res.limit.return_value.execute.return_value.data = matched
+                res.execute.return_value.data = matched
+                return res
+
+            query_mock.eq = fake_eq
+            query_mock.in_ = fake_in
+            query_mock.execute.return_value.count = len(fake_db)
+            return query_mock
+
+        def fake_insert(data):
+            ins_mock = MagicMock()
+            def fake_execute():
+                fake_db.append(data)
+                return MagicMock(data=[data])
+            ins_mock.execute = fake_execute
+            return ins_mock
+
+        table_mock.select = fake_select
+        table_mock.insert = fake_insert
+        return table_mock
+
+    mock_supabase.table = fake_table
+
+    with patch("src.database.repository.create_client", return_value=mock_supabase):
+        repo = JobRepository()
+        yield repo
 
 def test_save_and_deduplication_exact_id(temp_repo):
     job = Job(

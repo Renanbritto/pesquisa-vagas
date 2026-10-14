@@ -109,3 +109,46 @@ def test_linkedin_scraper_accepts_target_city_presencial(monkeypatch):
     assert len(jobs) == 1
     assert jobs[0].modality == "Presencial"
     assert "🏢 PRESENCIAL" in jobs[0].category
+
+def test_gupy_scraper_search_success(monkeypatch):
+    from unittest.mock import MagicMock
+    import requests
+    from src.scrapers.gupy import GupyScraper
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {
+        "data": [
+            {
+                "id": 123456,
+                "name": "Analista de Dados Pleno",
+                "careerPageName": "Tech Ltda",
+                "city": "São Paulo",
+                "state": "São Paulo",
+                "country": "Brasil",
+                "jobUrl": "https://tech.gupy.io/job/123456",
+                "publishedDate": "2026-10-06T12:00:00.000Z",
+                "workplaceType": "remote"
+            },
+            {
+                "id": 999999,
+                "name": "Gerente de Vendas Sênior",
+                "careerPageName": "Outra Empresa",
+                "workplaceType": "remote"
+            }
+        ],
+        "pagination": {"total": 2, "limit": 50, "offset": 0}
+    }
+    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: mock_resp)
+
+    scraper = GupyScraper()
+    jobs = scraper.search(keyword="Analista de Dados", work_type="2", location="Brasil")
+    # Deve aceitar 'Analista de Dados Pleno' e rejeitar 'Gerente de Vendas Sênior'
+    assert len(jobs) == 1
+    assert jobs[0].id == "123456"
+    assert jobs[0].title == "Analista de Dados Pleno"
+    assert jobs[0].company == "Tech Ltda"
+    assert jobs[0].modality == "Remoto"
+    assert jobs[0].platform == "Gupy"
+    assert jobs[0].link == "https://tech.gupy.io/job/123456"
+

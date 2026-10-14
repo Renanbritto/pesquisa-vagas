@@ -135,13 +135,18 @@ def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list
 
                     time.sleep(0.4)
 
+    # Dispara os alertas personalizados para os 10 inscritos ativos com base no match em SQL
+    print("\n🎯 Verificando e disparando matches personalizados para inscritos do Telegram...")
+    total_matches = notifier.disparar_matches_pendentes(repo)
+
     stats = repo.get_stats()
     print("\n" + "=" * 75)
     print("📊 Resumo da Varredura:")
-    print(f"  • Novas vagas enviadas nesta rodada: {total_novas}")
-    print(f"  • Total acumulado no banco de dados: {stats.get('total_vagas_armazenadas', 0)}")
+    print(f"  • Novas vagas salvas nesta rodada:          {total_novas}")
+    print(f"  • Alertas personalizados enviados (Matches): {total_matches}")
+    print(f"  • Total acumulado no banco de dados:         {stats.get('total_vagas_armazenadas', 0)}")
     if 'por_plataforma' in stats:
-        print(f"  • Por Plataforma:                   {stats['por_plataforma']}")
+        print(f"  • Por Plataforma:                            {stats['por_plataforma']}")
     print("=" * 75)
     return total_novas
 

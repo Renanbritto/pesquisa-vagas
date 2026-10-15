@@ -65,12 +65,12 @@ export function Header({
   return (
     <header className="pb-3 sm:pb-5 border-b border-white/10 space-y-2.5 sm:space-y-0">
       {/* Linha Principal: Brand (Logo + Nome) à esquerda, Ações à direita */}
-      <div className="flex items-center justify-between gap-3">
-        {/* Identidade Visual: Logo e Titulo (Nunca trunca no mobile) */}
-        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        {/* Identidade Visual: Logo e Titulo (Sem cortes nem sobreposições em telas pequenas) */}
+        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 flex-1">
           <Link 
             href="/" 
-            className="relative group cursor-pointer transition-transform hover:scale-[1.03] shrink-0"
+            className="relative group cursor-pointer transition-transform hover:scale-[1.03] active:scale-95 shrink-0"
             title="Ir para Início"
           >
             <Image 
@@ -80,21 +80,21 @@ export function Header({
               height={48}
               priority
               sizes="48px"
-              className="h-9 w-9 sm:h-11 sm:w-11 object-contain drop-shadow-md"
+              className="h-8 w-8 xs:h-9 xs:w-9 sm:h-11 sm:w-11 object-contain drop-shadow-md"
             />
           </Link>
           
           <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <Link href="/">
-                <h1 className="text-base sm:text-xl md:text-2xl font-black font-heading tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent whitespace-nowrap">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Link href="/" className="min-w-0">
+                <h1 className="text-sm xs:text-base sm:text-xl md:text-2xl font-black font-heading tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent whitespace-nowrap truncate">
                   Pesquisa Vagas
                 </h1>
               </Link>
 
-              {/* Badges contextuais: 'On' no radar de vagas e 'Radar Analytics' no dashboard */}
+              {/* Badges contextuais: 'On' no desktop, ou discreto em telas medias */}
               {activePage === 'vagas' ? (
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#10b981]/15 border border-[#10b981]/30 text-[#10b981] text-[10px] font-semibold tracking-wide shrink-0">
+                <div className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#10b981]/15 border border-[#10b981]/30 text-[#10b981] text-[10px] font-semibold tracking-wide shrink-0">
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10b981]"></span>
@@ -109,16 +109,25 @@ export function Header({
               )}
             </div>
 
-            <p className="text-[11px] sm:text-xs text-slate-400 font-medium font-heading">
-              {activePage === 'vagas' 
-                ? 'Radar de oportunidades' 
-                : 'Raio-x do mercado'}
+            {/* Subtítulo: no mobile inclui o indicador pulsante verde do Radar sem ocupar espaço no título */}
+            <p className="text-[10px] xs:text-[11px] sm:text-xs text-slate-400 font-medium font-heading flex items-center gap-1.5 leading-tight">
+              {activePage === 'vagas' && (
+                <span className="sm:hidden relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10b981]"></span>
+                </span>
+              )}
+              <span className="truncate">
+                {activePage === 'vagas' 
+                  ? 'Radar de oportunidades' 
+                  : 'Raio-x do mercado'}
+              </span>
             </p>
           </div>
         </div>
 
-        {/* Ações à direita */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        {/* Ações à direita: perfeitamente proporcionadas e sem colisões */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Navegação Desktop (Pills integradas) */}
           <nav className="hidden sm:flex items-center bg-[#0b0f1a]/95 backdrop-blur-2xl p-1 rounded-2xl border border-white/10 text-xs font-semibold shadow-lg">
             <Link
@@ -148,9 +157,9 @@ export function Header({
           {/* Ações do Usuário: Login / Meu Radar / Logout */}
           {user ? (
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {/* Chip do Usuário Logado */}
+              {/* Chip do Usuário Logado (avatar no mobile, avatar + nome no desktop) */}
               <div 
-                className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-2xl bg-white/[0.04] border border-white/10 text-xs shadow-xs"
+                className="flex items-center gap-1.5 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-2xl bg-white/[0.04] border border-white/10 text-xs shadow-xs"
                 title={`Logado como ${user.email || nomeUsuario}`}
               >
                 {avatarUrl ? (
@@ -165,7 +174,7 @@ export function Header({
                     {nomeUsuario.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-slate-200 font-heading font-medium max-w-[110px] truncate">
+                <span className="hidden md:inline text-slate-200 font-heading font-medium max-w-[100px] truncate">
                   {nomeUsuario}
                 </span>
               </div>
@@ -174,7 +183,7 @@ export function Header({
               <button
                 type="button"
                 onClick={() => handleOpenModal('filtros')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-2xl border text-xs font-semibold transition-all cursor-pointer shadow-xs ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border text-xs font-semibold transition-all cursor-pointer shadow-xs active:scale-95 ${
                   telegramLink?.status === 'ativo'
                     ? 'bg-[#10b981]/15 border-[#10b981]/30 text-[#10b981] hover:bg-[#10b981]/25'
                     : telegramLink?.status === 'espera'
@@ -197,7 +206,7 @@ export function Header({
                     : 'Meu Radar'}
                 </span>
                 <span
-                  className={`w-1.5 h-1.5 rounded-full ${
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                     telegramLink?.status === 'ativo'
                       ? 'bg-[#10b981] animate-pulse'
                       : telegramLink?.status === 'espera'
@@ -211,8 +220,9 @@ export function Header({
               <button
                 type="button"
                 onClick={logout}
-                className="p-2 sm:p-2.5 rounded-2xl border border-white/10 bg-[#0b0f1a]/95 text-slate-400 hover:text-[#f43f5e] hover:border-[#f43f5e]/30 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/10 bg-[#0b0f1a]/95 text-slate-400 hover:text-[#f43f5e] hover:border-[#f43f5e]/30 transition-colors cursor-pointer active:scale-95 shrink-0"
                 title="Sair da conta"
+                aria-label="Sair da conta"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -223,18 +233,18 @@ export function Header({
               <button
                 type="button"
                 onClick={() => handleOpenModal('auth')}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-slate-200 transition-all cursor-pointer font-heading font-semibold text-xs shrink-0 shadow-xs active:scale-95"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-slate-200 transition-all cursor-pointer font-heading font-semibold text-xs shrink-0 shadow-xs active:scale-95"
                 title="Entrar na sua conta existente"
               >
                 <UserIcon className="w-3.5 h-3.5 text-[#06b6d4]" />
                 <span>Entrar</span>
               </button>
 
-              {/* Botão Ativar Bot */}
+              {/* Botão Ativar Bot Telegram */}
               <button
                 type="button"
                 onClick={() => handleOpenModal('filtros')}
-                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl bg-gradient-to-r from-cyan-500/15 to-blue-600/15 hover:from-cyan-500/25 hover:to-blue-600/25 border border-[#06b6d4]/30 hover:border-[#06b6d4]/50 text-cyan-300 transition-all cursor-pointer font-semibold text-xs shadow-md group shrink-0 active:scale-95"
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-cyan-500/15 to-blue-600/15 hover:from-cyan-500/25 hover:to-blue-600/25 border border-[#06b6d4]/30 hover:border-[#06b6d4]/50 text-cyan-300 transition-all cursor-pointer font-semibold text-xs shadow-md group shrink-0 active:scale-95"
                 title="Ativar Bot de Vagas no Telegram (Beta VIP)"
               >
                 <svg
@@ -243,8 +253,8 @@ export function Header({
                 >
                   <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z" />
                 </svg>
-                <span className="font-heading font-bold tracking-tight text-white hidden xs:inline">Ativar Bot</span>
-                <span className="font-heading font-bold tracking-tight text-white xs:hidden">Bot</span>
+                <span className="font-heading font-bold tracking-tight text-white hidden sm:inline">Ativar Bot</span>
+                <span className="font-heading font-bold tracking-tight text-white sm:hidden">Bot</span>
               </button>
             </div>
           )}
@@ -253,43 +263,43 @@ export function Header({
           <button
             type="button"
             onClick={toggleTheme}
-            className="p-2 sm:p-2.5 rounded-2xl border border-white/10 bg-[#0b0f1a]/95 backdrop-blur-2xl hover:bg-white/[0.06] text-slate-300 transition-all cursor-pointer shadow-sm shrink-0"
+            className="p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl border border-white/10 bg-[#0b0f1a]/95 backdrop-blur-2xl hover:bg-white/[0.06] text-slate-300 transition-all cursor-pointer shadow-sm shrink-0 active:scale-95"
             title={theme === 'dark' ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
             aria-label="Alternar tema"
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-[#f59e0b] hover:rotate-45 transition-transform" />
+              <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#f59e0b] hover:rotate-45 transition-transform" />
             ) : (
-              <Moon className="w-4 h-4 text-[#06b6d4] hover:-rotate-12 transition-transform" />
+              <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#06b6d4] hover:-rotate-12 transition-transform" />
             )}
           </button>
         </div>
       </div>
 
-      {/* Navegação Mobile Segmentada: 100% de largura, toque perfeito, sem cortes nem sobreposições */}
+      {/* Navegação Mobile Segmentada: Estilo iOS / HUD Moderno */}
       <div className="sm:hidden pt-1">
         <nav className="grid grid-cols-2 p-1 bg-[#0b0f1a]/95 backdrop-blur-2xl rounded-2xl border border-white/10 text-xs font-semibold shadow-lg">
           <Link
             href="/"
-            className={`flex items-center justify-center gap-2 py-2 rounded-xl transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all duration-200 active:scale-[0.98] ${
               activePage === 'vagas'
-                ? 'bg-white/10 text-white border border-white/15 shadow-sm font-bold'
+                ? 'bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-white border border-[#06b6d4]/40 shadow-sm font-bold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Layers className="w-4 h-4 text-[#06b6d4]" />
-            <span className="font-heading">Vagas</span>
+            <Layers className={`w-3.5 h-3.5 ${activePage === 'vagas' ? 'text-[#06b6d4]' : 'text-slate-400'}`} />
+            <span className="font-heading">Explorar Vagas</span>
           </Link>
           <Link
             href="/dashboard"
-            className={`flex items-center justify-center gap-2 py-2 rounded-xl transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all duration-200 active:scale-[0.98] ${
               activePage === 'dashboard'
-                ? 'bg-white/10 text-white border border-white/15 shadow-sm font-bold'
+                ? 'bg-gradient-to-r from-cyan-500/20 to-blue-600/20 text-white border border-[#06b6d4]/40 shadow-sm font-bold'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <BarChart3 className="w-4 h-4 text-[#06b6d4]" />
-            <span className="font-heading">Dashboard</span>
+            <BarChart3 className={`w-3.5 h-3.5 ${activePage === 'dashboard' ? 'text-[#06b6d4]' : 'text-slate-400'}`} />
+            <span className="font-heading">Dashboard 3D</span>
           </Link>
         </nav>
       </div>

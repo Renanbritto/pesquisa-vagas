@@ -436,30 +436,30 @@ export default function Home() {
           )}
 
           {/* Header da Listagem: Contador e Botao de Atualizar */}
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <h2 className="font-heading font-medium text-xs text-slate-400 m-0">
+          <div className="flex items-center justify-between gap-2.5 text-xs text-slate-400">
+            <h2 className="font-heading font-medium text-xs text-slate-400 m-0 min-w-0 flex-1 truncate">
               {isContentLoading && vagasFiltradas.length === 0 ? (
-                <span className="inline-flex items-center gap-1.5 text-slate-400">
-                  <span className="w-2 h-2 rounded-full bg-[#06b6d4] animate-ping" />
-                  Sincronizando oportunidades...
+                <span className="inline-flex items-center gap-1.5 text-slate-400 truncate">
+                  <span className="w-2 h-2 rounded-full bg-[#06b6d4] animate-ping shrink-0" />
+                  <span className="truncate">Sincronizando oportunidades...</span>
                 </span>
               ) : (
-                <>
+                <span className="truncate block">
                   Exibindo <strong className="font-mono font-extrabold text-sm text-[#06b6d4]">{vagasFiltradas.length}</strong> {vagasFiltradas.length === 1 ? 'oportunidade' : 'oportunidades'}
-                  {userTab === 'radar' && ' no seu Radar personalizado'}
-                  {userTab === 'salvas' && ' favoritadas'}
-                  {userTab === 'candidatadas' && ' onde você se candidatou'}
-                  {userTab === 'ocultadas' && ' ocultadas por você'}
-                </>
+                  {userTab === 'radar' && ' no seu Radar'}
+                  {userTab === 'salvas' && ' salvas'}
+                  {userTab === 'candidatadas' && ' candidatadas'}
+                  {userTab === 'ocultadas' && ' ocultadas'}
+                </span>
               )}
             </h2>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {userTab === 'ocultadas' && hiddenIds.size > 0 && (
                 <button
                   type="button"
                   onClick={unhideAll}
-                  className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#f43f5e] hover:bg-[#f43f5e]/10 rounded-xl transition-colors cursor-pointer border border-[#f43f5e]/20"
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#f43f5e] hover:bg-[#f43f5e]/10 rounded-xl transition-colors cursor-pointer border border-[#f43f5e]/20 active:scale-95"
                 >
                   <Undo2 className="w-3.5 h-3.5" />
                   <span>Desocultar todas</span>
@@ -474,7 +474,7 @@ export default function Home() {
                   if (user) recarregarMatches();
                 }}
                 disabled={isContentLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-[#0b0f1a]/95 backdrop-blur-2xl hover:bg-white/[0.06] text-slate-300 font-heading font-semibold transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-[#0b0f1a]/95 backdrop-blur-2xl hover:bg-white/[0.06] text-slate-300 font-heading font-semibold transition-colors cursor-pointer disabled:opacity-50 shadow-sm active:scale-95 shrink-0"
               >
                 <RefreshCw className={`w-3.5 h-3.5 text-[#06b6d4] ${isContentLoading ? "animate-spin" : ""}`} />
                 <span>Atualizar</span>

@@ -80,47 +80,49 @@ export function QuickMetrics({
   ];
 
   return (
-    <div 
-      className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5 overflow-x-auto sm:overflow-visible pb-2 pt-1 scrollbar-none snap-x -mx-4 px-4 sm:mx-0 sm:px-0"
-      role="region" 
-      aria-label="Métricas rápidas e filtros"
-    >
-      {cards.map((card) => {
-        const isActive = activeFilter === card.id;
+    <div className="relative overflow-hidden -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
+      <div 
+        className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3.5 overflow-x-auto sm:overflow-visible pb-1.5 pt-0.5 scrollbar-none snap-x [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent_100%)] sm:[mask-image:none]"
+        role="region" 
+        aria-label="Métricas rápidas e filtros"
+      >
+        {cards.map((card) => {
+          const isActive = activeFilter === card.id;
 
-        return (
-          <button
-            key={card.id}
-            type="button"
-            onClick={() => handleClick(card.id)}
-            aria-pressed={isActive}
-            className={`group relative bg-[#0b0f1a]/95 backdrop-blur-2xl border rounded-2xl sm:rounded-3xl p-3 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xl hover:-translate-y-0.5 flex flex-col justify-between shrink-0 min-w-[124px] sm:min-w-0 flex-1 snap-start ${
-              isActive
-                ? card.activeRing
-                : `border-white/10 ${card.hoverBorder}`
-            }`}
-          >
-            {/* Topo: Rótulo / Título em Comfortaa com Indicador Neon */}
-            <div className="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
-              <span className="font-heading text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wider uppercase truncate block">
-                {card.label}
-              </span>
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${card.dotColor}`} />
-            </div>
-
-            {/* Centro/Base: Valor Métrico em JetBrains Mono extrabold */}
-            <div className="mt-0.5 sm:mt-1 h-8 sm:h-9 flex items-center">
-              {isLoading && totalDisplay === 0 ? (
-                <div className="h-6 sm:h-7 w-12 rounded-lg bg-white/10 animate-pulse" />
-              ) : (
-                <span className={`font-mono font-extrabold text-2xl sm:text-3xl tracking-tight block ${card.colorText}`}>
-                  {card.count}
+          return (
+            <button
+              key={card.id}
+              type="button"
+              onClick={() => handleClick(card.id)}
+              aria-pressed={isActive}
+              className={`group relative bg-[#0b0f1a]/95 backdrop-blur-2xl border rounded-2xl sm:rounded-3xl p-2.5 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xl hover:-translate-y-0.5 active:scale-95 flex flex-col justify-between shrink-0 min-w-[104px] xs:min-w-[114px] sm:min-w-0 flex-1 snap-start ${
+                isActive
+                  ? card.activeRing
+                  : `border-white/10 ${card.hoverBorder}`
+              }`}
+            >
+              {/* Topo: Rótulo / Título em Comfortaa com Indicador Neon */}
+              <div className="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
+                <span className="font-heading text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wider uppercase truncate block">
+                  {card.label}
                 </span>
-              )}
-            </div>
-          </button>
-        );
-      })}
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${card.dotColor}`} />
+              </div>
+
+              {/* Centro/Base: Valor Métrico em JetBrains Mono extrabold */}
+              <div className="mt-0.5 sm:mt-1 h-7 sm:h-9 flex items-center">
+                {isLoading && totalDisplay === 0 ? (
+                  <div className="h-5 sm:h-7 w-10 sm:w-12 rounded-lg bg-white/10 animate-pulse" />
+                ) : (
+                  <span className={`font-mono font-extrabold text-xl sm:text-3xl tracking-tight block ${card.colorText}`}>
+                    {card.count}
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

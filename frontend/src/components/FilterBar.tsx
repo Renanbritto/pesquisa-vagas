@@ -93,27 +93,28 @@ export function FilterBar({
           <button
             type="button"
             onClick={onApenasNovasToggle}
-            className={`flex-1 sm:flex-initial flex items-center justify-center px-3.5 py-2 sm:py-2.5 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
               apenasNovas
                 ? 'bg-[#10b981]/15 border-[#10b981]/60 text-[#10b981] shadow-lg shadow-[#10b981]/15'
                 : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-300 hover:border-white/20 hover:text-white shadow-md'
             }`}
           >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
             <span>Novas Vagas</span>
           </button>
 
           <button
             type="button"
             onClick={onEasyApplyToggle}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-2.5 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
               easyApply
                 ? 'bg-[#f59e0b]/15 border-[#f59e0b]/60 text-[#f59e0b] shadow-lg shadow-[#f59e0b]/15'
                 : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-300 hover:border-white/20 hover:text-white shadow-md'
             }`}
           >
             <Zap className="w-3.5 h-3.5 text-[#f59e0b]" />
-            <span className="hidden xs:inline">Aplicação Simplificada</span>
-            <span className="xs:hidden">Simplificada</span>
+            <span className="hidden sm:inline">Aplicação Simplificada</span>
+            <span className="sm:hidden">Simplificada</span>
           </button>
 
           {/* Botão de Expandir Filtros em Mobile (< lg) */}
@@ -122,7 +123,7 @@ export function FilterBar({
             onClick={() => setShowMobileFilters(!showMobileFilters)}
             className={`lg:hidden flex items-center justify-center gap-1.5 px-3 py-2 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
               showMobileFilters || activeDropdownsCount > 0
-                ? 'bg-[#06b6d4]/15 border-[#06b6d4]/60 text-[#06b6d4] shadow-md'
+                ? 'bg-[#06b6d4]/15 border-[#06b6d4]/60 text-[#06b6d4] shadow-md font-bold'
                 : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-300 hover:border-white/20 shadow-md'
             }`}
             aria-label="Abrir filtros de plataforma, modalidade, área e senioridade"
@@ -141,7 +142,7 @@ export function FilterBar({
             <button
               type="button"
               onClick={onLimparFiltros}
-              className="flex items-center gap-1 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl border border-[#f43f5e]/30 bg-[#f43f5e]/15 text-[#f43f5e] hover:bg-[#f43f5e]/25 text-xs font-heading font-semibold transition-colors cursor-pointer shrink-0 shadow-md"
+              className="flex items-center gap-1 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl border border-[#f43f5e]/30 bg-[#f43f5e]/15 text-[#f43f5e] hover:bg-[#f43f5e]/25 text-xs font-heading font-semibold transition-colors cursor-pointer shrink-0 shadow-md active:scale-95"
               title="Redefinir todos os filtros"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -154,85 +155,87 @@ export function FilterBar({
       {/* LINHA 2: Abas de Status à Esquerda + Dropdowns à Direita */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 pt-0.5">
         
-        {/* Abas de Visualização (Pills) com scroll suave no mobile */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 lg:pb-0 text-xs shrink-0 scrollbar-none snap-x">
-          <button
-            type="button"
-            onClick={() => onUserTabChange('todas')}
-            className={`px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border ${
-              userTab === 'todas'
-                ? 'bg-white/15 text-white border-white/25 shadow-md font-bold'
-                : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
-            }`}
-          >
-            Todas as vagas
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onUserTabChange('radar')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border ${
-              userTab === 'radar'
-                ? 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/50 shadow-md shadow-[#06b6d4]/10 font-bold'
-                : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
-            }`}
-          >
-            <Sparkles className={`w-3.5 h-3.5 ${userTab === 'radar' ? 'text-[#f59e0b]' : 'text-[#06b6d4]'}`} />
-            <span>Meu Radar</span>
-            {radarCount !== undefined && radarCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold ${
-                userTab === 'radar'
-                  ? 'bg-[#06b6d4] text-slate-950'
-                  : 'bg-white/10 text-[#06b6d4]'
-              }`}>
-                {radarCount}
-              </span>
-            )}
-            {radarNovasCount !== undefined && radarNovasCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981] animate-pulse" title={`${radarNovasCount} novas no seu Radar`} />
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onUserTabChange('salvas')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border ${
-              userTab === 'salvas'
-                ? 'bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/50 shadow-md font-bold'
-                : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
-            }`}
-          >
-            <Bookmark className="w-3.5 h-3.5" />
-            <span>Salvas (<span className="font-mono font-extrabold">{savedCount}</span>)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onUserTabChange('candidatadas')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border ${
-              userTab === 'candidatadas'
-                ? 'bg-[#10b981]/20 text-[#10b981] border-[#10b981]/50 shadow-md font-bold'
-                : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
-            }`}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Candidatadas (<span className="font-mono font-extrabold">{appliedCount}</span>)</span>
-          </button>
-
-          {hiddenCount > 0 && (
+        {/* Abas de Visualização (Pills) com scroll suave e indicador sutil no mobile */}
+        <div className="relative overflow-hidden -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 text-xs shrink-0 scrollbar-none snap-x [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] sm:[mask-image:none]">
             <button
               type="button"
-              onClick={() => onUserTabChange('ocultadas')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border ${
-                userTab === 'ocultadas'
-                  ? 'bg-[#f43f5e]/20 text-[#f43f5e] border-[#f43f5e]/50 shadow-md font-bold'
+              onClick={() => onUserTabChange('todas')}
+              className={`px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
+                userTab === 'todas'
+                  ? 'bg-white/15 text-white border-white/25 shadow-md font-bold'
                   : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
               }`}
             >
-              <EyeOff className="w-3.5 h-3.5" />
-              <span>Ocultadas (<span className="font-mono font-extrabold">{hiddenCount}</span>)</span>
+              Todas as vagas
             </button>
-          )}
+
+            <button
+              type="button"
+              onClick={() => onUserTabChange('radar')}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
+                userTab === 'radar'
+                  ? 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/50 shadow-md shadow-[#06b6d4]/10 font-bold'
+                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+              }`}
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${userTab === 'radar' ? 'text-[#f59e0b]' : 'text-[#06b6d4]'}`} />
+              <span>Meu Radar</span>
+              {radarCount !== undefined && radarCount > 0 && (
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold ${
+                  userTab === 'radar'
+                    ? 'bg-[#06b6d4] text-slate-950'
+                    : 'bg-white/10 text-[#06b6d4]'
+                }`}>
+                  {radarCount}
+                </span>
+              )}
+              {radarNovasCount !== undefined && radarNovasCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981] animate-pulse" title={`${radarNovasCount} novas no seu Radar`} />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onUserTabChange('salvas')}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
+                userTab === 'salvas'
+                  ? 'bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/50 shadow-md font-bold'
+                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+              }`}
+            >
+              <Bookmark className="w-3.5 h-3.5" />
+              <span>Salvas (<span className="font-mono font-extrabold">{savedCount}</span>)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onUserTabChange('candidatadas')}
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
+                userTab === 'candidatadas'
+                  ? 'bg-[#10b981]/20 text-[#10b981] border-[#10b981]/50 shadow-md font-bold'
+                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Candidatadas (<span className="font-mono font-extrabold">{appliedCount}</span>)</span>
+            </button>
+
+            {hiddenCount > 0 && (
+              <button
+                type="button"
+                onClick={() => onUserTabChange('ocultadas')}
+                className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
+                  userTab === 'ocultadas'
+                    ? 'bg-[#f43f5e]/20 text-[#f43f5e] border-[#f43f5e]/50 shadow-md font-bold'
+                    : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+                }`}
+              >
+                <EyeOff className="w-3.5 h-3.5" />
+                <span>Ocultadas (<span className="font-mono font-extrabold">{hiddenCount}</span>)</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 4 Dropdowns de Refinamento (Plataforma, Modalidade, Área, Senioridade) */}
@@ -243,7 +246,11 @@ export function FilterBar({
               value={plataforma}
               onChange={(e) => onPlataformaChange(e.target.value)}
               aria-label="Filtrar por plataforma de vagas"
-              className="w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 focus:border-[#06b6d4]/50 rounded-2xl text-xs font-heading font-medium text-slate-200 shadow-md outline-none cursor-pointer transition-all"
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+                plataforma !== "Todas"
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
+                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+              }`}
             >
               <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Plataforma: Todas</option>
               <option value="LinkedIn" className="bg-[#0b0f1a] text-slate-200">LinkedIn</option>
@@ -259,7 +266,11 @@ export function FilterBar({
               value={modalidade}
               onChange={(e) => onModalidadeChange(e.target.value)}
               aria-label="Filtrar por modalidade de trabalho"
-              className="w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 focus:border-[#06b6d4]/50 rounded-2xl text-xs font-heading font-medium text-slate-200 shadow-md outline-none cursor-pointer transition-all"
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+                modalidade !== "Todas"
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
+                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+              }`}
             >
               <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Modalidade: Todas</option>
               <option value="Remoto" className="bg-[#0b0f1a] text-slate-200">Remoto</option>
@@ -275,7 +286,11 @@ export function FilterBar({
               value={area}
               onChange={(e) => onAreaChange(e.target.value)}
               aria-label="Filtrar por área de atuação"
-              className="w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 focus:border-[#06b6d4]/50 rounded-2xl text-xs font-heading font-medium text-slate-200 shadow-md outline-none cursor-pointer transition-all"
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+                area !== "Todas"
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
+                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+              }`}
             >
               <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Área: Todas</option>
               <option value="Dados" className="bg-[#0b0f1a] text-slate-200">Dados & IA</option>
@@ -292,7 +307,11 @@ export function FilterBar({
               value={senioridade}
               onChange={(e) => onSenioridadeChange(e.target.value)}
               aria-label="Filtrar por nível de senioridade"
-              className="w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 focus:border-[#06b6d4]/50 rounded-2xl text-xs font-heading font-medium text-slate-200 shadow-md outline-none cursor-pointer transition-all"
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+                senioridade !== "Todas"
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
+                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+              }`}
             >
               <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Senioridade: Todas</option>
               <option value="Estágio" className="bg-[#0b0f1a] text-slate-200">Estágio</option>

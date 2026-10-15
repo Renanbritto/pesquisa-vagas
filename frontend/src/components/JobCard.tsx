@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Vaga } from '../types/job';
 import { PlatformIcon } from './PlatformIcon';
 import { formatRelativeTime, formatFullDateTooltip, normalizarModalidade } from '../utils/dateUtils';
+import { getJobLinkConfig, JobLinkConfig } from '../utils/linkUtils';
 import { 
   Bookmark, 
   CheckCircle2, 
@@ -36,6 +37,27 @@ export function JobCard({
   const modalidadeExibicao = normalizarModalidade(vaga.modalidade);
   const relativeDate = formatRelativeTime(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
   const fullDateTooltip = formatFullDateTooltip(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
+
+  const [linkConfig, setLinkConfig] = useState<JobLinkConfig>({
+    href: vaga.link,
+    target: '_blank',
+    rel: 'noopener noreferrer',
+  });
+
+  useEffect(() => {
+    setLinkConfig(getJobLinkConfig(vaga));
+  }, [vaga.link, vaga.plataforma]);
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    onOpenLink?.(vaga.id);
+
+    // No mobile com LinkedIn, se o link ainda não foi resolvido pelo estado, intercepta e direciona para o app
+    const currentConfig = getJobLinkConfig(vaga);
+    if (currentConfig.target === '_self' && linkConfig.target !== '_self') {
+      e.preventDefault();
+      window.location.href = currentConfig.href;
+    }
+  };
 
   return (
     <article
@@ -168,12 +190,12 @@ export function JobCard({
           </span>
         </div>
 
-        {/* Botao CTA Primario em estilo Secondary / Outline Elegante com touch-friendly padding */}
+        {/* Botao CTA Primario: Deep link nativo para app no mobile (LinkedIn) ou nova aba no desktop */}
         <a
-          href={vaga.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => onOpenLink?.(vaga.id)}
+          href={linkConfig.href}
+          target={linkConfig.target}
+          rel={linkConfig.rel}
+          onClick={handleLinkClick}
           aria-label={`Ver vaga de ${vaga.titulo} na empresa ${vaga.empresa || 'confidencial'}`}
           className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-[#06b6d4] hover:text-slate-950 hover:border-[#06b6d4] text-slate-200 text-xs font-heading font-semibold transition-all duration-200 shadow-sm active:scale-[0.98]"
         >

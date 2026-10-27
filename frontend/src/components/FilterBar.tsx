@@ -75,12 +75,12 @@ export function FilterBar({
             onChange={(e) => onBuscaChange(e.target.value)}
             placeholder="Buscar por cargo, tecnologia ou empresa..."
             aria-label="Buscar vagas por cargo, tecnologia ou empresa"
-            className="w-full pl-10 pr-9 py-2.5 sm:py-3 bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 focus:border-[#06b6d4]/50 focus:ring-2 focus:ring-[#06b6d4]/20 rounded-2xl text-xs sm:text-sm text-slate-100 placeholder-slate-500 shadow-xl outline-none transition-all font-sans"
+            className="w-full pl-10 pr-9 py-2.5 sm:py-3 bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 focus:border-[#06b6d4]/50 focus:ring-2 focus:ring-[#06b6d4]/20 rounded-2xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 shadow-xs dark:shadow-xl outline-none transition-all font-sans"
           />
           {busca && (
             <button
               onClick={() => onBuscaChange("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 cursor-pointer"
               aria-label="Limpar campo de busca"
             >
               <X className="w-4 h-4" />
@@ -96,7 +96,7 @@ export function FilterBar({
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
               apenasNovas
                 ? 'bg-[#10b981]/15 border-[#10b981]/60 text-[#10b981] shadow-lg shadow-[#10b981]/15'
-                : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-300 hover:border-white/20 hover:text-white shadow-md'
+                : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-md'
             }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_#10b981]" />
@@ -109,7 +109,7 @@ export function FilterBar({
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
               easyApply
                 ? 'bg-[#f59e0b]/15 border-[#f59e0b]/60 text-[#f59e0b] shadow-lg shadow-[#f59e0b]/15'
-                : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-300 hover:border-white/20 hover:text-white shadow-md'
+                : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-md'
             }`}
           >
             <Zap className="w-3.5 h-3.5 text-[#f59e0b]" />
@@ -124,7 +124,7 @@ export function FilterBar({
             className={`lg:hidden flex items-center justify-center gap-1.5 px-3 py-2 border rounded-2xl text-xs font-heading font-semibold transition-all cursor-pointer select-none whitespace-nowrap active:scale-[0.98] ${
               showMobileFilters || activeDropdownsCount > 0
                 ? 'bg-[#06b6d4]/15 border-[#06b6d4]/60 text-[#06b6d4] shadow-md font-bold'
-                : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-300 hover:border-white/20 shadow-md'
+                : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/20 shadow-xs dark:shadow-md'
             }`}
             aria-label="Abrir filtros de plataforma, modalidade, área e senioridade"
           >
@@ -163,8 +163,8 @@ export function FilterBar({
               onClick={() => onUserTabChange('todas')}
               className={`px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
                 userTab === 'todas'
-                  ? 'bg-white/15 text-white border-white/25 shadow-md font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+                  ? 'bg-slate-900 text-white border-slate-900 dark:bg-white/15 dark:text-white dark:border-white/25 shadow-xs dark:shadow-md font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-sm'
               }`}
             >
               Todas as vagas
@@ -175,8 +175,8 @@ export function FilterBar({
               onClick={() => onUserTabChange('radar')}
               className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
                 userTab === 'radar'
-                  ? 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/50 shadow-md shadow-[#06b6d4]/10 font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+                  ? 'bg-[#06b6d4]/15 dark:bg-[#06b6d4]/20 text-[#0891b2] dark:text-[#06b6d4] border-[#06b6d4]/50 shadow-xs dark:shadow-md shadow-[#06b6d4]/10 font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-sm'
               }`}
             >
               <Sparkles className={`w-3.5 h-3.5 ${userTab === 'radar' ? 'text-[#f59e0b]' : 'text-[#06b6d4]'}`} />
@@ -185,7 +185,7 @@ export function FilterBar({
                 <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold ${
                   userTab === 'radar'
                     ? 'bg-[#06b6d4] text-slate-950'
-                    : 'bg-white/10 text-[#06b6d4]'
+                    : 'bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-[#06b6d4]'
                 }`}>
                   {radarCount}
                 </span>
@@ -200,8 +200,8 @@ export function FilterBar({
               onClick={() => onUserTabChange('salvas')}
               className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
                 userTab === 'salvas'
-                  ? 'bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/50 shadow-md font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+                  ? 'bg-[#f59e0b]/15 dark:bg-[#f59e0b]/20 text-[#d97706] dark:text-[#f59e0b] border-[#f59e0b]/50 shadow-xs dark:shadow-md font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-sm'
               }`}
             >
               <Bookmark className="w-3.5 h-3.5" />
@@ -213,8 +213,8 @@ export function FilterBar({
               onClick={() => onUserTabChange('candidatadas')}
               className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
                 userTab === 'candidatadas'
-                  ? 'bg-[#10b981]/20 text-[#10b981] border-[#10b981]/50 shadow-md font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+                  ? 'bg-[#10b981]/15 dark:bg-[#10b981]/20 text-[#059669] dark:text-[#10b981] border-[#10b981]/50 shadow-xs dark:shadow-md font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-sm'
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -227,8 +227,8 @@ export function FilterBar({
                 onClick={() => onUserTabChange('ocultadas')}
                 className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl font-heading font-semibold transition-all cursor-pointer whitespace-nowrap snap-start border active:scale-95 ${
                   userTab === 'ocultadas'
-                    ? 'bg-[#f43f5e]/20 text-[#f43f5e] border-[#f43f5e]/50 shadow-md font-bold'
-                    : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border-white/10 text-slate-400 hover:text-white shadow-sm'
+                    ? 'bg-[#f43f5e]/15 dark:bg-[#f43f5e]/20 text-[#e11d48] dark:text-[#f43f5e] border-[#f43f5e]/50 shadow-xs dark:shadow-md font-bold'
+                    : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-sm'
                 }`}
               >
                 <EyeOff className="w-3.5 h-3.5" />
@@ -246,18 +246,18 @@ export function FilterBar({
               value={plataforma}
               onChange={(e) => onPlataformaChange(e.target.value)}
               aria-label="Filtrar por plataforma de vagas"
-              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-xs dark:shadow-md outline-none cursor-pointer transition-all ${
                 plataforma !== "Todas"
-                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#0891b2] dark:text-[#06b6d4] font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 focus:border-[#06b6d4]/50'
               }`}
             >
-              <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Plataforma: Todas</option>
-              <option value="LinkedIn" className="bg-[#0b0f1a] text-slate-200">LinkedIn</option>
-              <option value="Indeed" className="bg-[#0b0f1a] text-slate-200">Indeed</option>
-              <option value="Gupy" className="bg-[#0b0f1a] text-slate-200">Gupy</option>
+              <option value="Todas" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Plataforma: Todas</option>
+              <option value="LinkedIn" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">LinkedIn</option>
+              <option value="Indeed" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Indeed</option>
+              <option value="Gupy" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Gupy</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Modalidade */}
@@ -266,18 +266,18 @@ export function FilterBar({
               value={modalidade}
               onChange={(e) => onModalidadeChange(e.target.value)}
               aria-label="Filtrar por modalidade de trabalho"
-              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-xs dark:shadow-md outline-none cursor-pointer transition-all ${
                 modalidade !== "Todas"
-                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#0891b2] dark:text-[#06b6d4] font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 focus:border-[#06b6d4]/50'
               }`}
             >
-              <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Modalidade: Todas</option>
-              <option value="Remoto" className="bg-[#0b0f1a] text-slate-200">Remoto</option>
-              <option value="Hibrido" className="bg-[#0b0f1a] text-slate-200">Híbrido</option>
-              <option value="Presencial" className="bg-[#0b0f1a] text-slate-200">Presencial</option>
+              <option value="Todas" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Modalidade: Todas</option>
+              <option value="Remoto" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Remoto</option>
+              <option value="Hibrido" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Híbrido</option>
+              <option value="Presencial" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Presencial</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Área */}
@@ -286,19 +286,19 @@ export function FilterBar({
               value={area}
               onChange={(e) => onAreaChange(e.target.value)}
               aria-label="Filtrar por área de atuação"
-              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-xs dark:shadow-md outline-none cursor-pointer transition-all ${
                 area !== "Todas"
-                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#0891b2] dark:text-[#06b6d4] font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 focus:border-[#06b6d4]/50'
               }`}
             >
-              <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Área: Todas</option>
-              <option value="Dados" className="bg-[#0b0f1a] text-slate-200">Dados & IA</option>
-              <option value="Software" className="bg-[#0b0f1a] text-slate-200">Software</option>
-              <option value="Produto" className="bg-[#0b0f1a] text-slate-200">Produto</option>
-              <option value="DevOps" className="bg-[#0b0f1a] text-slate-200">DevOps</option>
+              <option value="Todas" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Área: Todas</option>
+              <option value="Dados" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Dados & IA</option>
+              <option value="Software" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Software</option>
+              <option value="Produto" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Produto</option>
+              <option value="DevOps" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">DevOps</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Senioridade */}
@@ -307,20 +307,20 @@ export function FilterBar({
               value={senioridade}
               onChange={(e) => onSenioridadeChange(e.target.value)}
               aria-label="Filtrar por nível de senioridade"
-              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-md outline-none cursor-pointer transition-all ${
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-xs dark:shadow-md outline-none cursor-pointer transition-all ${
                 senioridade !== "Todas"
-                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#06b6d4] font-bold'
-                  : 'bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 text-slate-200 focus:border-[#06b6d4]/50'
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#0891b2] dark:text-[#06b6d4] font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 focus:border-[#06b6d4]/50'
               }`}
             >
-              <option value="Todas" className="bg-[#0b0f1a] text-slate-200">Senioridade: Todas</option>
-              <option value="Estágio" className="bg-[#0b0f1a] text-slate-200">Estágio</option>
-              <option value="Júnior" className="bg-[#0b0f1a] text-slate-200">Júnior</option>
-              <option value="Pleno" className="bg-[#0b0f1a] text-slate-200">Pleno</option>
-              <option value="Sênior" className="bg-[#0b0f1a] text-slate-200">Sênior</option>
-              <option value="Lead" className="bg-[#0b0f1a] text-slate-200">Lead</option>
+              <option value="Todas" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Senioridade: Todas</option>
+              <option value="Estágio" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Estágio</option>
+              <option value="Júnior" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Júnior</option>
+              <option value="Pleno" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Pleno</option>
+              <option value="Sênior" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Sênior</option>
+              <option value="Lead" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Lead</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 

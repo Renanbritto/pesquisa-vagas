@@ -95,15 +95,15 @@ export function QuickMetrics({
               type="button"
               onClick={() => handleClick(card.id)}
               aria-pressed={isActive}
-              className={`group relative bg-[#0b0f1a]/95 backdrop-blur-2xl border rounded-2xl sm:rounded-3xl p-2.5 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xl hover:-translate-y-0.5 active:scale-95 flex flex-col justify-between shrink-0 min-w-[104px] xs:min-w-[114px] sm:min-w-0 flex-1 snap-start ${
+              className={`group relative bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border rounded-2xl sm:rounded-3xl p-2.5 sm:p-4.5 text-left transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md dark:shadow-xl hover:-translate-y-0.5 active:scale-95 flex flex-col justify-between shrink-0 min-w-[104px] xs:min-w-[114px] sm:min-w-0 flex-1 snap-start ${
                 isActive
                   ? card.activeRing
-                  : `border-white/10 ${card.hoverBorder}`
+                  : `border-slate-200 dark:border-white/10 ${card.hoverBorder}`
               }`}
             >
               {/* Topo: Rótulo / Título em Comfortaa com Indicador Neon */}
               <div className="flex items-center justify-between gap-1 mb-1 sm:mb-1.5">
-                <span className="font-heading text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wider uppercase truncate block">
+                <span className="font-heading text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wider uppercase truncate block">
                   {card.label}
                 </span>
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${card.dotColor}`} />
@@ -112,7 +112,7 @@ export function QuickMetrics({
               {/* Centro/Base: Valor Métrico em JetBrains Mono extrabold */}
               <div className="mt-0.5 sm:mt-1 h-7 sm:h-9 flex items-center">
                 {isLoading && totalDisplay === 0 ? (
-                  <div className="h-5 sm:h-7 w-10 sm:w-12 rounded-lg bg-white/10 animate-pulse" />
+                  <div className="h-5 sm:h-7 w-10 sm:w-12 rounded-lg bg-slate-200 dark:bg-white/10 animate-pulse" />
                 ) : (
                   <span className={`font-mono font-extrabold text-xl sm:text-3xl tracking-tight block ${card.colorText}`}>
                     {card.count}

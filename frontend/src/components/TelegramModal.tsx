@@ -281,12 +281,12 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#090d16]/85 backdrop-blur-xl animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0b0f1a]/95 backdrop-blur-2xl border border-white/10 shadow-2xl p-5 sm:p-7 text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 dark:bg-[#090d16]/85 backdrop-blur-xl animate-in fade-in duration-200">
+      <div className="relative w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl bg-white dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 shadow-2xl p-5 sm:p-7 text-slate-900 dark:text-slate-100">
         {/* Botão Fechar */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
           title="Fechar"
         >
           <X className="w-5 h-5" />
@@ -302,12 +302,12 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
             )}
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl font-heading font-bold tracking-tight text-white">
+            <h2 className="text-lg sm:text-xl font-heading font-bold tracking-tight text-slate-900 dark:text-white">
               {passo === 'auth' 
                 ? (initialStep === 'auth' ? 'Acesse sua Conta' : 'Acesse para Salvar seu Radar') 
                 : 'Configurar Alertas & Meu Radar'}
             </h2>
-            <p className="text-xs text-slate-400 font-sans">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-sans">
               {passo === 'auth' && initialStep === 'auth'
                 ? 'Entre para carregar seu Meu Radar personalizado e gerenciar suas notificações.'
                 : 'Receba no Telegram e veja no feed do site exatamente as vagas que você quer.'}
@@ -322,7 +322,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
           <div className="space-y-4">
             {/* 1. Senioridade */}
             <div>
-              <label className="block text-xs font-heading font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-heading font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 1. Nível de Senioridade
               </label>
               <div className="flex flex-wrap gap-2">
@@ -340,7 +340,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                       className={`px-3 py-1.5 rounded-xl text-xs font-heading font-semibold transition-all border cursor-pointer ${
                         sel
                           ? 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/50 shadow-sm'
-                          : 'bg-white/[0.04] text-slate-300 border-white/10 hover:border-white/20 hover:text-white'
+                          : 'bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       {s.label}
@@ -352,7 +352,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
 
             {/* 2. Modalidade */}
             <div>
-              <label className="block text-xs font-heading font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-heading font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 2. Modelo de Trabalho
               </label>
               <div className="flex flex-wrap gap-2">
@@ -370,7 +370,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                       className={`px-3 py-1.5 rounded-xl text-xs font-heading font-semibold transition-all border cursor-pointer ${
                         sel
                           ? 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/50 shadow-sm'
-                          : 'bg-white/[0.04] text-slate-300 border-white/10 hover:border-white/20 hover:text-white'
+                          : 'bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       {m.label}
@@ -383,7 +383,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
             {/* 3. Cidades */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-heading font-bold text-slate-300">
+                <label className="block text-xs font-heading font-bold text-slate-700 dark:text-slate-300">
                   3. Cidades Foco (Híbrido e Presencial)
                 </label>
                 {(cidades.includes('qualquer') || cidades.length === 0) && (
@@ -405,7 +405,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-heading font-medium transition-all border cursor-pointer ${
                         sel
                           ? 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/50 shadow-sm'
-                          : 'bg-white/[0.04] text-slate-300 border-white/10 hover:border-white/20 hover:text-white'
+                          : 'bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       {c.slug === 'qualquer' && <span className="mr-1">🌐</span>}
@@ -422,11 +422,11 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                   value={inputCidade}
                   onChange={(e) => setInputCidade(e.target.value)}
                   placeholder="Adicionar outra cidade (ex: Campinas, Brasília)..."
-                  className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-white/10 bg-white/[0.04] focus:outline-none focus:border-[#06b6d4]/50 text-slate-100 placeholder-slate-500 font-sans"
+                  className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] focus:outline-none focus:border-[#06b6d4]/50 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-sans"
                 />
                 <button
                   type="submit"
-                  className="px-3 py-1.5 rounded-xl text-xs font-heading font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl text-xs font-heading font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10 cursor-pointer"
                 >
                   Adicionar
                 </button>
@@ -435,7 +435,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
 
             {/* 4. Palavras-chave */}
             <div>
-              <label className="block text-xs font-heading font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-heading font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 4. Palavras-chave Incluídas (1 a 10)
               </label>
               <div className="flex flex-wrap gap-1.5 mb-2">
@@ -449,7 +449,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-heading font-medium transition-all border cursor-pointer ${
                         sel
                           ? 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/50 shadow-sm'
-                          : 'bg-white/[0.04] text-slate-300 border-white/10 hover:border-white/20 hover:text-white'
+                          : 'bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       {p}
@@ -465,11 +465,11 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                   value={inputPalavra}
                   onChange={(e) => setInputPalavra(e.target.value)}
                   placeholder="Adicionar outra (ex: Tableau, AWS, dbt)..."
-                  className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-white/10 bg-white/[0.04] focus:outline-none focus:border-[#06b6d4]/50 text-slate-100"
+                  className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] focus:outline-none focus:border-[#06b6d4]/50 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-sans"
                 />
                 <button
                   type="submit"
-                  className="px-3 py-1.5 rounded-xl text-xs font-heading font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl text-xs font-heading font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10 cursor-pointer"
                 >
                   Adicionar
                 </button>
@@ -477,15 +477,15 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
             </div>
 
             {/* 5. Apenas Easy Apply Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/10">
-              <span className="text-xs font-heading font-medium text-slate-300">
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10">
+              <span className="text-xs font-heading font-medium text-slate-700 dark:text-slate-300">
                 Apenas Candidatura Simplificada (Easy Apply)
               </span>
               <button
                 type="button"
                 onClick={() => setApenasEasyApply(!apenasEasyApply)}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  apenasEasyApply ? 'bg-[#10b981]' : 'bg-slate-700'
+                  apenasEasyApply ? 'bg-[#10b981]' : 'bg-slate-300 dark:bg-slate-700'
                 }`}
               >
                 <span
@@ -532,11 +532,11 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                 <div className="w-12 h-12 rounded-full bg-[#10b981]/15 border border-[#10b981]/30 text-[#10b981] flex items-center justify-center mx-auto">
                   <Mail className="w-6 h-6" />
                 </div>
-                <h3 className="font-heading font-bold text-base text-white">
+                <h3 className="font-heading font-bold text-base text-slate-900 dark:text-white">
                   Confira seu e-mail!
                 </h3>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-                  Enviamos um link mágico de acesso para <b className="text-white font-mono">{emailInput}</b>. Basta clicar nele para entrar na hora, salvar seu Radar e ativar o bot!
+                <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                  Enviamos um link mágico de acesso para <b className="text-slate-900 dark:text-white font-mono">{emailInput}</b>. Basta clicar nele para entrar na hora, salvar seu Radar e ativar o bot!
                 </p>
                 <button
                   type="button"
@@ -548,11 +548,11 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
               </div>
             ) : (
               <>
-                <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
                   {initialStep === 'auth' ? (
-                    <>Faça login com sua conta Google ou e-mail para acessar seu feed <b className="text-white">Meu Radar</b> sincronizado e gerenciar seus alertas:</>
+                    <>Faça login com sua conta Google ou e-mail para acessar seu feed <b className="text-slate-900 dark:text-white">Meu Radar</b> sincronizado e gerenciar seus alertas:</>
                   ) : (
-                    <>Crie sua conta ou faça login em 1 clique para salvar suas preferências e acessar seu feed <b className="text-white">Meu Radar</b> sincronizado:</>
+                    <>Crie sua conta ou faça login em 1 clique para salvar suas preferências e acessar seu feed <b className="text-slate-900 dark:text-white">Meu Radar</b> sincronizado:</>
                   )}
                 </p>
 
@@ -560,7 +560,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                 <button
                   type="button"
                   onClick={loginWithGoogle}
-                  className="w-full py-3 px-4 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] font-heading font-semibold text-xs text-white flex items-center justify-center gap-2.5 transition-colors cursor-pointer shadow-sm"
+                  className="w-full py-3 px-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] font-heading font-semibold text-xs text-slate-800 dark:text-white flex items-center justify-center gap-2.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -572,15 +572,15 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                 </button>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-white/10" />
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-white/10" />
                   <span className="text-[11px] text-slate-500 font-sans">ou via Magic Link</span>
-                  <div className="flex-1 h-px bg-white/10" />
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-white/10" />
                 </div>
 
                 {/* Magic Link Form */}
                 <form onSubmit={handleLoginEmail} className="space-y-3">
                   <div>
-                    <label className="block text-xs font-heading font-semibold mb-1 text-slate-300">
+                    <label className="block text-xs font-heading font-semibold mb-1 text-slate-700 dark:text-slate-300">
                       Seu E-mail
                     </label>
                     <input
@@ -589,7 +589,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
                       placeholder="seu@email.com"
-                      className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-white/10 bg-white/[0.04] focus:outline-none focus:border-[#06b6d4]/50 text-slate-100 placeholder-slate-500 font-sans"
+                      className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] focus:outline-none focus:border-[#06b6d4]/50 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-sans"
                     />
                   </div>
 
@@ -621,7 +621,7 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
                   <button
                     type="button"
                     onClick={() => setPasso('filtros')}
-                    className="w-full text-center text-xs text-slate-400 hover:text-white transition-colors pt-1 cursor-pointer font-sans"
+                    className="w-full text-center text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors pt-1 cursor-pointer font-sans"
                   >
                     ← Voltar para editar filtros
                   </button>
@@ -641,15 +641,15 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-lg font-heading font-bold text-white">
+              <h3 className="text-lg font-heading font-bold text-slate-900 dark:text-white">
                 Filtros Salvos & Meu Radar Ativado!
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto font-sans">
-                Agora basta 1 clique para ativar as notificações no seu celular. Abra a conversa com o robô e aperte <b className="text-white">Iniciar</b> (Start):
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto font-sans">
+                Agora basta 1 clique para ativar as notificações no seu celular. Abra a conversa com o robô e aperte <b className="text-slate-900 dark:text-white">Iniciar</b> (Start):
               </p>
             </div>
 
-            <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 text-xs text-slate-400 flex items-center justify-center gap-2">
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-400 flex items-center justify-center gap-2">
               <Clock className="w-4 h-4 text-[#f59e0b] shrink-0" />
               <span>Esse token expira em 15 minutos para liberar a vaga caso não seja iniciado.</span>
             </div>
@@ -678,24 +678,24 @@ export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialSt
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-lg font-heading font-bold text-white">
+              <h3 className="text-lg font-heading font-bold text-slate-900 dark:text-white">
                 Seu Radar no Site Está Ativo!
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed font-sans">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed font-sans">
                 As 10 vagas de envio instantâneo no Telegram estão ocupadas no momento. Você está na <b className="text-[#f59e0b] font-mono">posição #{posicaoFila}</b> da fila prioritária!
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#06b6d4]/10 border border-[#06b6d4]/20 text-xs text-cyan-300 text-left space-y-1 font-sans">
-              <p className="font-heading font-bold text-white">💡 O que acontece agora:</p>
-              <p>• Suas vagas já aparecem filtradas na aba <b className="text-cyan-200">🎯 Meu Radar</b> aqui no site.</p>
+            <div className="p-3.5 rounded-2xl bg-cyan-50 dark:bg-[#06b6d4]/10 border border-cyan-200 dark:border-[#06b6d4]/20 text-xs text-cyan-900 dark:text-cyan-300 text-left space-y-1 font-sans">
+              <p className="font-heading font-bold text-cyan-950 dark:text-white">💡 O que acontece agora:</p>
+              <p>• Suas vagas já aparecem filtradas na aba <b className="text-cyan-800 dark:text-cyan-200">🎯 Meu Radar</b> aqui no site.</p>
               <p>• Assim que uma vaga no Telegram liberar, seu acesso será ativado com prioridade!</p>
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-3 rounded-2xl font-heading font-bold text-slate-950 bg-white hover:bg-slate-200 transition-all text-xs cursor-pointer"
+              className="w-full py-3 rounded-2xl font-heading font-bold text-white bg-slate-900 hover:bg-slate-800 dark:text-slate-950 dark:bg-white dark:hover:bg-slate-200 transition-all text-xs cursor-pointer"
             >
               Ir para o Meu Radar no Site
             </button>

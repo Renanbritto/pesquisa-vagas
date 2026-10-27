@@ -63,8 +63,13 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://pesquisa-vagas-api.onrender.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://pesquisa-vagas-api.onrender.com" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.remove('dark');}else{document.documentElement.classList.add('dark');}}catch(e){}})();`,
+          }}
+        />
       </head>
-      <body className={`${comfortaa.variable} ${jetbrainsMono.variable} antialiased min-h-screen flex flex-col bg-[#090d16] text-slate-100 font-sans selection:bg-cyan-500/20`}>
+      <body className={`${comfortaa.variable} ${jetbrainsMono.variable} antialiased min-h-screen flex flex-col bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 font-sans selection:bg-cyan-500/20 transition-colors duration-200`}>
         {children}
       </body>
     </html>

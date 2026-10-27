@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --breakpoint-xs: 400px;
@@ -56,24 +56,24 @@
 }
 
 :root {
-  --background: #090d16;
-  --foreground: #f1f5f9;
-  --card: #0b0f1a;
-  --card-foreground: #f1f5f9;
-  --popover: #0b0f1a;
-  --popover-foreground: #f1f5f9;
-  --primary: #06b6d4;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #0891b2;
   --primary-foreground: #ffffff;
-  --secondary: #131b2e;
-  --secondary-foreground: #f1f5f9;
-  --muted: #131b2e;
-  --muted-foreground: #94a3b8;
-  --accent: #131b2e;
-  --accent-foreground: #f1f5f9;
-  --destructive: #f43f5e;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: #06b6d4;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #1e293b;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #0891b2;
   --radius: 1rem;
 }
 
@@ -105,8 +105,6 @@
   html, body {
     font-family: var(--font-comfortaa), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
-    background-color: #090d16;
-    color: #f1f5f9;
     transition: background-color 0.25s ease, color 0.25s ease;
   }
   html.dark, html.dark body {
@@ -114,8 +112,8 @@
     color: #f1f5f9;
   }
   html:not(.dark), html:not(.dark) body {
-    background-color: #090d16;
-    color: #f1f5f9;
+    background-color: #f8fafc;
+    color: #0f172a;
   }
 }
 

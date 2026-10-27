@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, X, Bookmark, CheckCircle2, EyeOff, RotateCcw, ChevronDown, Zap, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Search, X, Bookmark, CheckCircle2, EyeOff, RotateCcw, ChevronDown, Zap, SlidersHorizontal } from 'lucide-react';
 import { UserViewTab } from '../types/job';
 
 interface FilterBarProps {
@@ -179,7 +179,6 @@ export function FilterBar({
                   : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-xs dark:shadow-sm'
               }`}
             >
-              <Sparkles className={`w-3.5 h-3.5 ${userTab === 'radar' ? 'text-[#f59e0b]' : 'text-[#06b6d4]'}`} />
               <span>Meu Radar</span>
               {radarCount !== undefined && radarCount > 0 && (
                 <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold ${

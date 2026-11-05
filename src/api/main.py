@@ -158,7 +158,9 @@ def resumo_estatisticas():
 def listar_vagas(
     limit: int = Query(200, ge=1, le=500),
     offset: int = Query(0, ge=0),
-    tecnologia: Optional[str] = Query(None, max_length=100),
+    busca: Optional[str] = Query(None, max_length=100, description="Busca textual por cargo, tecnologia ou empresa"),
+    tecnologia: Optional[str] = Query(None, max_length=100, description="Busca textual (retrocompatibilidade)"),
+    empresa: Optional[str] = Query(None, max_length=100, description="Filtro específico por empresa"),
     modalidade: Optional[str] = Query(None, max_length=50),
     plataforma: Optional[str] = Query(None, max_length=50),
     easy_apply: Optional[bool] = None,
@@ -166,13 +168,22 @@ def listar_vagas(
 ):
     query = supabase.table("vagas").select("*", count="exact")
     
-    if tecnologia:
-        # Sanitizacao contra injecao de caracteres de controle
-        clean_tec = re.sub(r"[^\w\s\-\+\#\.]", "", tecnologia.strip())
-        if clean_tec:
-            query = query.ilike("termo_busca", f"%{clean_tec}%")
+    # Busca unificada em título, empresa e termo de busca (tecnologia)
+    search_query = busca if isinstance(busca, str) else (tecnologia if isinstance(tecnologia, str) else None)
+    if search_query:
+        # Sanitizacao contra injecao de caracteres de controle ou separadores de or_()
+        clean_search = re.sub(r"[^\w\s\-\+\#\.]", "", search_query.strip())
+        if clean_search:
+            query = query.or_(
+                f"titulo.ilike.%{clean_search}%,empresa.ilike.%{clean_search}%,termo_busca.ilike.%{clean_search}%"
+            )
+
+    if isinstance(empresa, str) and empresa.strip():
+        clean_emp = re.sub(r"[^\w\s\-\+\#\.]", "", empresa.strip())
+        if clean_emp:
+            query = query.ilike("empresa", f"%{clean_emp}%")
         
-    if modalidade and modalidade != "Todas":
+    if isinstance(modalidade, str) and modalidade != "Todas":
         m = modalidade.lower()
         if "remot" in m:
             query = query.or_("modalidade.ilike.%remot%,modalidade.ilike.%remote%")
@@ -183,7 +194,7 @@ def listar_vagas(
         else:
             query = query.ilike("modalidade", f"%{modalidade}%")
             
-    if plataforma and plataforma != "Todas":
+    if isinstance(plataforma, str) and plataforma != "Todas":
         query = query.ilike("plataforma", f"%{plataforma}%")
         
     if easy_apply is not None:
@@ -227,11 +238,13 @@ def listar_vagas(
     vagas.sort(key=lambda x: parse_post_date(x.get("data_postagem"), x.get("data_coleta")), reverse=True)
     
     total = len(vagas)
-    paginated = vagas[offset : offset + limit]
+    limit_val = limit if isinstance(limit, int) else 200
+    offset_val = offset if isinstance(offset, int) else 0
+    paginated = vagas[offset_val : offset_val + limit_val]
     
     return {
         "total": total,
         "vagas": paginated,
-        "limit": limit,
-        "offset": offset
+        "limit": limit_val,
+        "offset": offset_val
     }

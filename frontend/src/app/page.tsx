@@ -129,7 +129,7 @@ export default function Home() {
     setError(null);
     try {
       const params = new URLSearchParams({ limit: "250" });
-      if (busca.trim()) params.append("tecnologia", busca.trim());
+      if (busca.trim()) params.append("busca", busca.trim());
       if (plataforma && plataforma !== "Todas") params.append("plataforma", plataforma);
       if (modalidade && modalidade !== "Todas") params.append("modalidade", modalidade);
       if (easyApply) params.append("easy_apply", "true");
@@ -280,11 +280,20 @@ export default function Home() {
         if (isHidden(vaga.id)) return false;
       }
 
-      // Se houver busca por texto digitado
+      // Se houver busca por texto digitado (busca em cargo, empresa, tecnologia ou localização, sem distinção de acentos ou maiúsculas)
       if (busca.trim()) {
-        const query = busca.toLowerCase();
-        const textoVaga = `${vaga.titulo} ${vaga.empresa || ''} ${vaga.localizacao || ''} ${vaga.termo_busca || ''}`.toLowerCase();
-        if (!textoVaga.includes(query)) return false;
+        const queryNorm = busca
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim();
+        const words = queryNorm.split(/\s+/).filter(Boolean);
+        const textoVagaNorm = `${vaga.titulo || ''} ${vaga.empresa || ''} ${vaga.localizacao || ''} ${vaga.termo_busca || ''}`
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+
+        if (!words.every((w) => textoVagaNorm.includes(w))) return false;
       }
 
       // 2. Filtro de Area Profissional (Expansao Multiarea)
@@ -703,6 +712,7 @@ export default function Home() {
                     onToggleSave={toggleSave}
                     onToggleApplied={toggleApplied}
                     onToggleHide={toggleHide}
+                    onFilterByCompany={(empresa) => setBusca(empresa)}
                     onOpenLink={(vagaId) => {
                       const mId = matchIdPorVagaId.get(vagaId);
                       if (mId) marcarComoVisto(mId);

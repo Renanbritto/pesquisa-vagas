@@ -21,6 +21,7 @@ interface JobCardProps {
   onToggleApplied?: (id: string) => void;
   onToggleHide?: (id: string) => void;
   onOpenLink?: (id: string) => void;
+  onFilterByCompany?: (empresa: string) => void;
 }
 
 export function JobCard({
@@ -32,6 +33,7 @@ export function JobCard({
   onToggleApplied,
   onToggleHide,
   onOpenLink,
+  onFilterByCompany,
 }: JobCardProps) {
   const isEasy = Boolean(vaga.easy_apply);
   const modalidadeExibicao = normalizarModalidade(vaga.modalidade);
@@ -73,9 +75,23 @@ export function JobCard({
         {/* Topo: Nome da Empresa / Localização + Ações Rápidas */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <span className="font-heading font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug block">
-              {vaga.empresa || 'Empresa Confidencial'}
-            </span>
+            {onFilterByCompany && vaga.empresa ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFilterByCompany(vaga.empresa);
+                }}
+                title={`Pesquisar vagas de ${vaga.empresa}`}
+                className="font-heading font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug block text-left hover:text-[#06b6d4] transition-colors cursor-pointer"
+              >
+                {vaga.empresa}
+              </button>
+            ) : (
+              <span className="font-heading font-semibold text-xs text-slate-800 dark:text-slate-200 truncate leading-snug block">
+                {vaga.empresa || 'Empresa Confidencial'}
+              </span>
+            )}
             <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-sans">
               <MapPin className="w-3 h-3 text-[#06b6d4] shrink-0" />
               <span className="truncate">{vaga.localizacao || 'Brasil'}</span>

@@ -101,6 +101,23 @@ def parse_post_date(data_postagem: Optional[str], data_coleta: Optional[str]) ->
 
     return now
 
+def is_portugal_location(loc: Optional[str]) -> bool:
+    """Verifica com precisão se a localização pertence a Portugal, evitando falso-positivos brasileiros."""
+    if not loc or not isinstance(loc, str):
+        return False
+    loc_lower = loc.lower()
+    pt_keywords = [
+        "portugal", "lisboa", "lisbon", "braga", "coimbra", "aveiro", "faro",
+        "setúbal", "setubal", "leiria", "funchal", "madeira", "açores", "acores",
+        "oeiras", "cascais", "sintra", "matosinhos", "vila nova de gaia"
+    ]
+    if any(k in loc_lower for k in pt_keywords):
+        return True
+    # 'porto' em Portugal vs cidades brasileiras ('porto alegre', 'porto feliz', 'porto velho', etc.)
+    if "porto" in loc_lower and not any(br in loc_lower for br in ["porto alegre", "porto feliz", "porto velho", "porto seguro", "brasil", "brazil", ", sp", ", rs"]):
+        return True
+    return False
+
 @app.get("/")
 def read_root():
     return {"status": "API rodando", "docs": "/docs"}
@@ -163,6 +180,7 @@ def listar_vagas(
     empresa: Optional[str] = Query(None, max_length=100, description="Filtro específico por empresa"),
     modalidade: Optional[str] = Query(None, max_length=50),
     plataforma: Optional[str] = Query(None, max_length=50),
+    pais: Optional[str] = Query(None, max_length=50, description="Filtro de localidade por país (Brasil ou Portugal)"),
     easy_apply: Optional[bool] = None,
     apenas_novas: Optional[bool] = None
 ):
@@ -196,6 +214,29 @@ def listar_vagas(
             
     if isinstance(plataforma, str) and plataforma != "Todas":
         query = query.ilike("plataforma", f"%{plataforma}%")
+
+    if isinstance(pais, str) and pais.strip() and pais not in ["Todos", "Todas"]:
+        p = pais.lower().strip()
+        if "portugal" in p:
+            query = query.or_(
+                "localizacao.ilike.%portugal%,localizacao.ilike.%lisboa%,localizacao.ilike.%braga%,"
+                "localizacao.ilike.%coimbra%,localizacao.ilike.%aveiro%,localizacao.ilike.%faro%,"
+                "localizacao.ilike.%oeiras%,localizacao.ilike.%cascais%,localizacao.ilike.%sintra%"
+            )
+        elif "brasil" in p:
+            query = (
+                query
+                .not_.ilike("localizacao", "%portugal%")
+                .not_.ilike("localizacao", "%lisboa%")
+                .not_.ilike("localizacao", "%lisbon%")
+                .not_.ilike("localizacao", "%braga%")
+                .not_.ilike("localizacao", "%coimbra%")
+                .not_.ilike("localizacao", "%aveiro%")
+                .not_.ilike("localizacao", "%faro%")
+                .not_.ilike("localizacao", "%oeiras%")
+                .not_.ilike("localizacao", "%cascais%")
+                .not_.ilike("localizacao", "%sintra%")
+            )
         
     if easy_apply is not None:
         query = query.eq("easy_apply", easy_apply)
@@ -228,6 +269,14 @@ def listar_vagas(
     # Filtrar por apenas novas se solicitado
     if apenas_novas:
         vagas = [v for v in vagas if v.get("is_nova")]
+
+    # Filtrar por país em memória (garante precisão absoluta em casos especiais de cidades)
+    if isinstance(pais, str) and pais.strip() and pais not in ["Todos", "Todas"]:
+        p = pais.lower().strip()
+        if "portugal" in p:
+            vagas = [v for v in vagas if is_portugal_location(v.get("localizacao"))]
+        elif "brasil" in p:
+            vagas = [v for v in vagas if not is_portugal_location(v.get("localizacao"))]
 
     # Filtrar apenas postadas no máximo há 60 dias
     now_utc = datetime.datetime.now(datetime.timezone.utc)

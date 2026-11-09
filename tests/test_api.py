@@ -43,6 +43,19 @@ def fake_supabase():
             "modalidade": "Híbrido",
             "easy_apply": False,
             "plataforma": "Gupy"
+        },
+        {
+            "id": "li_4",
+            "titulo": "Data Analyst",
+            "empresa": "PrimeIT",
+            "localizacao": "Porto, Portugal",
+            "link": "https://linkedin.com/jobs/view/4",
+            "data_postagem": "2026-11-04T12:00:00Z",
+            "data_coleta": "2026-11-04T12:00:00Z",
+            "termo_busca": "data",
+            "modalidade": "Híbrido",
+            "easy_apply": False,
+            "plataforma": "LinkedIn"
         }
     ]
 
@@ -70,6 +83,13 @@ def fake_supabase():
     def fake_eq(col, val):
         query_instance.calls.append(("eq", col, val))
         return query_instance
+
+    not_mock = MagicMock()
+    def fake_not_ilike(col, pattern):
+        query_instance.calls.append(("not_ilike", col, pattern))
+        return query_instance
+    not_mock.ilike = fake_not_ilike
+    query_instance.not_ = not_mock
 
     def fake_execute():
         res = MagicMock()
@@ -112,3 +132,23 @@ def test_listar_vagas_tecnologia_retrocompatibilidade(fake_supabase):
         assert "vagas" in res
         calls = fake_supabase.query_instance.calls
         assert any("empresa.ilike.%Itaú%" in str(arg) for call_type, arg in calls if call_type == "or_")
+
+def test_listar_vagas_filtro_pais_portugal(fake_supabase):
+    with patch("src.api.main.supabase", fake_supabase):
+        res = listar_vagas(pais="Portugal")
+        assert "vagas" in res
+        # Deve conter apenas a vaga de Portugal
+        assert len(res["vagas"]) == 1
+        assert res["vagas"][0]["id"] == "li_4"
+        calls = fake_supabase.query_instance.calls
+        assert any(call_type == "or_" and "portugal" in str(arg).lower() for call_type, arg in calls)
+
+def test_listar_vagas_filtro_pais_brasil(fake_supabase):
+    with patch("src.api.main.supabase", fake_supabase):
+        res = listar_vagas(pais="Brasil")
+        assert "vagas" in res
+        # Não deve conter a vaga de Portugal
+        assert all(v["id"] != "li_4" for v in res["vagas"])
+        assert len(res["vagas"]) == 3
+        calls = fake_supabase.query_instance.calls
+        assert any(call_type == "not_ilike" and "%portugal%" in str(arg) for call_type, _, arg in calls)

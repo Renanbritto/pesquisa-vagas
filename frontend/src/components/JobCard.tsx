@@ -41,7 +41,8 @@ export function JobCard({
   const fullDateTooltip = formatFullDateTooltip(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
   const isPortugal = Boolean(
     vaga.localizacao && 
-    /portugal|lisboa|lisbon|porto|braga|coimbra|aveiro|faro|set[uú]bal|leiria|funchal|madeira|a[cç]ores|oeiras|cascais|sintra/i.test(vaga.localizacao)
+    (/portugal|lisboa|lisbon|braga|coimbra|aveiro|faro|set[uú]bal|leiria|funchal|madeira|a[cç]ores|oeiras|cascais|sintra/i.test(vaga.localizacao) ||
+     (/porto/i.test(vaga.localizacao) && !/porto alegre|porto feliz|porto velho|porto seguro/i.test(vaga.localizacao) && !/brasil|brazil|,\s*sp|,\s*rs/i.test(vaga.localizacao)))
   );
 
   const [linkConfig, setLinkConfig] = useState<JobLinkConfig>({

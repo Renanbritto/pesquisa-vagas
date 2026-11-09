@@ -133,6 +133,7 @@ export default function Home() {
       if (busca.trim()) params.append("busca", busca.trim());
       if (plataforma && plataforma !== "Todas") params.append("plataforma", plataforma);
       if (modalidade && modalidade !== "Todas") params.append("modalidade", modalidade);
+      if (pais && pais !== "Todos" && pais !== "Todas") params.append("pais", pais);
       if (easyApply) params.append("easy_apply", "true");
       if (apenasNovas) params.append("apenas_novas", "true");
 
@@ -159,7 +160,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [busca, plataforma, modalidade, easyApply, apenasNovas]);
+  }, [busca, plataforma, modalidade, pais, easyApply, apenasNovas]);
 
   useEffect(() => {
     fetchStats();
@@ -301,7 +302,10 @@ export default function Home() {
 
       // 2. Filtro de País (Brasil / Portugal)
       if (pais !== "Todas" && pais !== "Todos") {
-        const isPt = /portugal|lisboa|lisbon|porto|braga|coimbra|aveiro|faro|set[uú]bal|leiria|funchal|madeira|a[cç]ores|oeiras|cascais|sintra/i.test(vaga.localizacao || '');
+        const loc = (vaga.localizacao || '').toLowerCase();
+        const isBrPorto = /porto alegre|porto feliz|porto velho|porto seguro/i.test(loc);
+        const isPt = /portugal|lisboa|lisbon|braga|coimbra|aveiro|faro|set[uú]bal|leiria|funchal|madeira|a[cç]ores|oeiras|cascais|sintra/i.test(loc) ||
+          (/porto/i.test(loc) && !isBrPorto && !/brasil|brazil|,\s*sp|,\s*rs/i.test(loc));
         if (pais === "Portugal" && !isPt) return false;
         if (pais === "Brasil" && isPt) return false;
       }

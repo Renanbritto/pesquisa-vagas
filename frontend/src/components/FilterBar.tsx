@@ -95,6 +95,55 @@ export function FilterBar({
 
         {/* Toggles Rápidos (Novas & Easy Apply) + Botão de Filtros Mobile + Limpar */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 overflow-x-auto sm:overflow-visible pb-0.5 sm:pb-0 scrollbar-none">
+          {/* Seletor Visual de Localidade por País: Brasil e Portugal */}
+          <div
+            role="group"
+            aria-label="Filtro de localidade por país"
+            className="flex items-center p-0.5 sm:p-1 bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-xs dark:shadow-md shrink-0"
+          >
+            <button
+              type="button"
+              onClick={() => onPaisChange("Todos")}
+              aria-pressed={pais === "Todos"}
+              title="Exibir vagas de todos os países"
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-heading font-semibold transition-all cursor-pointer whitespace-nowrap select-none active:scale-95 ${
+                pais === "Todos"
+                  ? 'bg-slate-900 text-white dark:bg-white/15 dark:text-white shadow-xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Todos
+            </button>
+            <button
+              type="button"
+              onClick={() => onPaisChange("Brasil")}
+              aria-pressed={pais === "Brasil"}
+              title="Filtrar vagas do Brasil"
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-heading font-semibold transition-all cursor-pointer whitespace-nowrap select-none active:scale-95 ${
+                pais === "Brasil"
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#0891b2] dark:text-[#06b6d4] shadow-xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <span>🇧🇷</span>
+              <span>Brasil</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onPaisChange("Portugal")}
+              aria-pressed={pais === "Portugal"}
+              title="Filtrar vagas de Portugal"
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-heading font-semibold transition-all cursor-pointer whitespace-nowrap select-none active:scale-95 ${
+                pais === "Portugal"
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#0891b2] dark:text-[#06b6d4] shadow-xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <span>🇵🇹</span>
+              <span>Portugal</span>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={onApenasNovasToggle}

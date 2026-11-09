@@ -122,6 +122,10 @@ def is_portugal_location(loc: Optional[str]) -> bool:
 def read_root():
     return {"status": "API rodando", "docs": "/docs"}
 
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
 @app.get("/estatisticas")
 def resumo_estatisticas():
     resp = supabase.table("vagas").select("id, modalidade, easy_apply, data_postagem, data_coleta").execute()
@@ -297,3 +301,8 @@ def listar_vagas(
         "limit": limit_val,
         "offset": offset_val
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", "8000"))
+    uvicorn.run("src.api.main:app", host="0.0.0.0", port=port, loop="asyncio")

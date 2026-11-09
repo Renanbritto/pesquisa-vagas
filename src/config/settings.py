@@ -34,16 +34,19 @@ class Settings:
         "Analista de Dados"
     ])
 
-    # Cidades / Regiões para vagas Presenciais e Híbridas
+    # Cidades / Regiões para vagas Presenciais e Híbridas (Brasil e Portugal)
     TARGET_CITIES: List[str] = field(default_factory=lambda: [
         "Juiz de Fora, Minas Gerais, Brasil",
         "São Paulo, Brasil",
         "Rio de Janeiro, Brasil",
-        "Florianópolis, Santa Catarina, Brasil"
+        "Florianópolis, Santa Catarina, Brasil",
+        "Lisboa, Portugal",
+        "Porto, Portugal"
     ])
 
-    # GeoID oficial do Brasil no LinkedIn
+    # GeoIDs oficiais no LinkedIn
     BRAZIL_GEO_ID: str = "106057199"
+    PORTUGAL_GEO_ID: str = "100364837"
 
     # Filtro de tempo (24 horas)
     TIME_POSTED_FILTER: str = "r86400"
@@ -67,23 +70,28 @@ class Settings:
         "professor", "vendedor", "atendente", "motorista"
     ])
 
-    # Localidades brasileiras permitidas
+    # Localidades brasileiras e portuguesas permitidas
     ALLOWED_LOCATIONS: List[str] = field(default_factory=lambda: [
+        # Brasil & termos gerais
         "brasil", "brazil", "remoto", "remote", "home office", "teletrabalho",
         "juiz de fora", "jf", "minas gerais", "mg", "belo horizonte", "bh",
         "são paulo", "sao paulo", "sp", "campinas", "santos", "sorocaba", "guarulhos", "abc", "osasco",
         "rio de janeiro", "rj", "niterói", "niteroi",
         "florianópolis", "florianopolis", "floripa", "santa catarina", "sc", "joinville", "blumenau",
         "curitiba", "pr", "paraná", "parana", "porto alegre", "rs", "rio grande do sul",
-        "brasília", "brasilia", "df", "distrito federal"
+        "brasília", "brasilia", "df", "distrito federal",
+        # Portugal & polos tecnológicos
+        "portugal", "lisboa", "lisbon", "porto", "braga", "coimbra", "aveiro", "faro",
+        "setúbal", "setubal", "leiria", "funchal", "madeira", "açores", "acores",
+        "oeiras", "cascais", "sintra", "matosinhos", "vila nova de gaia", "gaia"
     ])
 
-    # Localidades estrangeiras expressamente bloqueadas
+    # Localidades estrangeiras expressamente bloqueadas (excluindo Brasil e Portugal)
     BLOCKED_LOCATIONS: List[str] = field(default_factory=lambda: [
         "estados unidos", "united states", "usa", "eua", "new york", "california",
         "texas", "florida", "charlotte", "san diego", "los angeles", "arlington",
         "virginia", "ohio", "alaska", "india", "europe", "europa", "colombia",
-        "argentina", "portugal", "mexico", "chile", "reino unido", "inglaterra",
+        "argentina", "mexico", "chile", "reino unido", "inglaterra",
         "united kingdom", "uk", "nottingham", "london", "londres", "canada",
         "alemanha", "germany", "berlin", "espanha", "spain", "madrid", "barcelona",
         "italia", "italy", "franca", "frança", "france", "paris", "australia",

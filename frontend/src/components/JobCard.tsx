@@ -39,6 +39,10 @@ export function JobCard({
   const modalidadeExibicao = normalizarModalidade(vaga.modalidade);
   const relativeDate = formatRelativeTime(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
   const fullDateTooltip = formatFullDateTooltip(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
+  const isPortugal = Boolean(
+    vaga.localizacao && 
+    /portugal|lisboa|lisbon|porto|braga|coimbra|aveiro|faro|set[uú]bal|leiria|funchal|madeira|a[cç]ores|oeiras|cascais|sintra/i.test(vaga.localizacao)
+  );
 
   const [linkConfig, setLinkConfig] = useState<JobLinkConfig>({
     href: vaga.link,
@@ -94,7 +98,9 @@ export function JobCard({
             )}
             <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-sans">
               <MapPin className="w-3 h-3 text-[#06b6d4] shrink-0" />
-              <span className="truncate">{vaga.localizacao || 'Brasil'}</span>
+              <span className="truncate">
+                {isPortugal ? `🇵🇹 ${vaga.localizacao}` : (vaga.localizacao || 'Brasil')}
+              </span>
             </div>
           </div>
 

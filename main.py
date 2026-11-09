@@ -23,7 +23,7 @@ def print_header(scrapers_names: list):
     print(f"⏰  Iniciado em: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
     print(f"🌐  Plataformas: {', '.join(scrapers_names)}")
     print(f"🔍  Palavras-chave: {', '.join(settings.SEARCH_KEYWORDS)}")
-    print(f"📍  Cidades Foco: Juiz de Fora, São Paulo, Rio de Janeiro, Florianópolis")
+    print(f"📍  Cidades Foco: Juiz de Fora, São Paulo, Rio de Janeiro, Florianópolis, Lisboa, Porto")
     print(f"⚡  Filtro de Nível: Exclusivo Júnior e Pleno")
     print("=" * 75)
 
@@ -35,7 +35,7 @@ def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list
             "nome": "🏠 REMOTO | ⚡ EASY APPLY (SIMPLIFICADA)",
             "work_type": "2",
             "easy_apply": True,
-            "locations": ["Brazil"],
+            "locations": ["Brazil", "Portugal"],
             "modalidade": "Remoto"
         },
         # 2. Remoto sem Easy Apply
@@ -43,7 +43,7 @@ def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list
             "nome": "🏠 REMOTO | 🌐 SITE DA EMPRESA",
             "work_type": "2",
             "easy_apply": False,
-            "locations": ["Brazil"],
+            "locations": ["Brazil", "Portugal"],
             "modalidade": "Remoto"
         },
         # 3. Híbrido com Easy Apply
@@ -97,7 +97,7 @@ def run_pipeline(repo: JobRepository, notifier: TelegramNotifier, scrapers: list
         for scraper in scrapers:
             for loc in locations:
                 for keyword in settings.SEARCH_KEYWORDS:
-                    loc_label = "Brasil" if work_type == "2" else loc.split(",")[0]
+                    loc_label = "Brasil" if (work_type == "2" and "brazil" in loc.lower()) else ("Portugal" if (work_type == "2" and "portugal" in loc.lower()) else loc.split(",")[0].strip())
                     print(f"  [{scraper.platform_name}] Buscando: '{keyword}' em {loc_label}...")
 
                     jobs = scraper.search(

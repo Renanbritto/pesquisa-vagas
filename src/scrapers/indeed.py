@@ -49,8 +49,15 @@ class IndeedScraper(BaseScraper):
         elif work_type == "3":
             query += " hibrido"
 
-        loc_query = "Brasil" if work_type == "2" else location.split(",")[0].strip()
-        url = "https://br.indeed.com/rss"
+        loc_lower = (location or "").lower()
+        is_pt = any(p in loc_lower for p in ["portugal", "lisboa", "lisbon", "porto", "braga", "coimbra", "aveiro", "faro"])
+
+        if work_type == "2":
+            loc_query = "Portugal" if is_pt else "Brasil"
+        else:
+            loc_query = location.split(",")[0].strip()
+
+        url = "https://pt.indeed.com/rss" if is_pt else "https://br.indeed.com/rss"
         params = {
             "q": query,
             "l": loc_query,
@@ -61,7 +68,7 @@ class IndeedScraper(BaseScraper):
         headers = {
             "User-Agent": random.choice(USER_AGENTS),
             "Accept": "application/rss+xml, application/xml, text/xml, */*",
-            "Accept-Language": "pt-BR,pt;q=0.9"
+            "Accept-Language": "pt-PT,pt;q=0.9,en;q=0.8" if is_pt else "pt-BR,pt;q=0.9"
         }
 
         jobs: List[Job] = []

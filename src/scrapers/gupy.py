@@ -79,7 +79,7 @@ class GupyScraper(BaseScraper):
                     job_country = item.get("country", "")
                     job_location = ", ".join(filter(None, [job_city, job_state, job_country]))
                     if not job_location:
-                        job_location = "Brasil"
+                        job_location = "Portugal" if "portugal" in location.lower() else "Brasil"
                         
                     if location.lower() not in ["brasil", "brazil", "qualquer"]:
                         loc_main = _strip_accents(location.split(",")[0].strip().lower())

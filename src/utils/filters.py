@@ -12,7 +12,8 @@ def clean_url(url: str) -> str:
         if "linkedin.com" in parsed.netloc:
             return f"https://www.linkedin.com{clean_path}"
         elif "indeed.com" in parsed.netloc:
-            return f"https://br.indeed.com{clean_path}"
+            netloc = parsed.netloc if parsed.netloc else "br.indeed.com"
+            return f"https://{netloc}{clean_path}"
     return f"{parsed.scheme}://{parsed.netloc}{clean_path}" if parsed.netloc else url
 
 def is_title_relevant(title: str) -> bool:
@@ -77,7 +78,8 @@ def is_target_city(location: str) -> bool:
         "juiz de fora", "jf",
         "são paulo", "sao paulo", "sp",
         "rio de janeiro", "rj",
-        "florianópolis", "florianopolis", "floripa"
+        "florianópolis", "florianopolis", "floripa",
+        "lisboa", "lisbon", "porto", "braga", "coimbra"
     ]
     for city in settings.TARGET_CITIES:
         base = city.split(",")[0].strip().lower()
@@ -136,7 +138,8 @@ def classify_job_modality(title: str, location: str, search_modality: str = "") 
     # 5. Avaliação pela localização quando não há termos explícitos no título
     generic_remote_locations = [
         "brasil", "brazil", "remoto", "remote", "home office", "teletrabalho",
-        "todo o brasil", "brazil (remote)", "brasil (remoto)"
+        "todo o brasil", "brazil (remote)", "brasil (remoto)",
+        "portugal", "portugal (remoto)", "portugal (remote)"
     ]
     clean_loc = l_lower.strip()
     if clean_loc in generic_remote_locations or clean_loc.startswith("remoto"):

@@ -152,3 +152,73 @@ def test_gupy_scraper_search_success(monkeypatch):
     assert jobs[0].platform == "Gupy"
     assert jobs[0].link == "https://tech.gupy.io/job/123456"
 
+def test_linkedin_scraper_accepts_portugal_jobs(monkeypatch):
+    from unittest.mock import MagicMock
+    import requests
+    from src.config.settings import settings
+    
+    html_sample = """
+    <ul>
+        <li>
+            <div class="base-card" data-entity-urn="urn:li:jobPosting:7777777777">
+                <a class="base-card__full-link" href="https://pt.linkedin.com/jobs/view/analista-de-dados-remoto-lisboa-7777777777"></a>
+                <div class="base-search-card__info">
+                    <h3 class="base-search-card__title">Analista de Dados (Remoto)</h3>
+                    <h4 class="base-search-card__subtitle">Lisbon Tech</h4>
+                    <span class="job-search-card__location">Portugal</span>
+                </div>
+            </div>
+        </li>
+    </ul>
+    """
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.text = html_sample
+    captured_params = {}
+    def mock_get(url, params=None, **kwargs):
+        captured_params.update(params or {})
+        return mock_resp
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    scraper = LinkedInScraper()
+    jobs = scraper.search(keyword="Analista de Dados", location="Portugal", work_type="2", easy_apply=False)
+    assert len(jobs) == 1
+    assert jobs[0].location == "Portugal"
+    assert jobs[0].modality == "Remoto"
+    assert captured_params.get("geoId") == settings.PORTUGAL_GEO_ID
+
+def test_indeed_scraper_uses_pt_endpoint_for_portugal(monkeypatch):
+    from unittest.mock import MagicMock
+    import requests
+    
+    xml_sample = """<?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0">
+        <channel>
+            <item>
+                <title>Analista de Dados Júnior</title>
+                <link>https://pt.indeed.com/viewjob?jk=pt123456</link>
+                <source>Porto Analytics</source>
+                <guid>pt123456</guid>
+                <pubDate>Mon, 09 Nov 2026 10:00:00 GMT</pubDate>
+                <description>Vaga em Porto, Portugal (Remoto)</description>
+            </item>
+        </channel>
+    </rss>
+    """
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.content = xml_sample.encode("utf-8")
+    captured_url = []
+    def mock_get(url, **kwargs):
+        captured_url.append(url)
+        return mock_resp
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
+    scraper = IndeedScraper()
+    jobs = scraper.search(keyword="Analista de Dados", location="Portugal", work_type="2", easy_apply=False)
+    assert len(jobs) == 1
+    assert "pt.indeed.com" in captured_url[0]
+    assert jobs[0].company == "Porto Analytics"
+

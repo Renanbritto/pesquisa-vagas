@@ -41,7 +41,9 @@ class TelegramNotifier(BaseNotifier):
     def format_job_message(self, job: Job) -> str:
         titulo = html.escape(job.title)
         empresa = html.escape(job.company)
-        local = html.escape(job.location)
+        loc_l = (job.location or "").lower()
+        flag = "🇵🇹 " if any(p in loc_l for p in ["portugal", "lisboa", "lisbon", "porto", "braga", "coimbra", "aveiro", "faro"]) else ("🇧🇷 " if any(b in loc_l for b in ["brasil", "brazil", "sp", "rj", "mg", "sc", "pr", "rs", "df"]) else "")
+        local = f"{flag}{html.escape(job.location or 'Local não especificado')}"
         postado = html.escape(job.date_posted)
         termo = html.escape(job.search_term)
         link = job.link or "https://google.com"

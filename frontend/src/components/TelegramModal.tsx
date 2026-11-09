@@ -28,10 +28,12 @@ const CIDADES_SUGERIDAS = [
   { nome: 'Qualquer Cidade', slug: 'qualquer' },
   { nome: 'São Paulo', slug: 'sao-paulo' },
   { nome: 'Rio de Janeiro', slug: 'rio-de-janeiro' },
-  { nome: 'Juiz de Fora', slug: 'juiz-de-fora' },
-  { nome: 'Florianópolis', slug: 'florianopolis' },
   { nome: 'Belo Horizonte', slug: 'belo-horizonte' },
-  { nome: 'Curitiba', slug: 'curitiba' }
+  { nome: 'Curitiba', slug: 'curitiba' },
+  { nome: 'Florianópolis', slug: 'florianopolis' },
+  { nome: 'Juiz de Fora', slug: 'juiz-de-fora' },
+  { nome: 'Lisboa (PT)', slug: 'lisboa' },
+  { nome: 'Porto (PT)', slug: 'porto' }
 ];
 
 export function TelegramModal({ isOpen, onClose, onPreferenciasSalvas, initialStep = 'filtros' }: TelegramModalProps) {

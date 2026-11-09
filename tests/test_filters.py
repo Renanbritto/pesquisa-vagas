@@ -31,15 +31,18 @@ def test_is_title_relevant_excluded_other_areas():
     assert is_title_relevant("Advogado Trabalhista") is False
 
 def test_is_location_relevant():
+    # Localidades válidas (Brasil e Portugal)
     assert is_location_relevant("São Paulo, SP") is True
     assert is_location_relevant("Juiz de Fora, Minas Gerais") is True
     assert is_location_relevant("Rio de Janeiro, RJ") is True
     assert is_location_relevant("Florianópolis, SC") is True
     assert is_location_relevant("Remoto - Brasil", is_remote_search=True) is True
+    assert is_location_relevant("Lisboa, Portugal") is True
+    assert is_location_relevant("Porto, Portugal") is True
+    assert is_location_relevant("Portugal", is_remote_search=True) is True
 
-    # Exterior bloqueado
+    # Exterior bloqueado (fora de Brasil e Portugal)
     assert is_location_relevant("New York, Estados Unidos") is False
-    assert is_location_relevant("Lisboa, Portugal") is False
     assert is_location_relevant("Buenos Aires, Argentina") is False
     assert is_location_relevant("Nottingham, Inglaterra, Reino Unido", is_remote_search=True) is False
     assert is_location_relevant("London, United Kingdom", is_remote_search=True) is False
@@ -88,11 +91,13 @@ def test_build_category_name():
 
 def test_is_target_city():
     from src.utils.filters import is_target_city
-    # Cidades-alvo
+    # Cidades-alvo (Brasil e Portugal)
     assert is_target_city("São Paulo, SP") is True
     assert is_target_city("Juiz de Fora, Minas Gerais") is True
     assert is_target_city("Rio de Janeiro, RJ") is True
     assert is_target_city("Florianópolis, SC") is True
+    assert is_target_city("Lisboa, Portugal") is True
+    assert is_target_city("Porto, Portugal") is True
 
     # Cidades fora do foco (ex: Chapecó)
     assert is_target_city("Chapecó, SC") is False

@@ -91,6 +91,7 @@ export default function Home() {
   const [busca, setBusca] = useState("");
   const [plataforma, setPlataforma] = useState("Todas");
   const [modalidade, setModalidade] = useState("Todas");
+  const [pais, setPais] = useState("Todos");
   const [area, setArea] = useState("Todas");
   const [senioridade, setSenioridade] = useState("Todas");
   const [easyApply, setEasyApply] = useState(false);
@@ -108,7 +109,7 @@ export default function Home() {
   // Redefine paginação ao alterar qualquer filtro
   useEffect(() => {
     setVisibleCount(24);
-  }, [busca, plataforma, modalidade, area, senioridade, easyApply, apenasNovas, quickFilter, userTab]);
+  }, [busca, plataforma, modalidade, pais, area, senioridade, easyApply, apenasNovas, quickFilter, userTab]);
 
   // Carrega estatisticas globais do backend
   const fetchStats = useCallback(async () => {
@@ -240,6 +241,7 @@ export default function Home() {
     setBusca("");
     setPlataforma("Todas");
     setModalidade("Todas");
+    setPais("Todos");
     setArea("Todas");
     setSenioridade("Todas");
     setEasyApply(false);
@@ -254,6 +256,7 @@ export default function Home() {
     busca !== "" || 
     plataforma !== "Todas" || 
     modalidade !== "Todas" || 
+    pais !== "Todos" || 
     area !== "Todas" || 
     senioridade !== "Todas" || 
     easyApply || 
@@ -296,7 +299,14 @@ export default function Home() {
         if (!words.every((w) => textoVagaNorm.includes(w))) return false;
       }
 
-      // 2. Filtro de Area Profissional (Expansao Multiarea)
+      // 2. Filtro de País (Brasil / Portugal)
+      if (pais !== "Todas" && pais !== "Todos") {
+        const isPt = /portugal|lisboa|lisbon|porto|braga|coimbra|aveiro|faro|set[uú]bal|leiria|funchal|madeira|a[cç]ores|oeiras|cascais|sintra/i.test(vaga.localizacao || '');
+        if (pais === "Portugal" && !isPt) return false;
+        if (pais === "Brasil" && isPt) return false;
+      }
+
+      // 3. Filtro de Area Profissional (Expansao Multiarea)
       if (area !== "Todas") {
         const textToMatch = `${vaga.titulo} ${vaga.termo_busca || ''}`.toLowerCase();
         if (area === "Dados") {
@@ -341,7 +351,7 @@ export default function Home() {
 
       return true;
     });
-  }, [vagas, radarVagas, userTab, area, senioridade, busca, isSaved, isApplied, isHidden]);
+  }, [vagas, radarVagas, userTab, area, senioridade, pais, busca, isSaved, isApplied, isHidden]);
 
   // Vagas visíveis limitadas para alta performance e baixíssimo TBT / DOM Size
   const displayedVagas = useMemo(() => {
@@ -374,6 +384,8 @@ export default function Home() {
           onAreaChange={setArea}
           senioridade={senioridade}
           onSenioridadeChange={setSenioridade}
+          pais={pais}
+          onPaisChange={setPais}
           easyApply={easyApply}
           onEasyApplyToggle={() => setEasyApply(!easyApply)}
           apenasNovas={apenasNovas}

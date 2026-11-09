@@ -63,10 +63,14 @@ class LinkedInScraper(BaseScraper):
 
         for page in range(max_pages):
             start = page * 25
+            loc_lower = (location or "").lower()
+            is_pt = any(p in loc_lower for p in ["portugal", "lisboa", "lisbon", "porto", "braga", "coimbra", "aveiro", "faro"])
+            geo_id = settings.PORTUGAL_GEO_ID if is_pt else settings.BRAZIL_GEO_ID
+
             params = {
                 "keywords": keyword,
                 "location": location,
-                "geoId": settings.BRAZIL_GEO_ID,
+                "geoId": geo_id,
                 "sortBy": "DD",
                 "start": start
             }

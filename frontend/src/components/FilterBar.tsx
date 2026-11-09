@@ -13,6 +13,8 @@ interface FilterBarProps {
   onAreaChange: (val: string) => void;
   senioridade: string;
   onSenioridadeChange: (val: string) => void;
+  pais: string;
+  onPaisChange: (val: string) => void;
   easyApply: boolean;
   onEasyApplyToggle: () => void;
   apenasNovas: boolean;
@@ -39,6 +41,8 @@ export function FilterBar({
   onAreaChange,
   senioridade,
   onSenioridadeChange,
+  pais = "Todos",
+  onPaisChange,
   easyApply,
   onEasyApplyToggle,
   apenasNovas,
@@ -58,6 +62,7 @@ export function FilterBar({
   const activeDropdownsCount = 
     (plataforma !== "Todas" ? 1 : 0) +
     (modalidade !== "Todas" ? 1 : 0) +
+    (pais !== "Todos" ? 1 : 0) +
     (area !== "Todas" ? 1 : 0) +
     (senioridade !== "Todas" ? 1 : 0);
 
@@ -237,8 +242,8 @@ export function FilterBar({
           </div>
         </div>
 
-        {/* 4 Dropdowns de Refinamento (Plataforma, Modalidade, Área, Senioridade) */}
-        <div className={`${showMobileFilters ? 'grid' : 'hidden lg:grid'} grid-cols-2 sm:grid-cols-4 gap-2 lg:gap-2.5 flex-1 lg:max-w-2xl pt-1.5 lg:pt-0`}>
+        {/* 5 Dropdowns de Refinamento (Plataforma, Modalidade, País, Área, Senioridade) */}
+        <div className={`${showMobileFilters ? 'grid' : 'hidden lg:grid'} grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-2.5 flex-1 lg:max-w-3xl pt-1.5 lg:pt-0`}>
           {/* Plataforma */}
           <div className="relative">
             <select
@@ -275,6 +280,25 @@ export function FilterBar({
               <option value="Remoto" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Remoto</option>
               <option value="Hibrido" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Híbrido</option>
               <option value="Presencial" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">Presencial</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* País */}
+          <div className="relative">
+            <select
+              value={pais}
+              onChange={(e) => onPaisChange(e.target.value)}
+              aria-label="Filtrar por país de atuação"
+              className={`w-full appearance-none pl-3 pr-7 py-2 lg:py-1.5 rounded-2xl text-xs font-heading font-medium shadow-xs dark:shadow-md outline-none cursor-pointer transition-all ${
+                pais !== "Todos"
+                  ? 'bg-[#06b6d4]/15 border border-[#06b6d4]/60 text-[#0891b2] dark:text-[#06b6d4] font-bold'
+                  : 'bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 focus:border-[#06b6d4]/50'
+              }`}
+            >
+              <option value="Todos" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">País: Todos</option>
+              <option value="Brasil" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">🇧🇷 Brasil</option>
+              <option value="Portugal" className="bg-white dark:bg-[#0b0f1a] text-slate-800 dark:text-slate-200">🇵🇹 Portugal</option>
             </select>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>

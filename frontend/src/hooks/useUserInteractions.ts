@@ -4,12 +4,14 @@ const STORAGE_KEYS = {
   SAVED: 'pesquisa_vagas_saved_ids',
   APPLIED: 'pesquisa_vagas_applied_ids',
   HIDDEN: 'pesquisa_vagas_hidden_ids',
+  VIEWED: 'pesquisa_vagas_viewed_ids',
 };
 
 export function useUserInteractions() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [viewedIds, setViewedIds] = useState<Set<string>>(new Set());
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -17,10 +19,12 @@ export function useUserInteractions() {
       const savedRaw = localStorage.getItem(STORAGE_KEYS.SAVED);
       const appliedRaw = localStorage.getItem(STORAGE_KEYS.APPLIED);
       const hiddenRaw = localStorage.getItem(STORAGE_KEYS.HIDDEN);
+      const viewedRaw = localStorage.getItem(STORAGE_KEYS.VIEWED);
 
       if (savedRaw) setSavedIds(new Set(JSON.parse(savedRaw)));
       if (appliedRaw) setAppliedIds(new Set(JSON.parse(appliedRaw)));
       if (hiddenRaw) setHiddenIds(new Set(JSON.parse(hiddenRaw)));
+      if (viewedRaw) setViewedIds(new Set(JSON.parse(viewedRaw)));
     } catch (e) {
       console.error('Erro ao ler preferencias locais:', e);
     } finally {
@@ -72,17 +76,34 @@ export function useUserInteractions() {
     localStorage.removeItem(STORAGE_KEYS.HIDDEN);
   }, []);
 
+  const markAsViewed = useCallback((id: string) => {
+    setViewedIds(prev => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.VIEWED, JSON.stringify(Array.from(next)));
+      } catch (e) {
+        console.error('Erro ao salvar viewed_id no localStorage:', e);
+      }
+      return next;
+    });
+  }, []);
+
   return {
     savedIds,
     appliedIds,
     hiddenIds,
+    viewedIds,
     isLoaded,
     toggleSave,
     toggleApplied,
     toggleHide,
     unhideAll,
+    markAsViewed,
     isSaved: (id: string) => savedIds.has(id),
     isApplied: (id: string) => appliedIds.has(id),
     isHidden: (id: string) => hiddenIds.has(id),
+    isViewed: (id: string) => viewedIds.has(id),
   };
 }

@@ -73,18 +73,21 @@ export default function Home() {
     novas: 0
   });
 
-  // Interacoes do usuario (Favoritar, Candidatado, Ocultar)
+  // Interacoes do usuario (Favoritar, Candidatado, Ocultar, Visualizadas)
   const {
     savedIds,
     appliedIds,
     hiddenIds,
+    viewedIds,
     toggleSave,
     toggleApplied,
     toggleHide,
     unhideAll,
+    markAsViewed,
     isSaved,
     isApplied,
-    isHidden
+    isHidden,
+    isViewed
   } = useUserInteractions();
 
   // Filtros
@@ -725,11 +728,13 @@ export default function Home() {
                     isSaved={isSaved(vaga.id)}
                     isApplied={isApplied(vaga.id)}
                     isHidden={isHidden(vaga.id)}
+                    isViewed={isViewed(vaga.id) || Boolean((vaga as any)._vistoEm)}
                     onToggleSave={toggleSave}
                     onToggleApplied={toggleApplied}
                     onToggleHide={toggleHide}
                     onFilterByCompany={(empresa) => setBusca(empresa)}
                     onOpenLink={(vagaId) => {
+                      markAsViewed(vagaId);
                       const mId = matchIdPorVagaId.get(vagaId);
                       if (mId) marcarComoVisto(mId);
                     }}

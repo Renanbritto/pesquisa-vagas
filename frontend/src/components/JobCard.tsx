@@ -17,6 +17,7 @@ interface JobCardProps {
   isSaved?: boolean;
   isApplied?: boolean;
   isHidden?: boolean;
+  isViewed?: boolean;
   onToggleSave?: (id: string) => void;
   onToggleApplied?: (id: string) => void;
   onToggleHide?: (id: string) => void;
@@ -29,12 +30,19 @@ export function JobCard({
   isSaved = false,
   isApplied = false,
   isHidden = false,
+  isViewed = false,
   onToggleSave,
   onToggleApplied,
   onToggleHide,
   onOpenLink,
   onFilterByCompany,
 }: JobCardProps) {
+  const [wasViewed, setWasViewed] = useState(isViewed);
+
+  useEffect(() => {
+    setWasViewed(isViewed);
+  }, [isViewed]);
+
   const isEasy = Boolean(vaga.easy_apply);
   const modalidadeExibicao = normalizarModalidade(vaga.modalidade);
   const relativeDate = formatRelativeTime(vaga.data_postagem, vaga.data_coleta, vaga._timestamp);
@@ -56,6 +64,7 @@ export function JobCard({
   }, [vaga.link, vaga.plataforma]);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setWasViewed(true);
     onOpenLink?.(vaga.id);
 
     // No mobile com LinkedIn, se o link ainda não foi resolvido pelo estado, intercepta e direciona para o app
@@ -71,6 +80,8 @@ export function JobCard({
       className={`group relative bg-white/95 dark:bg-[#0b0f1a]/95 backdrop-blur-2xl rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-xs hover:shadow-lg dark:shadow-xl hover:-translate-y-0.5 border ${
         isApplied
           ? 'border-[#10b981]/50 bg-[#10b981]/5 shadow-[#10b981]/10'
+          : wasViewed
+          ? 'border-[#8b5cf6]/50 dark:border-[#a855f7]/40 shadow-xs shadow-purple-500/10 bg-purple-500/[0.02]'
           : vaga.is_nova
           ? 'border-[#10b981]/40 shadow-[#10b981]/10'
           : 'border-slate-200/90 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/25 hover:shadow-cyan-500/5'
@@ -162,10 +173,20 @@ export function JobCard({
 
         {/* Badges Racionalizados */}
         <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-          {/* Status Novo */}
-          {vaga.is_nova && (
+          {/* Status Novo ou Visualizada */}
+          {vaga.is_nova && !wasViewed && (
             <span className="text-[10px] font-heading font-bold px-2 py-0.5 rounded-lg border bg-[#10b981]/15 text-[#059669] dark:text-[#10b981] border-[#10b981]/30 shadow-xs flex items-center gap-1">
               Novo
+            </span>
+          )}
+
+          {wasViewed && !isApplied && (
+            <span 
+              className="text-[10px] font-heading font-bold px-2 py-0.5 rounded-lg border bg-[#8b5cf6]/15 text-[#7c3aed] dark:text-[#c084fc] border-[#8b5cf6]/30 shadow-xs flex items-center gap-1"
+              title="Você já abriu esta vaga"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#8b5cf6] shadow-[0_0_6px_#8b5cf6]" />
+              Visualizada
             </span>
           )}
 
@@ -220,9 +241,13 @@ export function JobCard({
           rel={linkConfig.rel}
           onClick={handleLinkClick}
           aria-label={`Ver vaga de ${vaga.titulo} na empresa ${vaga.empresa || 'confidencial'}`}
-          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/[0.04] hover:bg-[#06b6d4] hover:text-slate-950 hover:border-[#06b6d4] text-slate-700 dark:text-slate-200 text-xs font-heading font-semibold transition-all duration-200 shadow-xs active:scale-[0.98]"
+          className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-heading font-semibold transition-all duration-200 shadow-xs active:scale-[0.98] ${
+            wasViewed
+              ? 'border-[#8b5cf6]/40 bg-[#8b5cf6]/10 hover:bg-[#8b5cf6] hover:text-white text-[#7c3aed] dark:text-[#c084fc]'
+              : 'border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/[0.04] hover:bg-[#06b6d4] hover:text-slate-950 hover:border-[#06b6d4] text-slate-700 dark:text-slate-200'
+          }`}
         >
-          <span>Ver Vaga</span>
+          <span>{wasViewed ? 'Ver Novamente' : 'Ver Vaga'}</span>
           <ExternalLink className="w-3 h-3" />
         </a>
       </div>

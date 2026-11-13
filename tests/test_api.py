@@ -97,9 +97,17 @@ def fake_supabase():
         res.count = len(fake_vagas)
         return res
 
+    def fake_gte(*args, **kwargs):
+        return query_instance
+
+    def fake_range(*args, **kwargs):
+        return query_instance
+
     query_instance.select = fake_select
     query_instance.order = fake_order
     query_instance.limit = fake_limit
+    query_instance.gte = fake_gte
+    query_instance.range = fake_range
     query_instance.ilike = fake_ilike
     query_instance.or_ = fake_or
     query_instance.eq = fake_eq

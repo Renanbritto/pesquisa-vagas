@@ -24,6 +24,7 @@ import { useUserInteractions } from "../hooks/useUserInteractions";
 import { useAuth } from "../hooks/useAuth";
 import { useMeuRadar } from "../hooks/useMeuRadar";
 import { parseDataPostagemTimestamp } from "../utils/dateUtils";
+import { supabaseBrowser } from "../lib/supabaseBrowser";
 
 // Regex estaticos pré-compilados para máxima performance na filtragem
 const REGEX_PLENO = /\bpl\b|pleno|mid/i;
@@ -114,20 +115,40 @@ export default function Home() {
     setVisibleCount(24);
   }, [busca, plataforma, modalidade, pais, area, senioridade, easyApply, apenasNovas, quickFilter, userTab]);
 
-  // Carrega estatisticas globais do backend
+  // Carrega estatisticas globais do backend (com fallback resiliente ao Supabase)
   const fetchStats = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/estatisticas`);
       if (res.ok) {
         const data = await res.json();
         setStats(data);
+        return;
       }
     } catch (err) {
-      console.error("Falha ao buscar estatísticas:", err);
+      console.warn("Falha ao buscar estatísticas da API, calculando via Supabase:", err);
+    }
+
+    try {
+      const { data, count } = await supabaseBrowser
+        .from("vagas")
+        .select("id, modalidade, easy_apply", { count: "exact" })
+        .order("data_coleta", { ascending: false })
+        .limit(500);
+
+      if (data) {
+        const total = count || data.length;
+        const remotas = data.filter((v: any) => /remot/i.test(v.modalidade || "")).length;
+        const hibridas = data.filter((v: any) => /hibrid/i.test(v.modalidade || "")).length;
+        const presenciais = data.filter((v: any) => /presenc/i.test(v.modalidade || "")).length;
+        const easy_apply = data.filter((v: any) => v.easy_apply).length;
+        setStats({ total, remotas, hibridas, presenciais, easy_apply, novas: 0 });
+      }
+    } catch (fallbackErr) {
+      console.error("Falha no fallback de estatísticas via Supabase:", fallbackErr);
     }
   }, []);
 
-  // Busca vagas do backend com parametros
+  // Busca vagas do backend com parametros (com fallback ao Supabase em caso de cold start/indisponibilidade)
   const fetchVagas = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -158,7 +179,32 @@ export default function Home() {
 
       setVagas(lista);
     } catch (err) {
-      console.error("Falha ao buscar vagas:", err);
+      console.warn("API de vagas indisponível ou em cold start. Acionando fallback direto ao Supabase...", err);
+      try {
+        let query = supabaseBrowser
+          .from("vagas")
+          .select("*")
+          .order("data_coleta", { ascending: false })
+          .limit(250);
+
+        if (easyApply) query = query.eq("easy_apply", true);
+        if (plataforma && plataforma !== "Todas") query = query.ilike("plataforma", `%${plataforma}%`);
+
+        const { data: supaData, error: supaErr } = await query;
+        if (!supaErr && supaData && supaData.length > 0) {
+          const rawList: Vaga[] = supaData as Vaga[];
+          const lista: Vaga[] = rawList.map((v) => ({
+            ...v,
+            _timestamp: parseDataPostagemTimestamp(v.data_postagem, v.data_coleta)
+          }));
+          lista.sort((a, b) => (b._timestamp || 0) - (a._timestamp || 0));
+          setVagas(lista);
+          setError(null);
+          return;
+        }
+      } catch (fallbackErr) {
+        console.error("Falha também no fallback direto do Supabase:", fallbackErr);
+      }
       setError("Não foi possível conectar à API de vagas. Verifique se o servidor backend está em execução.");
     } finally {
       setLoading(false);

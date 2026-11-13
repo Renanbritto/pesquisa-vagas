@@ -128,11 +128,26 @@ def healthz():
 
 @app.get("/estatisticas")
 def resumo_estatisticas():
-    resp = supabase.table("vagas").select("id, modalidade, easy_apply, data_postagem, data_coleta").execute()
-    todas_vagas = resp.data or []
-
     now_utc = datetime.datetime.now(datetime.timezone.utc)
     cutoff_60_days = now_utc - datetime.timedelta(days=60)
+    cutoff_iso = cutoff_60_days.isoformat()
+
+    query = (
+        supabase.table("vagas")
+        .select("id, modalidade, easy_apply, data_postagem, data_coleta", count="exact")
+        .gte("data_coleta", cutoff_iso)
+        .order("data_coleta", desc=True)
+    )
+    resp = query.range(0, 999).execute()
+    todas_vagas = list(resp.data) if isinstance(resp.data, list) else []
+    total_count = resp.count if isinstance(resp.count, int) else len(todas_vagas)
+    current_offset = 1000
+    while len(todas_vagas) < total_count and current_offset < total_count:
+        next_resp = query.range(current_offset, current_offset + 999).execute()
+        if not next_resp.data:
+            break
+        todas_vagas.extend(next_resp.data)
+        current_offset += len(next_resp.data)
 
     # Filtrar apenas postadas nos ultimos 60 dias
     vagas = [v for v in todas_vagas if parse_post_date(v.get("data_postagem"), v.get("data_coleta")) >= cutoff_60_days]
@@ -144,15 +159,11 @@ def resumo_estatisticas():
     easy_apply = sum(1 for v in vagas if v.get("easy_apply") in [1, True, "1", "true"])
 
     latest_dt = None
-    for v in vagas:
-        c_str = v.get("data_coleta")
-        if c_str:
-            try:
-                dt = datetime.datetime.fromisoformat(c_str.replace("Z", "+00:00"))
-                if latest_dt is None or dt > latest_dt:
-                    latest_dt = dt
-            except Exception:
-                pass
+    if todas_vagas and todas_vagas[0].get("data_coleta"):
+        try:
+            latest_dt = datetime.datetime.fromisoformat(todas_vagas[0]["data_coleta"].replace("Z", "+00:00"))
+        except Exception:
+            pass
 
     total_novas = 0
     if latest_dt:
@@ -188,7 +199,16 @@ def listar_vagas(
     easy_apply: Optional[bool] = None,
     apenas_novas: Optional[bool] = None
 ):
-    query = supabase.table("vagas").select("*", count="exact")
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    cutoff_60_days = now_utc - datetime.timedelta(days=60)
+    cutoff_iso = cutoff_60_days.isoformat()
+
+    query = (
+        supabase.table("vagas")
+        .select("*", count="exact")
+        .gte("data_coleta", cutoff_iso)
+        .order("data_coleta", desc=True)
+    )
     
     # Busca unificada em título, empresa e termo de busca (tecnologia)
     search_query = busca if isinstance(busca, str) else (tecnologia if isinstance(tecnologia, str) else None)
@@ -245,17 +265,31 @@ def listar_vagas(
     if easy_apply is not None:
         query = query.eq("easy_apply", easy_apply)
         
-    response = query.execute()
-    vagas = response.data or []
+    response = query.range(0, 999).execute()
+    vagas = list(response.data) if isinstance(response.data, list) else []
+    total_in_db = response.count if isinstance(response.count, int) else len(vagas)
+    current_offset = 1000
+    while len(vagas) < total_in_db and current_offset < total_in_db:
+        next_resp = query.range(current_offset, current_offset + 999).execute()
+        if not next_resp.data:
+            break
+        vagas.extend(next_resp.data)
+        current_offset += len(next_resp.data)
     
     # Determinar a data da última coleta geral no banco
-    resp_latest = supabase.table("vagas").select("data_coleta").order("data_coleta", desc=True).limit(1).execute()
     latest_dt = None
-    if resp_latest.data and resp_latest.data[0].get("data_coleta"):
+    if vagas and vagas[0].get("data_coleta"):
         try:
-            latest_dt = datetime.datetime.fromisoformat(resp_latest.data[0]["data_coleta"].replace("Z", "+00:00"))
+            latest_dt = datetime.datetime.fromisoformat(vagas[0]["data_coleta"].replace("Z", "+00:00"))
         except Exception:
             pass
+    if latest_dt is None:
+        resp_latest = supabase.table("vagas").select("data_coleta").order("data_coleta", desc=True).limit(1).execute()
+        if resp_latest.data and resp_latest.data[0].get("data_coleta"):
+            try:
+                latest_dt = datetime.datetime.fromisoformat(resp_latest.data[0]["data_coleta"].replace("Z", "+00:00"))
+            except Exception:
+                pass
 
     # Para cada vaga, marca se é da última rodada de entrada (dentro de 30 minutos da inserção mais recente)
     for v in vagas:
